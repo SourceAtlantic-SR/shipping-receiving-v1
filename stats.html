@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Operations Dashboard — Source Atlantic SR</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<style>
+:root{
+  --bg:#f0f4f8;--card:#fff;--border:#e2e8f0;
+  --text:#0f172a;--muted:#64748b;--light:#94a3b8;
+  --blue:#1e40af;--blue2:#2563eb;--blue3:#3b82f6;--blue4:#bfdbfe;
+  --cyan:#0891b2;--cyan2:#22d3ee;
+  --purple:#7c3aed;--purple2:#a78bfa;
+  --green:#059669;--red:#dc2626;
+  --shadow:0 1px 3px rgba(0,0,0,.09),0 1px 2px rgba(0,0,0,.06);
+  --r:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── HEADER ── */
+.hdr{background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);border-bottom:1px solid rgba(255,255,255,.08)}
+.hdr-inner{max-width:1420px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:16px 28px;gap:12px;flex-wrap:wrap}
+.hdr-logo{width:38px;height:38px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:900;color:#fff;letter-spacing:-.5px;flex-shrink:0}
+.hdr-title{font-size:.98rem;font-weight:700;color:#fff;line-height:1.2}
+.hdr-sub{font-size:.67rem;color:rgba(255,255,255,.4);margin-top:1px}
+.hdr-date{font-size:.7rem;color:rgba(255,255,255,.4)}
+.btn-back{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.8);padding:7px 14px;border-radius:8px;font-size:.74rem;font-weight:600;cursor:pointer;text-decoration:none;font-family:inherit;transition:all .18s}
+.btn-back:hover{background:rgba(255,255,255,.2);color:#fff}
+
+/* ── FILTER BAR ── */
+.fbar{background:linear-gradient(90deg,#1e3a5f 0%,#1e40af 100%);border-bottom:2px solid #1e3a8a;padding:13px 28px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.fbar-inner{max-width:1420px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.flabel{font-size:.72rem;font-weight:800;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.8px}
+.fsel{padding:8px 14px;border:1.5px solid rgba(255,255,255,.3);border-radius:8px;font-size:.86rem;font-weight:700;color:#fff;background:rgba(255,255,255,.12);cursor:pointer;outline:none;font-family:inherit;transition:all .18s}
+.fsel:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.5)}
+.fsel:focus{border-color:#fff;background:rgba(255,255,255,.22)}
+.fsel option{background:#1e3a5f;color:#fff}
+.vs-chip{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:6px;padding:4px 10px;font-size:.72rem;font-weight:800;color:rgba(255,255,255,.9)}
+.fsep{width:1px;height:28px;background:rgba(255,255,255,.25);margin:0 6px}
+.fnote{font-size:.68rem;color:var(--light);margin-left:auto}
+
+/* ── BODY ── */
+.body{max-width:1420px;margin:0 auto;padding:22px 28px 44px}
+
+/* ── KPI CARDS ── */
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:18px}
+.kpi{background:var(--card);border-radius:var(--r);padding:20px 22px 16px;box-shadow:var(--shadow);border:1px solid var(--border);position:relative;overflow:hidden;display:flex;flex-direction:column;gap:10px}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi.blue::before{background:linear-gradient(90deg,var(--blue),var(--blue3))}
+.kpi.cyan::before{background:linear-gradient(90deg,var(--cyan),var(--cyan2))}
+.kpi.purple::before{background:linear-gradient(90deg,var(--purple),var(--purple2))}
+.kpi-top{display:flex;align-items:center;justify-content:space-between}
+.kpi-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+.kpi-icon{font-size:1.25rem;opacity:.75}
+.kpi-num{font-size:2.6rem;font-weight:800;line-height:1;letter-spacing:-1.5px}
+.kpi.blue .kpi-num{color:var(--blue)}
+.kpi.cyan .kpi-num{color:var(--cyan)}
+.kpi.purple .kpi-num{color:var(--purple)}
+.kpi-foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.kbadge{display:inline-flex;align-items:center;gap:2px;padding:3px 9px;border-radius:20px;font-size:.68rem;font-weight:700}
+.kbadge.up{background:#dcfce7;color:#16a34a}
+.kbadge.dn{background:#fee2e2;color:#dc2626}
+.kbadge.eq{background:#f1f5f9;color:var(--muted)}
+.kpi-vs{font-size:.69rem;color:var(--light)}
+.kpi-months{display:flex;gap:18px;border-top:1px solid var(--border);padding-top:10px;margin-top:2px}
+.kmo{display:flex;flex-direction:column;gap:1px}
+.kmo-val{font-size:.88rem;font-weight:700}
+.kmo-lbl{font-size:.6rem;color:var(--light);text-transform:uppercase;letter-spacing:.3px}
+
+/* ── CARD ── */
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);border:1px solid var(--border)}
+.ch{padding:14px 20px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.ct{font-size:.77rem;font-weight:700;color:var(--text)}
+.cs{font-size:.66rem;color:var(--light);margin-top:2px}
+.cb{padding:14px 20px 18px}
+.cw{position:relative}
+
+/* ── ROWS ── */
+.r1{margin-bottom:18px}
+.r2{display:grid;gap:16px;margin-bottom:18px}
+.r2.g6040{grid-template-columns:3fr 2fr}
+.r2.g5545{grid-template-columns:55fr 45fr}
+
+/* ── YOY PANEL ── */
+.yoy-list{display:flex;flex-direction:column;gap:16px;padding:4px 0}
+.yitem-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.yitem-lbl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+.yitem-nums{display:flex;justify-content:space-between;font-size:.71rem;color:var(--light);margin-bottom:5px}
+.ytrack{height:7px;background:#f1f5f9;border-radius:4px;overflow:hidden}
+.yfill{height:100%;border-radius:4px;transition:width .7s cubic-bezier(.4,0,.2,1)}
+.yfill.blue{background:linear-gradient(90deg,var(--blue),var(--blue3))}
+.yfill.cyan{background:linear-gradient(90deg,var(--cyan),var(--cyan2))}
+.yfill.purple{background:linear-gradient(90deg,var(--purple),var(--purple2))}
+
+/* ── FREIGHT STATS ── */
+.fstats{display:flex;gap:24px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.fstat{text-align:center}
+.fstat-num{font-size:1.4rem;font-weight:800}
+.fstat-lbl{font-size:.62rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:1px}
+
+/* ── TABLE ── */
+.twrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.76rem}
+thead tr{background:linear-gradient(180deg,#1e3a8a,#2563eb)}
+thead th{color:rgba(255,255,255,.9);padding:9px 11px;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:right;white-space:nowrap}
+thead th:first-child{text-align:left;width:72px}
+thead th.gs{border-left:1px solid rgba(255,255,255,.2)}
+.cspan{text-align:center}
+tbody tr{border-bottom:1px solid #f1f5f9;transition:background .1s}
+tbody tr:hover{background:#f8faff}
+tbody tr.dim{opacity:.3}
+tbody tr.tot{background:#f0f4f8;font-weight:700;border-top:2px solid #d1d5db}
+tbody tr.ytd-row{background:#eff6ff;font-weight:700}
+td{padding:8px 11px;text-align:right;white-space:nowrap}
+td:first-child{text-align:left;font-weight:600;font-size:.74rem;color:#334155}
+td.gs{border-left:1px solid #f1f5f9}
+td.cur{font-weight:700;color:var(--blue)}
+td.pv{color:#94a3b8}
+td.dlt{font-weight:700;font-size:.69rem}
+td.dlt.up{color:#16a34a}
+td.dlt.dn{color:#dc2626}
+td.dlt.eq{color:#94a3b8}
+
+/* ── SECTION LABELS ── */
+.section-label{display:flex;align-items:center;gap:10px;margin:28px 0 14px;font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:1.3px;color:var(--muted)}
+.section-label:first-child{margin-top:0}
+.section-label .sl-bar{width:4px;height:18px;border-radius:3px;flex-shrink:0}
+.section-label .sl-bar.blue{background:linear-gradient(180deg,#1e3a8a,#3b82f6)}
+.section-label .sl-bar.cyan{background:linear-gradient(180deg,#0891b2,#22d3ee)}
+.section-label .sl-bar.purple{background:linear-gradient(180deg,#7c3aed,#a78bfa)}
+.section-label .sl-bar.green{background:linear-gradient(180deg,#059669,#34d399)}
+.section-label .sl-bar.amber{background:linear-gradient(180deg,#b45309,#fbbf24)}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+
+/* ── CARD HEADER BAND ── */
+.card-hdr{background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 60%,#1d4ed8 100%);padding:14px 20px;border-radius:var(--r) var(--r) 0 0}
+.card-hdr .ct{color:#fff;font-size:.82rem}
+.card-hdr .cs{color:rgba(255,255,255,.45);font-size:.63rem;margin-top:2px}
+
+/* ── AREA CARDS ── */
+.area-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:0}
+.area-card{border-radius:var(--r);background:var(--card);box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:all .2s}
+.area-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1);transform:translateY(-1px)}
+.area-card.sel{transform:translateY(-2px)}
+.area-card.dim{opacity:.3;pointer-events:none}
+.area-card-top{height:4px}
+.area-card-body{padding:16px 18px 14px}
+.area-card-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.area-card-name{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+.area-card-num{font-size:2.4rem;font-weight:900;line-height:1;letter-spacing:-1.5px}
+.area-card-lbl{font-size:.6rem;color:var(--light);margin-top:2px;margin-bottom:12px}
+.area-card-stats{display:flex;border-top:1px solid var(--border);padding-top:10px;gap:0}
+.area-stat{flex:1;text-align:center}
+.area-stat+.area-stat{border-left:1px solid var(--border)}
+.area-stat-num{font-size:1rem;font-weight:800}
+.area-stat-lbl{font-size:.54rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--light);margin-top:2px}
+
+/* ── LOADING ── */
+.loading{text-align:center;padding:70px;color:var(--light);font-size:.85rem}
+
+/* ── INTERACTIVE ── */
+.chip-btn{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.38);border-radius:20px;padding:3px 12px;font-size:.68rem;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;transition:all .15s}
+.chip-btn:hover{background:rgba(255,255,255,.32)}
+.chips-bar{background:#1e3a5f;border-bottom:1px solid rgba(255,255,255,.08);padding:7px 28px;display:none}
+.chips-inner{max-width:1420px;margin:0 auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.chips-label{font-size:.62rem;font-weight:800;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.8px}
+.chip-clear{background:rgba(220,38,38,.35);border-color:rgba(220,38,38,.5)}
+.chip-clear:hover{background:rgba(220,38,38,.55)}
+tbody tr.row-hl{background:#dbeafe!important}
+tbody tr.row-hl td{font-weight:700}
+tbody tr.row-hl td.cur{color:#1e3a8a;font-weight:900}
+tbody tr.row-dim{opacity:.28}
+tbody tr.row-click{cursor:pointer}
+tbody tr.row-click:hover{background:#f0f7ff}
+
+/* ── PROVINCE DRILL-THROUGH MODAL ── */
+#prov-modal-overlay{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.62);backdrop-filter:blur(5px)}
+#prov-modal-overlay.open{display:flex}
+#prov-modal{background:#fff;border-radius:18px;width:100%;max-width:420px;box-shadow:0 32px 72px rgba(0,0,0,.28);overflow:hidden;animation:pmIn .22s cubic-bezier(.34,1.4,.64,1)}
+@keyframes pmIn{from{opacity:0;transform:translateY(-18px) scale(.95)}to{opacity:1;transform:none}}
+.pm-header{background:linear-gradient(155deg,#0f172a 0%,#1e3a8a 60%,#2563eb 100%);padding:24px 26px 20px;display:flex;align-items:center;gap:16px}
+.pm-icon{width:48px;height:48px;background:rgba(255,255,255,.13);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;flex-shrink:0;border:1px solid rgba(255,255,255,.18)}
+.pm-htitle{color:#fff;font-size:1rem;font-weight:800;line-height:1.2}
+.pm-hsub{color:rgba(255,255,255,.48);font-size:.68rem;margin-top:3px;font-weight:500}
+.pm-body{padding:22px 26px 16px}
+.pm-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1.5px solid #93c5fd;border-radius:24px;padding:6px 18px;font-size:.9rem;font-weight:800;color:#1d4ed8;margin-bottom:14px;letter-spacing:.3px}
+.pm-desc{font-size:.83rem;color:#475569;line-height:1.6}
+.pm-desc strong{color:#1e293b}
+.pm-footer{padding:14px 26px 24px;display:flex;gap:10px;justify-content:flex-end}
+.pm-cancel{padding:10px 20px;border:1.5px solid #e2e8f0;border-radius:9px;background:#fff;color:#64748b;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.pm-cancel:hover{border-color:#94a3b8;color:#334155;background:#f8fafc}
+.pm-confirm{padding:10px 22px;background:linear-gradient(160deg,#1d4ed8,#2563eb);border:none;border-radius:9px;color:#fff;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;transition:all .16s;display:flex;align-items:center;gap:7px;box-shadow:0 4px 14px rgba(37,99,235,.38)}
+.pm-confirm:hover{background:linear-gradient(160deg,#1e40af,#1d4ed8);transform:translateY(-1px);box-shadow:0 6px 18px rgba(37,99,235,.46)}
+
+@media(max-width:960px){
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .r2.g6040,.r2.g5545{grid-template-columns:1fr}
+  .body{padding:14px 16px 32px}
+}
+@media(max-width:600px){
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .header-inner{padding:8px 12px}
+  .body{padding:10px 10px 24px}
+  .chart-card{padding:14px 10px}
+  .back-btn{padding:6px 12px;font-size:.75rem}
+}
+@media(max-width:400px){
+  .kpi-row{grid-template-columns:1fr}
+}
+#auth-overlay{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;padding:20px;background:url('warehouse-bg.jpg') center center/cover no-repeat}
+#auth-overlay::before{content:'';position:absolute;inset:0;background:linear-gradient(160deg,rgba(10,25,60,.82) 0%,rgba(15,40,90,.75) 50%,rgba(20,55,110,.70) 100%);backdrop-filter:blur(2px)}
+.auth-box{position:relative;z-index:1;background:#fff;border-radius:16px;width:100%;max-width:420px;box-shadow:0 25px 50px rgba(0,0,0,.35);overflow:hidden}
+.auth-box-header{background:linear-gradient(160deg,#0f172a,#1d4ed8);padding:30px 28px 22px;text-align:center}
+.auth-box-logo{display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.auth-box-title{color:#fff;font-size:1.05rem;font-weight:800}
+.auth-box-sub{color:rgba(255,255,255,.55);font-size:.75rem;margin-top:5px}
+.auth-box-body{padding:26px 28px 30px}
+.auth-screen{display:none}.auth-screen.active{display:block}
+.auth-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.auth-field label{font-size:.67rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.6px}
+.auth-field input{padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.88rem;font-family:inherit;outline:none;transition:all .18s;color:#0f172a}
+.auth-field input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.auth-btn{width:100%;padding:12px;background:linear-gradient(160deg,#1d4ed8,#2563eb);color:#fff;border:none;border-radius:8px;font-size:.88rem;font-weight:800;cursor:pointer;font-family:inherit;margin-top:6px}
+.auth-btn:disabled{background:#93c5fd;cursor:not-allowed}
+.auth-link{background:none;border:none;color:#2563eb;cursor:pointer;font-size:.8rem;font-weight:700;font-family:inherit;text-decoration:underline;padding:0}
+.auth-error{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;padding:10px 13px;font-size:.79rem;font-weight:600;margin-bottom:14px;display:none}
+.auth-footer{display:flex;justify-content:center;gap:6px;align-items:center;margin-top:18px;font-size:.78rem;color:#94a3b8}
+</style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div id="auth-overlay">
+  <div class="auth-box">
+    <div class="auth-box-header">
+      <div class="auth-box-logo"><img src="logo.png" alt="SA" style="height:44px;border-radius:8px;background:#fff;padding:6px 12px"></div>
+      <div class="auth-box-title">📊 Operations Dashboard</div>
+      <div class="auth-box-sub">Source Atlantic — Industrial Services</div>
+    </div>
+    <div class="auth-box-body">
+      <div class="auth-screen active" id="auth-login">
+        <div class="auth-error" id="auth-login-err"></div>
+        <div class="auth-field"><label>Email</label><input type="email" id="auth-login-email" placeholder="your@email.com" autocomplete="email"></div>
+        <div class="auth-field"><label>Password</label><input type="password" id="auth-login-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <button class="auth-btn" id="auth-login-btn" onclick="doLogin()">Sign In</button>
+        <div class="auth-footer"><button class="auth-link" onclick="authShow('forgot')">Forgot password?</button></div>
+      </div>
+      <div class="auth-screen" id="auth-forgot">
+        <div class="auth-error" id="auth-forgot-err"></div>
+        <div class="auth-field"><label>Email</label><input type="email" id="auth-forgot-email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doForgotPassword()"></div>
+        <button class="auth-btn" onclick="doForgotPassword()">Send Reset Email</button>
+        <div class="auth-footer"><button class="auth-link" onclick="authShow('login')">Back to Sign In</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="hdr">
+  <div class="hdr-inner">
+    <div style="display:flex;align-items:center;gap:12px">
+      <img src="logo.png" alt="Source Atlantic" style="height:38px;width:auto;border-radius:6px;background:#fff;padding:3px 7px;display:block;flex-shrink:0">
+      <div>
+        <div class="hdr-title">Operations Dashboard</div>
+        <div class="hdr-sub">Source Atlantic — Industrial Services</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="hdr-date" id="hdr-date"></span>
+<button class="btn-back" onclick="history.back()">← Back</button>
+    </div>
+  </div>
+</div>
+
+<div class="fbar">
+  <div class="fbar-inner">
+    <span class="flabel">Compare</span>
+    <select class="fsel" id="sel-curr" onchange="render()">
+      <option value="2026">2026</option>
+      <option value="2025">2025</option>
+      <option value="2024">2024</option>
+      <option value="2023">2023</option>
+      <option value="2022">2022</option>
+    </select>
+    <span class="vs-chip">vs</span>
+    <select class="fsel" id="sel-prev" onchange="render()">
+      <option value="2025">2025</option>
+      <option value="2024">2024</option>
+      <option value="2023">2023</option>
+      <option value="2022">2022</option>
+      <option value="2026">2026</option>
+    </select>
+    <div class="fsep"></div>
+    <span class="flabel">Period</span>
+    <select class="fsel" id="sel-from" onchange="render()">
+      <option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option>
+      <option value="3">Apr</option><option value="4">May</option><option value="5">Jun</option>
+      <option value="6">Jul</option><option value="7">Aug</option><option value="8">Sep</option>
+      <option value="9">Oct</option><option value="10">Nov</option><option value="11">Dec</option>
+    </select>
+    <span class="vs-chip">to</span>
+    <select class="fsel" id="sel-to" onchange="render()">
+      <option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option>
+      <option value="3">Apr</option><option value="4">May</option><option value="5">Jun</option>
+      <option value="6">Jul</option><option value="7">Aug</option><option value="8">Sep</option>
+      <option value="9">Oct</option><option value="10">Nov</option><option value="11" selected>Dec</option>
+    </select>
+    <span class="fnote" id="fnote"></span>
+  </div>
+</div>
+
+<div class="chips-bar" id="chips-bar">
+  <div class="chips-inner">
+    <span class="chips-label">Filters:</span>
+    <div id="chips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+    <button class="chip-btn chip-clear" onclick="clearAllFilters()">✕ Clear all</button>
+  </div>
+</div>
+
+<div class="body" id="body">
+  <div class="loading">Loading data…</div>
+</div>
+
+<script>
+var firebaseConfig = {
+  apiKey:            'AIzaSyBuS3afVcx3W-zfgZfDYIutNltuEfP8Fhc',
+  authDomain:        'source-atlantic-sr.firebaseapp.com',
+  databaseURL:       'https://source-atlantic-sr-default-rtdb.firebaseio.com',
+  projectId:         'source-atlantic-sr',
+  storageBucket:     'source-atlantic-sr.firebasestorage.app',
+  messagingSenderId: '953329380095',
+  appId:             '1:953329380095:web:f7865dda88a33ff9457aca'
+};
+firebase.initializeApp(firebaseConfig);
+var db   = firebase.database();
+var auth = firebase.auth();
+
+var MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var allData = {incoming:{}, items:{}, shipping:{}, process:{}};
+var loaded = 0;
+var CH = {};
+
+var AREAS = ['Electrical','Mechanical','Air Compressor','Generator'];
+var AREA_COLS = {'Electrical':'#1e40af','Mechanical':'#0891b2','Air Compressor':'#059669','Generator':'#d97706'};
+
+var now = new Date();
+document.getElementById('hdr-date').textContent =
+  'As of ' + now.toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'});
+
+function onLoad(){ loaded++; if(loaded>=4) render(); }
+
+function startDataLoad(){
+  db.ref('shipping_receiving/incoming').on('value',function(s){ allData.incoming=s.val()||{}; onLoad(); });
+  db.ref('shipping_receiving/items').on('value',function(s){ allData.items=s.val()||{}; onLoad(); });
+  db.ref('shipping_receiving/shipping').on('value',function(s){ allData.shipping=s.val()||{}; onLoad(); });
+  db.ref('shipping_receiving/process').on('value',function(s){ allData.process=s.val()||{}; onLoad(); });
+}
+
+auth.onAuthStateChanged(function(user){
+  if(user && user.emailVerified){
+    document.getElementById('auth-overlay').style.display = 'none';
+    startDataLoad();
+  } else {
+    document.getElementById('auth-overlay').style.display = 'flex';
+  }
+});
+
+function authShow(s){ ['login','forgot'].forEach(function(k){ document.getElementById('auth-'+k).classList.toggle('active',k===s); }); }
+function authSetError(id,msg){ var el=document.getElementById(id); if(!el)return; el.textContent=msg; el.style.display=msg?'block':'none'; }
+function doLogin(){
+  var email=document.getElementById('auth-login-email').value.trim();
+  var pass=document.getElementById('auth-login-pass').value;
+  if(!email||!pass){ authSetError('auth-login-err','Please enter email and password.'); return; }
+  var btn=document.getElementById('auth-login-btn'); btn.disabled=true; btn.textContent='Please wait…';
+  auth.signInWithEmailAndPassword(email,pass).catch(function(err){
+    btn.disabled=false; btn.textContent='Sign In';
+    authSetError('auth-login-err', err.code==='auth/user-not-found'||err.code==='auth/wrong-password'||err.code==='auth/invalid-credential' ? 'Invalid email or password.' : err.message);
+  });
+}
+function doForgotPassword(){
+  var email=document.getElementById('auth-forgot-email').value.trim();
+  if(!email){ authSetError('auth-forgot-err','Please enter your email.'); return; }
+  auth.sendPasswordResetEmail(email).then(function(){ alert('Reset email sent to '+email); authShow('login'); }).catch(function(err){ authSetError('auth-forgot-err',err.message); });
+}
+
+function computeTurnaround(cYr, moFrom, moTo, inRangeFn){
+  var woProcDate = {};
+  Object.values(allData.process).forEach(function(r){
+    if(!r.wo||!r.receivedDate) return;
+    var k=r.wo.trim().toUpperCase();
+    if(!woProcDate[k]||r.receivedDate<woProcDate[k]) woProcDate[k]=r.receivedDate;
+  });
+  var woShipDate = {};
+  Object.values(allData.shipping).forEach(function(r){
+    if(!r.date) return;
+    (r.workOrders||[]).forEach(function(wo){
+      var k=wo.trim().toUpperCase();
+      if(!woShipDate[k]||r.date<woShipDate[k]) woShipDate[k]=r.date;
+    });
+  });
+  var todayStr=now.toISOString().slice(0,10);
+  return Object.values(allData.incoming)
+    .filter(function(r){ return r.formNum&&r.wo&&r.date&&inRangeFn(r.date,cYr,moFrom,moTo); })
+    .map(function(r){
+      var k=r.wo.trim().toUpperCase();
+      var pd=woProcDate[k], sd=woShipDate[k];
+      var endDate=null, status='Active';
+      if(sd){ endDate=sd; status='Shipped'; }
+      else if(pd){ endDate=pd; status='On Hold'; }
+      var days=Math.max(0,Math.floor((new Date((endDate||todayStr)+'T00:00:00')-new Date(r.date+'T00:00:00'))/86400000));
+      return {area:r.area||'', status:status, days:days};
+    });
+}
+
+function byMonth(data, yr, filterFn){
+  var c = new Array(12).fill(0);
+  Object.values(data).forEach(function(r){
+    if(filterFn && !filterFn(r)) return;
+    var d = r.date||''; if(!d.startsWith(yr)) return;
+    var m = parseInt(d.slice(5,7),10)-1; if(m>=0&&m<12) c[m]++;
+  }); return c;
+}
+function sum(arr,from,to){ return arr.slice(from,to+1).reduce(function(a,b){return a+b;},0); }
+function pct(cu,pv){ if(!pv) return null; return Math.round((cu-pv)/pv*100); }
+function badge(p){
+  if(p===null) return '<span class="kbadge eq">—</span>';
+  return '<span class="kbadge '+(p>0?'up':p<0?'dn':'eq')+'">'+(p>0?'▲ ':'▼ ')+Math.abs(p)+'%</span>';
+}
+function dlt(p){
+  if(p===null) return '<td class="dlt eq">—</td>';
+  return '<td class="dlt '+(p>0?'up':p<0?'dn':'eq')+'">'+(p>0?'▲ ':'▼ ')+Math.abs(p)+'%</td>';
+}
+function dc(id){ if(CH[id]){ CH[id].destroy(); delete CH[id]; } }
+var PROV_ABBR = {
+  'NEW BRUNSWICK':'NB','NOUVEAU-BRUNSWICK':'NB',
+  'NOVA SCOTIA':'NS','NOUVELLE-ÉCOSSE':'NS',
+  'PRINCE EDWARD ISLAND':'PE','PEI':'PE','ÎLE-DU-PRINCE-ÉDOUARD':'PE',
+  'NEWFOUNDLAND AND LABRADOR':'NL','NEWFOUNDLAND':'NL','NF':'NL','LABRADOR':'NL',
+  'QUÉBEC':'QC','QUEBEC':'QC',
+  'ONTARIO':'ON',
+  'ALBERTA':'AB',
+  'BRITISH COLUMBIA':'BC','COLOMBIE-BRITANNIQUE':'BC',
+  'MANITOBA':'MB',
+  'SASKATCHEWAN':'SK',
+  'YUKON':'YT',
+  'NORTHWEST TERRITORIES':'NT','TERRITOIRES DU NORD-OUEST':'NT',
+  'NUNAVUT':'NU'
+};
+var CA_PROVS = {NB:1,NS:1,PE:1,NL:1,QC:1,ON:1,AB:1,BC:1,MB:1,SK:1,YT:1,NT:1,NU:1};
+function destKey(r){
+  var raw  = (r.province||'').trim();
+  var ctry = (r.country||'').trim();
+  var ctryUp = ctry.toUpperCase();
+  if(!raw && !ctry) return 'Unknown';
+  var norm = PROV_ABBR[raw.toUpperCase()] || raw;
+  if(!norm) return ctry || 'Unknown';
+  var isCanada = !ctry || ctryUp==='CANADA' || ctryUp==='CA' || CA_PROVS[norm.toUpperCase()];
+  if(isCanada) return norm.toUpperCase();
+  var isUSA = ctryUp==='USA'||ctryUp==='US'||ctryUp==='UNITED STATES';
+  return norm.toUpperCase() + ' · ' + (isUSA ? 'USA' : ctry);
+}
+
+var activeFilters = {month:null, carrier:null, customer:null, dest:null, area:null, province:null};
+
+function toggleFilter(key, val){
+  activeFilters[key] = (activeFilters[key] === val) ? null : val;
+  render();
+}
+function clearFilter(key){ activeFilters[key] = null; render(); }
+function clearAllFilters(){
+  Object.keys(activeFilters).forEach(function(k){ activeFilters[k] = null; });
+  render();
+}
+function updateChips(){
+  var any = Object.values(activeFilters).some(function(v){ return v !== null; });
+  var bar = document.getElementById('chips-bar');
+  var el  = document.getElementById('chips');
+  if(bar) bar.style.display = any ? 'flex' : 'none';
+  if(!el) return;
+  var h = '';
+  if(activeFilters.month    !== null) h += mkChip('📅 '+MO[activeFilters.month],"clearFilter('month')");
+  if(activeFilters.carrier)           h += mkChip('🚚 '+activeFilters.carrier,"clearFilter('carrier')");
+  if(activeFilters.customer)          h += mkChip('👤 '+activeFilters.customer,"clearFilter('customer')");
+  if(activeFilters.dest)              h += mkChip('📦 '+activeFilters.dest,"clearFilter('dest')");
+  if(activeFilters.area)              h += mkChip('🏷️ '+activeFilters.area,"clearFilter('area')");
+  if(activeFilters.province)          h += mkChip('📍 '+activeFilters.province,"clearFilter('province')");
+  el.innerHTML = h;
+}
+function mkChip(lbl, fn){
+  return '<button class="chip-btn" onclick="'+fn+'">'+lbl+' &nbsp;×</button>';
+}
+function toggleAreaFilter(a){ toggleFilter('area', a); }
+
+function render(){
+  if(loaded<3) return;
+  var cYr = document.getElementById('sel-curr').value;
+  var pYr = document.getElementById('sel-prev').value;
+  var todayYr = now.getFullYear().toString();
+  var todayMo = now.getMonth();
+  var live = (cYr===todayYr);
+  var lastMo = live ? todayMo : 11;
+
+  // Month range filter
+  var moFrom = parseInt(document.getElementById('sel-from').value);
+  var moTo   = parseInt(document.getElementById('sel-to').value);
+  if(moTo < moFrom) moTo = moFrom;
+  var moToCurr = live ? Math.min(moTo, lastMo) : moTo;
+  var periodLbl = (moFrom===0 && moTo===11) ? 'Full Year' : MO[moFrom]+(moFrom===moToCurr?'':' – '+MO[moToCurr]);
+  var periodLblPrev = (moFrom===0 && moTo===11) ? 'Full Year' : MO[moFrom]+(moFrom===moTo?'':' – '+MO[moTo]);
+  document.getElementById('fnote').textContent = live && moFrom===0 && moTo===11 ? '★ YTD through '+MO[lastMo] : '📅 '+periodLbl+' '+cYr;
+
+  // Helper: is a record's date within the current year + month range?
+  function inRange(dateStr, yr, from, to){
+    if(!(dateStr||'').startsWith(yr)) return false;
+    var m = parseInt((dateStr||'').slice(5,7),10)-1;
+    return m>=from && m<=to;
+  }
+
+  // ── AREA CROSS-FILTER: build WO set for selected area ──
+  var areaWOs = {};
+  if(activeFilters.area){
+    Object.values(allData.incoming).forEach(function(r){
+      if((r.area||'') === activeFilters.area && r.wo)
+        areaWOs[r.wo.trim().toUpperCase()] = true;
+    });
+  }
+  function inAreaInc(r){ return !activeFilters.area || (r.area||'') === activeFilters.area; }
+  function inAreaShp(r){ return !activeFilters.area || (r.workOrders||[]).some(function(wo){ return areaWOs[wo.trim().toUpperCase()]; }); }
+  function inProvShp(r){ return !activeFilters.province || destKey(r) === activeFilters.province; }
+  function inAreaItm(r){ return !activeFilters.area || (r.lineItems||[]).some(function(li){ return areaWOs[(li.workOrderNum||'').trim().toUpperCase()]; }); }
+  function inAreaMo(r, mo){ return activeFilters.month === null || parseInt((r.date||'').slice(5,7),10)-1 === mo; }
+
+  var cats = [
+    {key:'incoming', lbl:'Incoming Form',  col:'#1e40af', lt:'#3b82f6', cls:'blue',   icon:'📋'},
+    {key:'items',    lbl:'Incoming Items', col:'#0891b2', lt:'#22d3ee', cls:'cyan',   icon:'📦'},
+    {key:'shipping', lbl:'Shipping',        col:'#7c3aed', lt:'#a78bfa', cls:'purple', icon:'🚚'}
+  ];
+  cats.forEach(function(c){
+    var fn = c.key==='incoming' ? inAreaInc : c.key==='shipping' ? inAreaShp : c.key==='items' ? inAreaItm : null;
+    c.curr = byMonth(allData[c.key], cYr, fn);
+    c.prev = byMonth(allData[c.key], pYr, fn);
+    c.ytdC = sum(c.curr, moFrom, moToCurr);
+    c.ytdP = sum(c.prev, moFrom, moTo);
+    c.totC = sum(c.curr,0,11);
+    c.totP = sum(c.prev,0,11);
+    c.moC  = c.curr[moToCurr];
+    c.moP  = c.prev[moToCurr];
+  });
+
+  // WIP / Sales Order / Estoque — filtered by month range
+  var destWip = new Array(12).fill(0);
+  var destSO  = new Array(12).fill(0);
+  var destStk = new Array(12).fill(0);
+  Object.values(allData.items).forEach(function(r){
+    if(!inRange(r.date, cYr, moFrom, moToCurr)) return;
+    if(!inAreaItm(r)) return;
+    if(activeFilters.month!==null && !inAreaMo(r, activeFilters.month)) return;
+    var m = parseInt((r.date||'').slice(5,7),10)-1;
+    if(m<0||m>11) return;
+    (r.lineItems||[]).forEach(function(li){
+      var liWO = (li.workOrderNum||'').trim().toUpperCase();
+      if(activeFilters.area && !areaWOs[liWO]) return;
+      if(li.binLocation==='WIP')            destWip[m]++;
+      else if(li.applicationType==='Sales Order') destSO[m]++;
+      else if(li.binLocation==='Stock')     destStk[m]++;
+    });
+  });
+
+  // Normalize name: trim + title-case so "MIDLAND COURIER" == "Midland Courier"
+  function normName(s){
+    return (s||'').trim().replace(/\S+/g, function(w){
+      return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+    });
+  }
+
+  // carrier counts — filtered by year + month range
+  function buildCarrierCount(yearFilter, from, to){
+    var cc = {};
+    Object.values(allData.shipping).forEach(function(r){
+      if(yearFilter){ if(!inRange(r.date, yearFilter, from, to)) return; }
+      if(activeFilters.customer && normName(r.customer||'')!==activeFilters.customer) return;
+      if(!inAreaShp(r)) return;
+      if(!inProvShp(r)) return;
+      var raw = r.carrier||''; if(!raw) return;
+      var name = normName(raw==='Other' ? (r.carrierOther||'Other') : raw);
+      cc[name] = (cc[name]||0)+1;
+    });
+    return cc;
+  }
+  var effFrom = activeFilters.month!==null ? activeFilters.month : moFrom;
+  var effTo   = activeFilters.month!==null ? activeFilters.month : moToCurr;
+  var carrierCount = buildCarrierCount(cYr, effFrom, effTo);
+  var carrierLabel = cYr+(activeFilters.month!==null ? ' · '+MO[activeFilters.month] : (periodLbl!=='Full Year' ? ' · '+periodLbl : ''));
+  if(!Object.keys(carrierCount).length){
+    carrierCount = buildCarrierCount(null, effFrom, effTo);
+    carrierLabel = 'All Years'+(activeFilters.month!==null ? ' · '+MO[activeFilters.month] : '');
+  }
+  var topCarriers = Object.entries(carrierCount).sort(function(a,b){return b[1]-a[1];});
+
+  // top customers — normalize case, filtered by month range
+  var cc = {};
+  Object.values(allData.shipping).forEach(function(r){
+    if(!inRange(r.date, cYr, effFrom, effTo)) return;
+    if(activeFilters.carrier && normName(r.carrier||'')!==activeFilters.carrier && normName(r.carrierOther||'')!==activeFilters.carrier) return;
+    if(!inAreaShp(r)) return;
+    if(!inProvShp(r)) return;
+    if(r.customer){ var cname=normName(r.customer); cc[cname]=(cc[cname]||0)+1; }
+  });
+  var top = Object.entries(cc).sort(function(a,b){return b[1]-a[1];}).slice(0,8);
+
+  /* ── BUILD HTML ── */
+  function sl(color, title){
+    return '<div class="section-label"><div class="sl-bar '+color+'"></div><span>'+title+'</span></div>';
+  }
+  var h = '';
+
+  /* ══ SECTION 1 · PERFORMANCE SUMMARY ══ */
+  h += sl('blue','Performance Summary');
+  h += '<div class="kpi-row">';
+  cats.forEach(function(c){
+    var p = pct(c.ytdC, c.ytdP);
+    var mp = pct(c.moC, c.moP);
+    h += '<div class="kpi '+c.cls+'">'+
+      '<div class="kpi-top"><div class="kpi-label">'+c.lbl+'</div><div class="kpi-icon">'+c.icon+'</div></div>'+
+      '<div class="kpi-num">'+c.ytdC+'</div>'+
+      '<div class="kpi-foot">'+badge(p)+'<span class="kpi-vs">vs '+pYr+' '+periodLblPrev+' ('+c.ytdP+')</span></div>'+
+      '<div class="kpi-months">'+
+        '<div class="kmo"><div class="kmo-val">'+c.moC+'</div><div class="kmo-lbl">'+MO[moToCurr]+' '+cYr+'</div></div>'+
+        '<div class="kmo"><div class="kmo-val" style="color:var(--light)">'+c.moP+'</div><div class="kmo-lbl">'+MO[moToCurr]+' '+pYr+'</div></div>'+
+        (mp!==null?'<div class="kmo"><div class="kmo-val" style="color:'+(mp>=0?'#059669':'#dc2626')+'">'+(mp>=0?'▲ ':'▼ ')+Math.abs(mp)+'%</div><div class="kmo-lbl">Month Δ</div></div>':'')+
+      '</div>'+
+    '</div>';
+  });
+  h += '</div>';
+
+  /* ══ SECTION 2 · AREA OPERATIONS ══ */
+  var woProcDateA = {};
+  Object.values(allData.process).forEach(function(r){
+    if(!r.wo||!r.receivedDate) return;
+    var k=r.wo.trim().toUpperCase();
+    if(!woProcDateA[k]||r.receivedDate<woProcDateA[k]) woProcDateA[k]=r.receivedDate;
+  });
+  var woShipDateA = {};
+  Object.values(allData.shipping).forEach(function(r){
+    if(!r.date) return;
+    (r.workOrders||[]).forEach(function(wo){
+      var k=wo.trim().toUpperCase();
+      if(!woShipDateA[k]||r.date<woShipDateA[k]) woShipDateA[k]=r.date;
+    });
+  });
+  var areaStats = {};
+  AREAS.forEach(function(a){ areaStats[a]={total:0,active:0,shipped:0,onHold:0}; });
+  Object.values(allData.incoming).forEach(function(r){
+    if(!inRange(r.date,cYr,moFrom,moToCurr)) return;
+    if(activeFilters.month!==null){ var rm=parseInt((r.date||'').slice(5,7),10)-1; if(rm!==activeFilters.month) return; }
+    var a=r.area||''; if(!areaStats[a]) return;
+    areaStats[a].total++;
+    var k=(r.wo||'').trim().toUpperCase();
+    if(k&&woShipDateA[k]) areaStats[a].shipped++;
+    else if(k&&woProcDateA[k]) areaStats[a].onHold++;
+    else areaStats[a].active++;
+  });
+  var areaIcons={'Electrical':'⚡','Mechanical':'⚙️','Air Compressor':'💨','Generator':'🔋'};
+  h += sl('amber','Area Operations — '+cYr+' '+periodLbl+' &nbsp;·&nbsp; Click a card to filter all charts');
+  h += '<div class="area-grid" style="margin-bottom:0">';
+  AREAS.forEach(function(a){
+    var st=areaStats[a]; var col=AREA_COLS[a];
+    var asel = activeFilters.area === a;
+    var adim = activeFilters.area && !asel;
+    var ringStyle = asel ? 'box-shadow:0 0 0 3px '+col+',0 6px 20px rgba(0,0,0,.14);' : '';
+    h += '<div class="area-card'+(asel?' sel':'')+(adim?' dim':'')+'" style="'+ringStyle+'" onclick="toggleAreaFilter(\''+a+'\')" title="Click to filter by '+a+'">'+
+      '<div class="area-card-top" style="background:'+col+'"></div>'+
+      '<div class="area-card-body">'+
+        '<div class="area-card-row">'+
+          '<span class="area-card-name">'+a+'</span>'+
+          '<span style="font-size:1.2rem">'+areaIcons[a]+'</span>'+
+        '</div>'+
+        '<div class="area-card-num" style="color:'+col+'">'+st.total+'</div>'+
+        '<div class="area-card-lbl">Equipment received</div>'+
+        '<div class="area-card-stats">'+
+          '<div class="area-stat"><div class="area-stat-num" style="color:#059669">'+st.shipped+'</div><div class="area-stat-lbl">Shipped</div></div>'+
+          '<div class="area-stat"><div class="area-stat-num" style="color:#dc2626">'+st.onHold+'</div><div class="area-stat-lbl">On Hold</div></div>'+
+          '<div class="area-stat"><div class="area-stat-num" style="color:#d97706">'+st.active+'</div><div class="area-stat-lbl">Active</div></div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  });
+  h += '</div>';
+
+  /* ══ SECTION 4 · VOLUME TRENDS ══ */
+  h += sl('blue','Volume Trends');
+  h += '<div class="r1"><div class="card">'+
+    '<div class="ch"><div><div class="ct">Monthly Volume — All Categories</div>'+
+    '<div class="cs">Solid lines — '+cYr+' &nbsp;|&nbsp; Dashed — '+pYr+'&nbsp;&nbsp;<span style="color:var(--blue3);font-style:italic">· Click a data point to filter by month</span></div></div></div>'+
+    '<div class="cb"><div class="cw" style="height:240px"><canvas id="c-trend"></canvas></div></div>'+
+  '</div></div>';
+
+  /* ══ SECTION 5 · SHIPPING INTELLIGENCE ══ */
+  var provCount = {};
+  Object.values(allData.shipping).forEach(function(r){
+    if(!inRange(r.date, cYr, effFrom, effTo)) return;
+    if(activeFilters.customer && normName(r.customer||'')!==activeFilters.customer) return;
+    if(activeFilters.carrier && normName(r.carrier||'')!==activeFilters.carrier && normName(r.carrierOther||'')!==activeFilters.carrier) return;
+    if(!inAreaShp(r)) return;
+    var key = destKey(r);
+    provCount[key] = (provCount[key]||0)+1;
+  });
+  var topProvs = Object.entries(provCount).sort(function(a,b){
+    var aUSA = a[0].includes('· USA'); var bUSA = b[0].includes('· USA');
+    var aIntl = a[0].includes(' · ') && !aUSA; var bIntl = b[0].includes(' · ') && !bUSA;
+    var aRank = aIntl ? 2 : aUSA ? 1 : 0;
+    var bRank = bIntl ? 2 : bUSA ? 1 : 0;
+    if(aRank !== bRank) return aRank - bRank;
+    return b[1] - a[1];
+  });
+
+  h += sl('purple','Shipping Intelligence');
+  h += '<div class="r1"><div class="card">'+
+    '<div class="ch"><div>'+
+      '<div class="ct">Shipment Distribution — Province / State / Country</div>'+
+      '<div class="cs">'+cYr+' '+periodLbl+'&nbsp;&nbsp;<span style="color:var(--blue3);font-style:italic">· Click a bar to filter · Click again to view full list in Control Tower</span></div>'+
+    '</div></div>'+
+    '<div class="cb"><div class="cw" style="height:'+Math.max(180, topProvs.length*32)+'px"><canvas id="c-prov"></canvas></div></div>'+
+  '</div></div>';
+
+  h += '<div class="r2 g5545">'+
+    '<div class="card">'+
+      '<div class="ch"><div><div class="ct">Top Customers — Outgoing Shipments</div>'+
+      '<div class="cs">By number of shipments &nbsp;·&nbsp; '+cYr+' '+periodLbl+'&nbsp;&nbsp;<span style="color:var(--blue3);font-style:italic">· Click to filter</span></div></div></div>'+
+      '<div class="cb"><div class="cw" style="height:'+Math.max(180, top.length*34)+'px"><canvas id="c-cust"></canvas></div></div>'+
+    '</div>'+
+    '<div class="card">'+
+      '<div class="ch"><div><div class="ct">Carrier Mix</div>'+
+      '<div class="cs">By number of shipments &nbsp;·&nbsp; '+carrierLabel+'&nbsp;&nbsp;<span style="color:var(--blue3);font-style:italic">· Click to filter</span></div></div></div>'+
+      '<div class="cb"><div class="cw" style="height:'+(Math.max(160, topCarriers.length*34))+'px"><canvas id="c-fr"></canvas></div></div>'+
+    '</div>'+
+  '</div>';
+
+  /* ══ SECTION 6 · RECEIVING BREAKDOWN ══ */
+  var destTotal = destWip.reduce(function(a,b){return a+b;},0)+destSO.reduce(function(a,b){return a+b;},0)+destStk.reduce(function(a,b){return a+b;},0);
+  var dWip=destWip.reduce(function(a,b){return a+b;},0), dSO=destSO.reduce(function(a,b){return a+b;},0), dStk=destStk.reduce(function(a,b){return a+b;},0);
+  h += sl('green','Receiving Breakdown — Incoming Items');
+  h += '<div class="r1"><div class="card">'+
+    '<div class="ch"><div><div class="ct">Incoming Items by Destination Type</div><div class="cs">'+cYr+' · '+periodLbl+' &nbsp;·&nbsp; WIP, Sales Order &amp; Stock distribution</div></div></div>'+
+    '<div class="cb" style="display:flex;align-items:center;gap:40px;flex-wrap:wrap;padding-top:16px;padding-bottom:8px">'+
+      '<div style="flex:0 0 210px"><div class="cw" style="height:210px"><canvas id="c-dest"></canvas></div></div>'+
+      '<div style="flex:1;min-width:220px;display:flex;flex-direction:column;gap:18px">'+
+        destStatRow('WIP','#1e40af',dWip,destTotal)+
+        destStatRow('Sales Order','#0891b2',dSO,destTotal)+
+        destStatRow('Stock','#7c3aed',dStk,destTotal)+
+      '</div>'+
+    '</div>'+
+  '</div></div>';
+
+  /* ══ SECTION 7 · MONTHLY DETAIL ══ */
+  h += sl('blue','Monthly Detail — '+cYr+' vs '+pYr);
+  h += '<div class="r1"><div class="card">'+
+    '<div class="cb" style="padding-top:10px">'+buildTable(cats,cYr,pYr,lastMo,live)+'</div>'+
+  '</div></div>';
+
+  document.getElementById('body').innerHTML = h;
+
+  /* ── CHARTS ── */
+
+  // Trend line
+  dc('trend');
+  var tDatasets = [];
+  cats.forEach(function(c){
+    tDatasets.push({label:c.lbl+' '+cYr, data:c.curr, borderColor:c.col, backgroundColor:c.col+'18',
+      borderWidth:2.5, fill:false, tension:.35,
+      pointRadius:MO.map(function(_,m){ return m===activeFilters.month?8:3; }),
+      pointHoverRadius:MO.map(function(_,m){ return m===activeFilters.month?10:5; }),
+      pointBackgroundColor:MO.map(function(_,m){ return m===activeFilters.month?'#f59e0b':c.col; }),
+      pointBorderColor:MO.map(function(_,m){ return m===activeFilters.month?'#fff':c.col; }),
+      pointBorderWidth:MO.map(function(_,m){ return m===activeFilters.month?2.5:0; })
+    });
+    tDatasets.push({label:c.lbl+' '+pYr, data:c.prev, borderColor:c.lt, backgroundColor:'transparent',
+      borderWidth:1.5, borderDash:[5,4], pointRadius:2, pointHoverRadius:4, fill:false, tension:.35});
+  });
+  CH['trend'] = new Chart(document.getElementById('c-trend').getContext('2d'),{
+    type:'line', data:{labels:MO, datasets:tDatasets},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      onClick:function(evt,elements){ if(elements.length) toggleFilter('month',elements[0].index); },
+      onHover:function(evt,elements){ evt.native.target.style.cursor=elements.length?'pointer':'default'; },
+      plugins:{
+        legend:{position:'top',labels:{font:{size:10.5},boxWidth:16,padding:10,usePointStyle:true}},
+        tooltip:{callbacks:{footer:function(){ return activeFilters.month!==null?'Click to deselect':'Click month to filter'; }}}
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:10},color:MO.map(function(_,m){ return m===activeFilters.month?'#1e40af':'#94a3b8'; })}},
+        y:{beginAtZero:true,grid:{color:'#f0f4f8'},ticks:{font:{size:10},stepSize:1}}
+      }
+    }
+  });
+
+  // Top customers horizontal bar
+  dc('cust');
+  if(top.length){
+    CH['cust'] = new Chart(document.getElementById('c-cust').getContext('2d'),{
+      type:'bar',
+      plugins:[ChartDataLabels],
+      data:{
+        labels:top.map(function(e){return e[0];}),
+        datasets:[{
+          label:'Shipments '+cYr,
+          data:top.map(function(e){return e[1];}),
+          backgroundColor:top.map(function(e,i){
+            var base=['#1e40af','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#dbeafe','#eff6ff'][i]||'#bfdbfe';
+            return (activeFilters.customer && e[0]!==activeFilters.customer)?'rgba(148,163,184,.2)':base;
+          }),
+          borderRadius:4, borderWidth:0
+        }]
+      },
+      options:{
+        indexAxis:'y', responsive:true, maintainAspectRatio:false,
+        layout:{padding:{right:24}},
+        onClick:function(evt,elements){ if(elements.length) toggleFilter('customer',top[elements[0].index][0]); },
+        onHover:function(evt,elements){ evt.native.target.style.cursor=elements.length?'pointer':'default'; },
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:function(ctx){return ' '+ctx.parsed.x+' shipments';}}},
+          datalabels:{
+            anchor:'end', align:'end',
+            font:{size:10,weight:'700'},
+            color:function(ctx){ return (activeFilters.customer&&top[ctx.dataIndex][0]!==activeFilters.customer)?'#94a3b8':'#1e40af'; },
+            formatter:function(v){return v>0?v:'';}
+          }
+        },
+        scales:{
+          x:{beginAtZero:true,grid:{color:'#f0f4f8'},ticks:{font:{size:10},stepSize:1}},
+          y:{grid:{display:false},ticks:{font:{size:10.5}}}
+        }
+      }
+    });
+  } else {
+    var el = document.getElementById('c-cust');
+    if(el) el.parentElement.innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:center;height:180px;color:#94a3b8;font-size:.8rem">No shipping data for '+cYr+'</div>';
+  }
+
+  // WIP / Sales Order / Estoque donut
+  dc('dest');
+  CH['dest'] = new Chart(document.getElementById('c-dest').getContext('2d'),{
+    type:'doughnut',
+    data:{
+      labels:['WIP','Sales Order','Estoque'],
+      datasets:[{
+        data:[dWip,dSO,dStk],
+        backgroundColor:['WIP','Sales Order','Estoque'].map(function(lbl,i){
+          var base=['#1e40af','#0891b2','#7c3aed'][i];
+          return (activeFilters.dest && lbl!==activeFilters.dest)?'rgba(148,163,184,.2)':base;
+        }),
+        borderWidth:0, hoverOffset:6
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'62%',
+      onClick:function(evt,elements){
+        if(elements.length) toggleFilter('dest',['WIP','Sales Order','Estoque'][elements[0].index]);
+      },
+      onHover:function(evt,elements){ evt.native.target.style.cursor=elements.length?'pointer':'default'; },
+      plugins:{
+        legend:{display:false},
+        datalabels:{
+          display:function(ctx){ return ctx.parsed>0; },
+          color:'#fff',
+          font:{size:11,weight:'800'},
+          formatter:function(v){ return v>0?v:''; }
+        }
+      }
+    }
+  });
+
+  // Carrier horizontal bar
+  dc('fr');
+  var carrierColors=['#1e40af','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#dbeafe','#eff6ff'];
+  if(topCarriers.length){
+    CH['fr'] = new Chart(document.getElementById('c-fr').getContext('2d'),{
+      type:'bar',
+      plugins:[ChartDataLabels],
+      data:{
+        labels:topCarriers.map(function(e){return e[0];}),
+        datasets:[{
+          label:'Shipments',
+          data:topCarriers.map(function(e){return e[1];}),
+          backgroundColor:topCarriers.map(function(e,i){
+            var base=carrierColors[i%carrierColors.length];
+            return (activeFilters.carrier && e[0]!==activeFilters.carrier)?'rgba(148,163,184,.2)':base;
+          }),
+          borderRadius:4, borderWidth:0
+        }]
+      },
+      options:{
+        indexAxis:'y', responsive:true, maintainAspectRatio:false,
+        layout:{padding:{right:24}},
+        onClick:function(evt,elements){ if(elements.length) toggleFilter('carrier',topCarriers[elements[0].index][0]); },
+        onHover:function(evt,elements){ evt.native.target.style.cursor=elements.length?'pointer':'default'; },
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:function(ctx){return ' '+ctx.parsed.x+' shipments';}}},
+          datalabels:{
+            anchor:'end', align:'end',
+            font:{size:10,weight:'700'},
+            color:function(ctx){ return (activeFilters.carrier&&topCarriers[ctx.dataIndex][0]!==activeFilters.carrier)?'#94a3b8':'#1e40af'; },
+            formatter:function(v){return v>0?v:'';}
+          }
+        },
+        scales:{
+          x:{beginAtZero:true,grid:{color:'#f0f4f8'},ticks:{font:{size:10},stepSize:1}},
+          y:{grid:{display:false},ticks:{font:{size:10.5}}}
+        }
+      }
+    });
+  } else {
+    var elFr = document.getElementById('c-fr');
+    if(elFr) elFr.parentElement.innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:center;height:160px;color:#94a3b8;font-size:.8rem">No carrier data for '+cYr+'</div>';
+  }
+
+  // Province / State chart
+  dc('prov');
+  var provColors = ['#1e40af','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#dbeafe'];
+  if(topProvs.length){
+    CH['prov'] = new Chart(document.getElementById('c-prov').getContext('2d'),{
+      type:'bar',
+      plugins:[ChartDataLabels],
+      data:{
+        labels: topProvs.map(function(e){ return e[0]; }),
+        datasets:[{
+          label:'Shipments',
+          data: topProvs.map(function(e){ return e[1]; }),
+          backgroundColor: topProvs.map(function(e,i){
+            var base = provColors[Math.min(i, provColors.length-1)];
+            return (activeFilters.province && e[0]!==activeFilters.province) ? 'rgba(148,163,184,.2)' : base;
+          }),
+          borderRadius:4, borderWidth:0
+        }]
+      },
+      options:{
+        indexAxis:'y', responsive:true, maintainAspectRatio:false,
+        layout:{padding:{right:28}},
+        onClick:function(evt,elements){
+          if(!elements.length) return;
+          var prov = topProvs[elements[0].index][0];
+          openProvModal(prov);
+        },
+        onHover:function(evt,elements){ evt.native.target.style.cursor=elements.length?'pointer':'default'; },
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:function(ctx){return ' '+ctx.parsed.x+' shipments';}}},
+          datalabels:{
+            anchor:'end', align:'end',
+            font:{size:10, weight:'700'},
+            color:function(ctx){ return (activeFilters.province && topProvs[ctx.dataIndex][0]!==activeFilters.province) ? '#94a3b8' : '#1e40af'; },
+            formatter:function(v){ return v>0 ? v : ''; }
+          }
+        },
+        scales:{
+          x:{ beginAtZero:true, grid:{color:'#f0f4f8'}, ticks:{font:{size:10}, stepSize:1} },
+          y:{ grid:{display:false}, ticks:{font:{size:10.5}} }
+        }
+      }
+    });
+  } else {
+    var elProv = document.getElementById('c-prov');
+    if(elProv) elProv.parentElement.innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:center;height:180px;color:#94a3b8;font-size:.8rem">No shipping data for this period</div>';
+  }
+
+  updateChips();
+}
+
+
+function destStatRow(label, color, val, total){
+  var pct = total>0 ? Math.round(val/total*100) : 0;
+  return '<div>'+
+    '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px">'+
+      '<span style="font-size:.73rem;font-weight:700;color:#334155">'+label+'</span>'+
+      '<span style="font-size:1rem;font-weight:800;color:'+color+'">'+val+' <span style="font-size:.68rem;font-weight:600;color:#94a3b8">('+pct+'%)</span></span>'+
+    '</div>'+
+    '<div style="height:7px;background:#f1f5f9;border-radius:4px;overflow:hidden">'+
+      '<div style="height:100%;width:'+pct+'%;background:'+color+';border-radius:4px;transition:width .6s ease"></div>'+
+    '</div>'+
+  '</div>';
+}
+
+function buildTable(cats, cYr, pYr, lastMo, live){
+  var h = '<div class="twrap"><table><thead>'+
+    '<tr>'+
+      '<th rowspan="2">Month</th>'+
+      '<th colspan="3" class="cspan">Incoming Form</th>'+
+      '<th colspan="3" class="cspan gs">Incoming Items</th>'+
+      '<th colspan="3" class="cspan gs">Shipping</th>'+
+    '</tr><tr>';
+  cats.forEach(function(c,i){
+    h += '<th'+(i?'class="gs"':'')+'>'+pYr+'</th><th>'+cYr+'</th><th>Δ%</th>';
+  });
+  h += '</tr></thead><tbody>';
+  for(var m=0;m<12;m++){
+    var dim = live && m>lastMo;
+    var rowCls = dim ? 'dim' : (activeFilters.month===m ? 'row-hl row-click' : (activeFilters.month!==null ? 'row-dim row-click' : 'row-click'));
+    h += '<tr class="'+rowCls+'" onclick="toggleFilter(\'month\','+m+')">'+
+      '<td>'+MO[m]+(activeFilters.month===m?' ★':'')+'</td>';
+    cats.forEach(function(c,i){
+      var p = pct(c.curr[m], c.prev[m]);
+      h += '<td class="pv'+(i?' gs':'')+'" >'+c.prev[m]+'</td>'+
+           '<td class="cur">'+c.curr[m]+'</td>'+dlt(p);
+    });
+    h += '</tr>';
+  }
+  h += '<tr class="tot"><td>Total</td>';
+  cats.forEach(function(c,i){
+    h += '<td class="pv'+(i?' gs':'')+'">'+c.totP+'</td>'+
+         '<td class="cur">'+c.totC+'</td>'+dlt(pct(c.totC,c.totP));
+  });
+  h += '</tr>';
+  var ytdDiffers = live && cats.some(function(c){ return c.ytdC !== c.totC; });
+  if(ytdDiffers){
+    h += '<tr class="ytd-row"><td>YTD ★</td>';
+    cats.forEach(function(c,i){
+      h += '<td class="pv'+(i?' gs':'')+'">'+c.ytdP+'</td>'+
+           '<td class="cur">'+c.ytdC+'</td>'+dlt(pct(c.ytdC,c.ytdP));
+    });
+    h += '</tr>';
+  }
+  h += '</tbody></table></div>';
+  return h;
+}
+
+function openProvModal(prov){
+  window.location.href = 'control-tower.html?page=oms&section=shipping&province='+encodeURIComponent(prov);
+}
+</script>
+</body>
+</html>

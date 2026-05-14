@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<!-- v2026-05-10c -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Control Tower — Source Atlantic SR</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --blue:#1e40af;--blue2:#2563eb;--blue3:#3b82f6;
+  --green:#059669;--red:#dc2626;--amber:#d97706;
+  --text:#0f172a;--muted:#64748b;--light:#94a3b8;
+  --border:#e2e8f0;--bg:#f0f4f8;--card:#fff;
+  --shadow:0 1px 3px rgba(0,0,0,.09),0 1px 2px rgba(0,0,0,.06);
+  --r:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;position:relative}
+body::before{content:'';position:fixed;inset:0;background:url('warehouse-interior.jpg') center 40%/cover no-repeat;opacity:.13;z-index:0;pointer-events:none;transition:opacity .3s}
+body.has-results::before{opacity:0}
+body>*{position:relative;z-index:1}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:500}
+.hdr-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;gap:12px;flex-wrap:wrap}
+.hdr-title{font-size:.98rem;font-weight:700;color:#fff;line-height:1.2}
+.hdr-sub{font-size:.66rem;color:rgba(255,255,255,.4);margin-top:1px}
+.btn-nav{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.8);padding:6px 13px;border-radius:8px;font-size:.72rem;font-weight:600;cursor:pointer;text-decoration:none;font-family:inherit;transition:all .18s}
+.btn-nav:hover{background:rgba(255,255,255,.2);color:#fff}
+.ready-dot{display:inline-flex;align-items:center;gap:5px;font-size:.68rem;color:rgba(255,255,255,.5)}
+.ready-dot span{width:7px;height:7px;border-radius:50%;background:#10b981;display:inline-block;box-shadow:0 0 0 2px rgba(16,185,129,.3);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* PAGE SECTIONS */
+.page-section{display:none}
+.page-section.active{display:block}
+
+/* PORTAL HOME */
+.portal-home{max-width:880px;margin:0 auto;padding:52px 24px 60px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.portal-eyebrow{font-size:.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--light);margin-bottom:10px}
+.portal-heading{font-size:2rem;font-weight:900;color:var(--text);letter-spacing:-.5px;margin-bottom:8px}
+.portal-sub{font-size:.88rem;color:var(--muted);margin-bottom:44px}
+.portal-grid{display:flex;flex-wrap:nowrap;justify-content:center;gap:20px;width:100%;max-width:1120px}
+.portal-card{flex:1 1 0;min-width:0;max-width:270px;border-radius:20px;padding:30px 26px 24px;cursor:pointer;text-align:left;transition:transform .2s,box-shadow .2s;min-height:220px;display:flex;flex-direction:column;user-select:none}
+.portal-card:hover{transform:translateY(-5px);box-shadow:0 24px 64px rgba(0,0,0,.22)}
+.portal-card:active{transform:translateY(-2px)}
+.portal-card-blue{background:linear-gradient(160deg,#1e3a8a 0%,#2563eb 100%)}
+.portal-card-navy{background:linear-gradient(160deg,#0f172a 0%,#1e293b 100%)}
+.portal-card-green{background:linear-gradient(160deg,#064e3b 0%,#059669 100%)}
+.portal-card-dark{background:linear-gradient(160deg,#0f172a 0%,#1e3a5f 100%)}
+.portal-card-icon{font-size:2.6rem;margin-bottom:20px;line-height:1}
+.portal-card-title{font-size:1.35rem;font-weight:900;color:#fff;margin-bottom:10px;letter-spacing:-.3px}
+.portal-card-sub{font-size:.82rem;color:rgba(255,255,255,.6);line-height:1.6;flex:1}
+.portal-card-arrow{font-size:1.3rem;color:rgba(255,255,255,.4);margin-top:22px;transition:color .15s,transform .18s;display:inline-block}
+.portal-card:hover .portal-card-arrow{color:rgba(255,255,255,.85);transform:translateX(5px)}
+
+/* PAGE BACK ROW */
+.page-back-row{max-width:1100px;margin:0 auto;padding:16px 24px 0;display:flex;align-items:center;gap:12px}
+.btn-back-page{background:#fff;border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:6px;box-shadow:var(--shadow)}
+.btn-back-page:hover{background:#f8faff;color:var(--blue);border-color:var(--blue3)}
+.page-title-inline{font-size:1rem;font-weight:800;color:var(--text)}
+
+/* SEARCH */
+.search-wrap{max-width:1100px;margin:0 auto;padding:20px 24px 0}
+.search-card{background:var(--card);border-radius:var(--r);box-shadow:0 4px 20px rgba(0,0,0,.1);border:1px solid var(--border);padding:28px 28px 24px}
+.search-title{font-size:1.1rem;font-weight:800;color:var(--text);margin-bottom:4px}
+.search-sub{font-size:.75rem;color:var(--muted);margin-bottom:20px}
+.type-row{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.type-btn{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:8px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-size:.8rem;font-weight:700;color:var(--muted);transition:all .15s;font-family:inherit}
+.type-btn:hover{border-color:var(--blue3);color:var(--blue)}
+.type-btn.active{border-color:var(--blue);background:#eff6ff;color:var(--blue)}
+.type-btn .dot{width:8px;height:8px;border-radius:50%;border:2px solid currentColor;flex-shrink:0}
+.type-btn.active .dot{background:var(--blue);border-color:var(--blue)}
+.search-row{display:flex;gap:10px}
+.search-input-wrap{flex:1;position:relative;display:flex;align-items:center}
+.search-input{width:100%;padding:12px 40px 12px 16px;border:2px solid var(--border);border-radius:10px;font-size:.95rem;font-family:inherit;color:var(--text);outline:none;transition:border-color .15s}
+.search-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.search-clear{position:absolute;right:12px;background:none;border:none;cursor:pointer;color:var(--light);font-size:1rem;line-height:1;padding:2px;display:none;border-radius:50%;transition:color .15s}
+.search-clear:hover{color:var(--text)}
+.search-btn{padding:12px 24px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.search-btn:hover{background:var(--blue2)}
+
+/* BODY */
+.body{max-width:1100px;margin:0 auto;padding:20px 24px 60px}
+
+/* NOT FOUND */
+.not-found{text-align:center;padding:60px 20px;color:var(--light)}
+.not-found-icon{font-size:3rem;margin-bottom:12px}
+.not-found-title{font-size:1rem;font-weight:700;color:var(--muted);margin-bottom:6px}
+.not-found-sub{font-size:.8rem}
+
+/* STATUS BANNER */
+.status-banner{border-radius:var(--r);padding:16px 22px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;border:1.5px solid}
+.status-banner .sb-left{display:flex;align-items:center;gap:14px}
+.status-banner .sb-icon{font-size:1.9rem;line-height:1}
+.status-banner .sb-status{font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:3px}
+.status-banner .sb-title{font-size:1.05rem;font-weight:800;color:#0f172a}
+.days-badge{text-align:center;border-radius:10px;padding:10px 18px;color:#fff;min-width:90px}
+.days-badge .db-num{font-size:1.9rem;font-weight:900;line-height:1}
+.days-badge .db-lbl{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;opacity:.88;margin-top:1px}
+
+/* CARDS */
+.ct-card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);border:1px solid var(--border);padding:18px 20px;margin-bottom:16px}
+.ct-card-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.ct-grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.ct-grid3{display:grid;grid-template-columns:1fr 1fr 280px;gap:16px;margin-bottom:16px}
+.info-row{display:flex;gap:8px;margin-bottom:8px;font-size:.8rem;align-items:flex-start}
+.info-lbl{color:var(--light);font-weight:600;min-width:110px;flex-shrink:0;padding-top:1px}
+.info-val{color:var(--text);font-weight:600;flex:1;word-break:break-word}
+
+/* HOLD CARDS */
+.card-danger{border-color:#fca5a5;background:#fff5f5}
+.card-danger .ct-card-title{color:#dc2626;border-color:#fca5a5}
+.card-warning{border-color:#fcd34d;background:#fffbeb}
+.card-warning .ct-card-title{color:#d97706;border-color:#fcd34d}
+.card-success{border-color:#6ee7b7;background:#f0fdf4}
+.card-success .ct-card-title{color:#059669;border-color:#6ee7b7}
+.hold-days{font-size:2.2rem;font-weight:900;line-height:1}
+.hold-lbl{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-top:2px}
+
+/* TABLE */
+.ct-table{width:100%;border-collapse:collapse;font-size:.77rem}
+.ct-table thead tr{background:linear-gradient(180deg,#1e3a8a,#2563eb)}
+.ct-table thead th{background:linear-gradient(180deg,#1e3a8a,#2563eb);color:rgba(255,255,255,.9);padding:8px 12px;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:left;white-space:nowrap;position:sticky;top:0;z-index:10}
+.ct-table tbody tr{border-bottom:1px solid #f1f5f9;transition:background .1s}
+.ct-table tbody tr:hover{background:#f8faff}
+.ct-table td{padding:8px 12px;color:var(--text)}
+.ct-table td:first-child{font-weight:600}
+
+/* BUTTONS */
+.ct-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;text-decoration:none;transition:all .15s}
+.ct-btn-blue{background:var(--blue);color:#fff}
+.ct-btn-blue:hover{background:var(--blue2)}
+.ct-btn-gray{background:#f1f5f9;color:#334155;border:1px solid var(--border)}
+.ct-btn-gray:hover{background:#e2e8f0}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+
+/* BADGE */
+.area-badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.67rem;font-weight:700;background:#eff6ff;color:var(--blue)}
+.bin-badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.67rem;font-weight:700}
+.bin-wip{background:#ede9fe;color:#7c3aed}
+.bin-stock{background:#dcfce7;color:#16a34a}
+.bin-nobin{background:#f1f5f9;color:#64748b}
+
+/* CLICKABLE ORDER NUMBERS */
+.order-link{color:var(--blue);font-weight:700;cursor:pointer;text-decoration:underline;text-decoration-color:rgba(37,99,235,.3);background:none;border:none;font-family:inherit;font-size:inherit;padding:0;line-height:inherit;transition:color .15s}
+.order-link:hover{color:var(--blue2)}
+
+/* LOADING / EMPTY */
+.empty-search{text-align:center;padding:48px 20px}
+.empty-search-icon{font-size:3rem;margin-bottom:12px;opacity:.4}
+.empty-search-text{font-size:.88rem;color:var(--muted);font-weight:600}
+
+/* OMS */
+.oms-wrap{max-width:1100px;margin:0 auto;padding:16px 24px 60px}
+.oms-filter{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);border:1px solid var(--border);padding:18px 22px;margin-bottom:18px}
+.oms-filter-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.oms-filter-group{display:flex;flex-direction:column;gap:5px}
+.oms-filter-label{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+.oms-select{padding:9px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;font-family:inherit;color:var(--text);background:#fff;cursor:pointer;outline:none;min-width:130px;transition:border-color .15s}
+.oms-select:focus{border-color:var(--blue)}
+.oms-apply-btn{padding:9px 20px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.oms-apply-btn:hover{background:var(--blue2)}
+.oms-reset-btn{padding:9px 14px;background:#f1f5f9;color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.oms-reset-btn:hover{background:#e2e8f0;color:var(--text)}
+
+.oms-kpi-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.oms-kpi{background:var(--card);border-radius:10px;border:1px solid var(--border);padding:14px 20px;flex:1;min-width:120px;text-align:center;box-shadow:var(--shadow)}
+.oms-kpi-num{font-size:1.7rem;font-weight:900;color:var(--text)}
+.oms-kpi-lbl{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-top:3px}
+
+.oms-stab-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.oms-stab-left{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.oms-cust-search{position:relative;display:flex;align-items:center}
+.oms-cust-search input{height:36px;padding:0 30px 0 30px;border:1.5px solid var(--border);border-radius:8px;font-size:.8rem;font-family:inherit;color:var(--text);background:#fff;outline:none;width:100%;transition:border-color .15s;text-transform:uppercase}
+.oms-cust-search input::placeholder{text-transform:none}
+.oms-cust-search input:focus{border-color:var(--blue)}
+.oms-cust-search input::placeholder{color:var(--muted);font-weight:400}
+.oms-cust-search .cust-icon{position:absolute;left:9px;font-size:.8rem;pointer-events:none;color:var(--muted)}
+.oms-cust-search .cust-clear{position:absolute;right:7px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:.85rem;padding:2px;line-height:1;display:none}
+.oms-cust-search .cust-clear:hover{color:var(--text)}
+.btn-excel{display:inline-flex;align-items:center;gap:7px;padding:8px 18px;border-radius:8px;background:#16a34a;color:#fff;border:none;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;box-shadow:0 2px 6px rgba(22,163,74,.3)}
+.btn-excel:hover{background:#15803d;box-shadow:0 4px 12px rgba(22,163,74,.4);transform:translateY(-1px)}
+.btn-excel:active{transform:translateY(0)}
+.oms-stab{padding:8px 18px;border-radius:8px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-size:.8rem;font-weight:700;color:var(--muted);transition:all .15s;font-family:inherit}
+.oms-stab:hover{border-color:var(--blue3);color:var(--blue)}
+.oms-stab.active{border-color:var(--blue);background:#eff6ff;color:var(--blue)}
+
+.oms-pill-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.oms-pill{padding:5px 14px;border-radius:20px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-size:.72rem;font-weight:700;color:var(--muted);transition:all .15s;font-family:inherit}
+.oms-pill:hover{border-color:var(--blue3);color:var(--blue)}
+.oms-pill.active{border-color:var(--blue);background:#eff6ff;color:var(--blue)}
+.oms-pill.p-elec.active{border-color:#7c3aed;background:#f5f3ff;color:#7c3aed}
+.oms-pill.p-mech.active{border-color:#059669;background:#f0fdf4;color:#059669}
+.oms-pill.p-comp.active{border-color:#d97706;background:#fffbeb;color:#d97706}
+.oms-pill.p-gen.active{border-color:#dc2626;background:#fff5f5;color:#dc2626}
+.oms-pill.p-wip.active{border-color:#7c3aed;background:#f5f3ff;color:#7c3aed}
+.oms-pill.p-so.active{border-color:#059669;background:#f0fdf4;color:#059669}
+
+.oms-table-wrap{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden}
+.oms-table-scroll{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 380px);min-height:320px}
+.oms-empty{text-align:center;padding:36px;color:var(--light);font-size:.83rem;font-style:italic}
+
+@media(max-width:900px){
+  #home-cards .portal-grid{flex-wrap:wrap}
+  #home-cards .portal-card{flex:0 0 calc(50% - 10px);max-width:none}
+}
+@media(max-width:760px){
+  .ct-grid2,.ct-grid3{grid-template-columns:1fr}
+  .search-row{flex-direction:column}
+  #home-cards .portal-grid{flex-wrap:wrap}
+  #home-cards .portal-card{flex:0 0 calc(50% - 10px);max-width:none}
+  .portal-heading{font-size:1.6rem}
+  /* Topbar compact */
+  .topbar-inner{padding:8px 12px}
+  .topbar-brand{font-size:.95rem}
+  /* OMS filters wrap */
+  .oms-filter-row{flex-wrap:wrap;gap:8px}
+  .oms-filter-group{min-width:120px}
+  /* Table scroll */
+  .oms-table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .oms-table-scroll{max-height:calc(100vh - 320px)}
+  /* Back row */
+  .page-back-row{padding:10px 12px}
+  /* Auth box */
+  .auth-box{border-radius:12px}
+}
+@media(max-width:480px){
+  #home-cards .portal-grid{flex-wrap:wrap}
+  #home-cards .portal-card{flex:0 0 100%;max-width:none}
+  .portal-heading{font-size:1.4rem}
+  .portal-card{min-height:180px;padding:24px 20px 20px}
+  .portal-card-icon{font-size:2rem}
+  .portal-card-title{font-size:1.1rem}
+  .oms-filter-row{flex-direction:column}
+  .oms-pills{flex-wrap:wrap}
+  .topbar-inner{padding:6px 10px}
+}
+
+/* PASSWORD TOGGLE */
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:42px;width:100%;box-sizing:border-box}
+.pw-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1rem;color:#94a3b8;padding:4px;line-height:1}
+.pw-toggle:hover{color:#475569}
+
+/* AUTH */
+#auth-overlay{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;background:url('warehouse-bg.jpg') center center/cover no-repeat}
+#auth-overlay::before{content:'';position:absolute;inset:0;background:linear-gradient(160deg,rgba(10,25,60,.82) 0%,rgba(15,40,90,.75) 50%,rgba(20,55,110,.70) 100%);backdrop-filter:blur(2px)}
+.auth-box{position:relative;z-index:1;background:#fff;border-radius:16px;width:100%;max-width:420px;box-shadow:0 25px 50px rgba(0,0,0,.35);overflow:hidden}
+.auth-box-header{background:linear-gradient(160deg,#0f172a,#1d4ed8);padding:30px 28px 22px;text-align:center}
+.auth-box-logo{display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.auth-box-title{color:#fff;font-size:1.05rem;font-weight:800}
+.auth-box-sub{color:rgba(255,255,255,.55);font-size:.75rem;margin-top:5px}
+.auth-box-body{padding:26px 28px 30px}
+.auth-screen{display:none}
+.auth-screen.active{display:block}
+.auth-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.auth-field label{font-size:.67rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.6px}
+.auth-field input{padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.88rem;font-family:inherit;outline:none;transition:all .18s;color:#0f172a}
+.auth-field input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.auth-btn{width:100%;padding:12px;background:linear-gradient(160deg,#1d4ed8,#2563eb);color:#fff;border:none;border-radius:8px;font-size:.88rem;font-weight:800;cursor:pointer;font-family:inherit;transition:all .18s;margin-top:6px;box-shadow:0 2px 8px rgba(29,78,216,.3)}
+.auth-btn:hover{background:linear-gradient(160deg,#1e40af,#1d4ed8);transform:translateY(-1px)}
+.auth-btn:disabled{background:#93c5fd;cursor:not-allowed;transform:none}
+.auth-link{background:none;border:none;color:#2563eb;cursor:pointer;font-size:.8rem;font-weight:700;font-family:inherit;text-decoration:underline;padding:0}
+.auth-error{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;padding:10px 13px;font-size:.79rem;font-weight:600;margin-bottom:14px;display:none}
+.auth-footer{display:flex;justify-content:center;gap:6px;align-items:center;margin-top:18px;font-size:.78rem;color:#94a3b8}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-overlay" style="display:flex">
+  <div class="auth-box">
+    <div class="auth-box-header">
+      <div class="auth-box-logo"><img src="logo.png" alt="SA" style="height:44px;border-radius:8px;background:#fff;padding:6px 12px"></div>
+      <div class="auth-box-title">🗼 Control Tower</div>
+      <div class="auth-box-sub">Source Atlantic — Industrial Services</div>
+    </div>
+    <div class="auth-box-body">
+      <div class="auth-screen active" id="auth-login">
+        <div class="auth-error" id="auth-login-err"></div>
+        <div class="auth-field"><label>Email</label><input type="email" id="auth-login-email" placeholder="your@email.com" autocomplete="email"></div>
+        <div class="auth-field"><label>Password</label><div class="pw-wrap"><input type="password" id="auth-login-pass" placeholder="••••••••" autocomplete="current-password" autocapitalize="none" autocorrect="off" onkeydown="if(event.key==='Enter')doLogin()"><button type="button" class="pw-toggle" onclick="togglePw('auth-login-pass',this)" title="Show/hide password">👁</button></div></div>
+        <button class="auth-btn" id="auth-login-btn" onclick="doLogin()">Sign In</button>
+        <div class="auth-footer"><button class="auth-link" onclick="authShow('forgot')">Forgot password?</button></div>
+      </div>
+      <div class="auth-screen" id="auth-forgot">
+        <div class="auth-error" id="auth-forgot-err"></div>
+        <div class="auth-field"><label>Email</label><input type="email" id="auth-forgot-email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doForgotPassword()"></div>
+        <button class="auth-btn" onclick="doForgotPassword()">Send Reset Email</button>
+        <div class="auth-footer"><button class="auth-link" onclick="authShow('login')">Back to Sign In</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-inner">
+    <div style="display:flex;align-items:center;gap:12px">
+      <img src="logo.png" alt="SA" style="height:34px;border-radius:5px;background:#fff;padding:2px 6px">
+      <div>
+        <div class="hdr-title">🗼 Control Tower</div>
+        <div class="hdr-sub">Source Atlantic — Full Order Visibility</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="ready-dot" id="ready-dot" style="display:none"><span></span>Live data</span>
+      <span id="ct-user-email" style="font-size:.68rem;color:rgba(255,255,255,.5);display:none"></span>
+      <a class="btn-nav" href="stats.html">📊 Dashboard</a>
+      <button class="btn-nav" id="ct-signout-btn" onclick="ctSignOut()" style="display:none">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ HOME PORTAL ═══ -->
+<div id="page-home" class="page-section active">
+  <div style="min-height:calc(100vh - 60px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;background:url('warehouse-bg.jpg') center center/cover no-repeat;position:relative">
+    <div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(10,25,60,.55) 0%,rgba(15,40,90,.45) 100%);backdrop-filter:blur(1px)"></div>
+    <div style="position:relative;z-index:1;text-align:center;width:100%;max-width:800px">
+      <div style="font-size:.72rem;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.55);text-transform:uppercase;margin-bottom:12px">Source Atlantic — Industrial Services</div>
+      <h1 class="portal-heading" style="color:#fff;font-size:2.4rem;margin-bottom:8px">EPS Shipping &amp; Receiving</h1>
+      <div class="portal-sub" style="color:rgba(255,255,255,.6)">Select a tool to get started</div>
+      <div id="home-cards" style="display:flex;justify-content:center">
+        <div class="portal-grid">
+          <div class="portal-card portal-card-blue" onclick="showPage('overview')">
+            <div class="portal-card-icon">🔍</div>
+            <div class="portal-card-title">Order Lookup</div>
+            <div class="portal-card-sub">Search by Work Order, Sales Order or Incoming # — full order details, components, hold status and shipping history</div>
+            <div class="portal-card-arrow">→</div>
+          </div>
+          <div class="portal-card portal-card-navy" onclick="showPage('oms')">
+            <div class="portal-card-icon">📋</div>
+            <div class="portal-card-title">Overview List</div>
+            <div class="portal-card-sub">Browse Incoming Forms, WIP components and Shipping activity — filter by year, month and day</div>
+            <div class="portal-card-arrow">→</div>
+          </div>
+          <div id="home-card-payments" class="portal-card portal-card-green" onclick="window.location.href='index.html?payments=1'" style="display:none">
+            <div class="portal-card-icon">💰</div>
+            <div class="portal-card-title">Payments</div>
+            <div class="portal-card-sub">View and manage daily payment records — cash, cheque, card and debit transactions</div>
+            <div class="portal-card-arrow">→</div>
+          </div>
+          <div class="portal-card portal-card-dark" onclick="window.location.href='stats.html'">
+            <div class="portal-card-icon">📊</div>
+            <div class="portal-card-title">Dashboard</div>
+            <div class="portal-card-sub">Operations overview — shipping volume, top carriers and monthly trends</div>
+            <div class="portal-card-arrow">→</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ OPERATION OVERVIEW ═══ -->
+<div id="page-overview" class="page-section">
+  <div class="page-back-row">
+    <button class="btn-back-page" onclick="overviewBack()">← Back</button>
+    <span class="page-title-inline">Order Lookup</span>
+  </div>
+  <div class="search-wrap">
+    <div class="search-card">
+      <div class="search-title">🔍 Order Lookup</div>
+      <div class="search-sub">Enter a Work Order, Sales Order, Material description, Incoming # or Outgoing # to see the complete status</div>
+      <div class="type-row">
+        <button class="type-btn active" id="btn-wo" onclick="setType('wo')"><span class="dot"></span>Work Order #</button>
+        <button class="type-btn" id="btn-so" onclick="setType('so')"><span class="dot"></span>Sales Order #</button>
+        <button class="type-btn" id="btn-mat" onclick="setType('mat')"><span class="dot"></span>Material / Components</button>
+        <button class="type-btn" id="btn-inc" onclick="setType('inc')"><span class="dot"></span>Incoming #</button>
+        <button class="type-btn" id="btn-out" onclick="setType('out')"><span class="dot"></span>Outgoing #</button>
+      </div>
+      <div class="search-row">
+        <div class="search-input-wrap">
+          <input class="search-input" id="search-input" type="text" placeholder="e.g. 6020183"
+            onkeydown="if(event.key==='Enter')doSearch()"
+            oninput="document.getElementById('search-clear').style.display=this.value?'block':'none'">
+          <button class="search-clear" id="search-clear" onclick="clearSearch()" title="Clear">✕</button>
+        </div>
+        <button class="search-btn" onclick="doSearch()">Search</button>
+      </div>
+    </div>
+  </div>
+  <div class="body">
+    <div id="results">
+      <div class="empty-search">
+        <div class="empty-search-icon">🗼</div>
+        <div class="empty-search-text">Enter a Work Order, Sales Order, Material description or Outgoing # above to begin</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ORDER & MATERIAL STATUS ═══ -->
+<div id="page-oms" class="page-section">
+  <div class="page-back-row">
+    <button class="btn-back-page" onclick="showPage('home')">← Back</button>
+    <span class="page-title-inline">Overview List</span>
+  </div>
+  <div class="oms-wrap">
+
+    <!-- Filters -->
+    <div class="oms-filter">
+      <div class="oms-filter-row">
+        <div class="oms-filter-group">
+          <div class="oms-filter-label">Year</div>
+          <select class="oms-select" id="oms-year" onchange="omsApply()">
+            <option value="">All Years</option>
+            <option value="2026" selected>2026</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+          </select>
+        </div>
+        <div class="oms-filter-group">
+          <div class="oms-filter-label">Month</div>
+          <select class="oms-select" id="oms-month" onchange="omsApply()">
+            <option value="">All Months</option>
+            <option value="01">January</option><option value="02">February</option><option value="03">March</option>
+            <option value="04">April</option><option value="05">May</option><option value="06">June</option>
+            <option value="07">July</option><option value="08">August</option><option value="09">September</option>
+            <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+          </select>
+        </div>
+        <div class="oms-filter-group">
+          <div class="oms-filter-label">Day — Period</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:.75rem;color:var(--muted);font-weight:600">De</span>
+            <select class="oms-select" id="oms-day-from" onchange="omsApply()" style="min-width:72px">
+              <option value="">1st</option>
+            </select>
+            <span style="font-size:.75rem;color:var(--muted);font-weight:600">até</span>
+            <select class="oms-select" id="oms-day-to" onchange="omsApply()" style="min-width:72px">
+              <option value="">Last</option>
+            </select>
+          </div>
+        </div>
+        <button class="oms-reset-btn" onclick="omsReset()">✕ Reset</button>
+        <div class="oms-filter-group" style="flex:2;min-width:220px">
+          <div class="oms-filter-label">Search — Incoming #, WO #, Customer, Equipment, Category, Material, SO #, Tracking</div>
+          <div class="oms-cust-search">
+            <span class="cust-icon">🔍</span>
+            <input type="text" id="oms-cust-input" placeholder="Search across all fields…"
+              oninput="omsSearch=this.value.trim();document.getElementById('oms-cust-clr').style.display=this.value?'block':'none';omsRenderSection()">
+            <button class="cust-clear" id="oms-cust-clr" onclick="document.getElementById('oms-cust-input').value='';omsSearch='';this.style.display='none';omsRenderSection()">✕</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="oms-kpi-row" id="oms-kpis"></div>
+
+    <!-- Section Tabs -->
+    <div class="oms-stab-row">
+      <div class="oms-stab-left">
+        <button class="oms-stab active" id="oms-stab-incoming" onclick="omsSetSection('incoming')">📋 Incoming Forms</button>
+        <button class="oms-stab" id="oms-stab-items" onclick="omsSetSection('items')">📦 Incoming Items</button>
+        <button class="oms-stab" id="oms-stab-salesorders" onclick="omsSetSection('salesorders')">📊 Sales Orders</button>
+        <button class="oms-stab" id="oms-stab-shipping" onclick="omsSetSection('shipping')">🚚 Shipping</button>
+      </div>
+      <button class="btn-excel" onclick="downloadOmsExcel()">⬇ Download Excel</button>
+    </div>
+
+    <!-- INCOMING FORMS -->
+    <div id="oms-sec-incoming">
+      <div class="oms-pill-row">
+        <button class="oms-pill active" id="oms-area-all" onclick="omsSetArea('all')">All</button>
+        <button class="oms-pill p-elec" id="oms-area-electrical" onclick="omsSetArea('electrical')">⚡ Electrical</button>
+        <button class="oms-pill p-mech" id="oms-area-mechanical" onclick="omsSetArea('mechanical')">⚙️ Mechanical</button>
+        <button class="oms-pill p-comp" id="oms-area-aircompressor" onclick="omsSetArea('aircompressor')">💨 Air Compressor</button>
+        <button class="oms-pill p-gen" id="oms-area-generator" onclick="omsSetArea('generator')">⚡ Generator</button>
+      </div>
+      <div class="oms-table-wrap">
+        <div class="oms-table-scroll">
+          <table class="ct-table">
+            <thead><tr>
+              <th>Date</th><th>Incoming #</th><th>Work Order #</th><th>Customer</th><th>Equipment</th><th>Category</th><th>Job Type</th><th>Status</th>
+            </tr></thead>
+            <tbody id="oms-incoming-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- INCOMING ITEMS -->
+    <div id="oms-sec-items" style="display:none">
+      <div class="oms-pill-row">
+        <button class="oms-pill active" id="oms-item-all" onclick="omsSetItemCat('all')">All</button>
+        <button class="oms-pill p-wip" id="oms-item-wip" onclick="omsSetItemCat('wip')">🟣 WIP</button>
+        <button class="oms-pill p-so" id="oms-item-so" onclick="omsSetItemCat('so')">🟢 Sales Order</button>
+        <button class="oms-pill" id="oms-item-other" onclick="omsSetItemCat('other')">⚪ Others</button>
+      </div>
+      <div class="oms-pill-row">
+        <button class="oms-pill active" id="oms-iarea-all" onclick="omsSetItemArea('all')">All</button>
+        <button class="oms-pill p-elec" id="oms-iarea-electrical" onclick="omsSetItemArea('electrical')">⚡ Electrical</button>
+        <button class="oms-pill p-mech" id="oms-iarea-mechanical" onclick="omsSetItemArea('mechanical')">⚙️ Mechanical</button>
+        <button class="oms-pill p-comp" id="oms-iarea-aircompressor" onclick="omsSetItemArea('aircompressor')">💨 Air Compressor</button>
+        <button class="oms-pill p-gen" id="oms-iarea-generator" onclick="omsSetItemArea('generator')">⚡ Generator</button>
+      </div>
+      <div class="oms-table-wrap">
+        <div class="oms-table-scroll">
+          <table class="ct-table">
+            <thead><tr>
+              <th>Date</th><th>Receipt #</th><th>Material / Description</th><th>Qty</th><th>Work Order #</th><th>Sales Order #</th><th>Area</th><th>Customer</th><th>Bin</th>
+            </tr></thead>
+            <tbody id="oms-items-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SALES ORDERS -->
+    <div id="oms-sec-salesorders" style="display:none">
+      <div class="oms-table-wrap">
+        <div class="oms-table-scroll">
+          <table class="ct-table">
+            <thead><tr>
+              <th>Sales Order #</th><th>Customer</th><th>Status</th><th style="text-align:center">Items</th><th>Last Activity</th>
+            </tr></thead>
+            <tbody id="oms-salesorders-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHIPPING -->
+    <div id="oms-sec-shipping" style="display:none">
+      <div id="oms-prov-banner" style="display:none;margin-bottom:10px;padding:9px 14px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="font-size:.82rem;color:#1e40af">📍 Filtrando por: <strong id="oms-prov-label" style="color:#1d4ed8"></strong></span>
+        <button onclick="clearOmsProvince()" style="margin-left:auto;background:#dbeafe;border:1px solid #93c5fd;color:#1e40af;font-size:.78rem;font-weight:600;cursor:pointer;padding:3px 10px;border-radius:6px">✕ Limpar filtro</button>
+      </div>
+      <div class="oms-table-wrap">
+        <div class="oms-table-scroll">
+          <table class="ct-table">
+            <thead><tr>
+              <th>Date</th><th>Customer</th><th>Destination</th><th>Work Orders</th><th>Sales Orders</th><th>Carrier</th><th>Tracking #</th><th>Pieces</th><th>Weight (lb)</th>
+            </tr></thead>
+            <tbody id="oms-shipping-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<script>
+var firebaseConfig = {
+  apiKey:            'AIzaSyBuS3afVcx3W-zfgZfDYIutNltuEfP8Fhc',
+  authDomain:        'source-atlantic-sr.firebaseapp.com',
+  databaseURL:       'https://source-atlantic-sr-default-rtdb.firebaseio.com',
+  projectId:         'source-atlantic-sr',
+  storageBucket:     'source-atlantic-sr.firebasestorage.app',
+  messagingSenderId: '953329380095',
+  appId:             '1:953329380095:web:f7865dda88a33ff9457aca'
+};
+firebase.initializeApp(firebaseConfig);
+var db   = firebase.database();
+var auth = firebase.auth();
+// Require login on first visit; skip if already logged in this browser session
+if(!sessionStorage.getItem('ct-session')){ auth.signOut(); }
+
+var allData = {incoming:{}, items:{}, shipping:{}, process:{}, packing:{}};
+var loadedCount = 0;
+var TOTAL = 5;
+
+function ctSignOut(){
+  sessionStorage.removeItem('ct-session');
+  auth.signOut().then(function(){
+    document.getElementById('auth-overlay').style.display = 'flex';
+    var emailEl = document.getElementById('ct-user-email');
+    if(emailEl){ emailEl.textContent = ''; emailEl.style.display = 'none'; }
+    var soBtn = document.getElementById('ct-signout-btn');
+    if(soBtn) soBtn.style.display = 'none';
+  });
+}
+
+function startDataLoad(){
+  loadedCount = 0;
+  Object.keys(allData).forEach(function(key){
+    db.ref('shipping_receiving/'+key).on('value', function(snap){
+      allData[key] = snap.val() || {};
+      loadedCount++;
+      if(loadedCount >= TOTAL){
+        document.getElementById('ready-dot').style.display = 'inline-flex';
+        if(!urlParamsApplied){ urlParamsApplied = true; applyUrlParams(); }
+        if(currentPage === 'oms') omsRender();
+      }
+    });
+  });
+}
+
+var ADMIN_EMAILS = ['dasilva.luiz@sourceatlantic.ca'];
+var PAYMENTS_ALLOWED = [
+  'gardner.christine@sourceatlantic.ca',
+  'koncovy.joseph@sourceatlantic.ca',
+  'renouf.holly@sourceatlantic.ca',
+  'lcdsilva@hotmail.com'
+];
+
+auth.onAuthStateChanged(function(user){
+  if(user && user.emailVerified){
+    _ctUserEmail = (user.email||'').toLowerCase();
+    // Redirect admins to the main app
+    if(ADMIN_EMAILS.indexOf(_ctUserEmail) !== -1){
+      sessionStorage.setItem('ct-session','1');
+      window.location.replace('index.html');
+      return;
+    }
+    document.getElementById('auth-overlay').style.display = 'none';
+    var emailEl = document.getElementById('ct-user-email');
+    if(emailEl){ emailEl.textContent = user.email; emailEl.style.display = 'inline'; }
+    var soBtn = document.getElementById('ct-signout-btn');
+    if(soBtn) soBtn.style.display = 'inline-block';
+    var payCard = document.getElementById('home-card-payments');
+    if(payCard) payCard.style.display = PAYMENTS_ALLOWED.indexOf(_ctUserEmail) !== -1 ? 'flex' : 'none';
+    startDataLoad();
+    var hash = window.location.hash.replace('#','');
+    if(hash === 'overview') showPage('overview');
+    else if(hash === 'oms') showPage('oms');
+    else showPage('home');
+  } else {
+    document.getElementById('auth-overlay').style.display = 'flex';
+  }
+});
+
+// AUTH
+function togglePw(id, btn){
+  var inp = document.getElementById(id);
+  if(!inp) return;
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+}
+
+function authShow(screen){
+  ['login','forgot'].forEach(function(s){ document.getElementById('auth-'+s).classList.toggle('active', s===screen); });
+}
+function authSetError(id, msg){
+  var el = document.getElementById(id); if(!el) return;
+  el.textContent = msg; el.style.display = msg ? 'block' : 'none';
+}
+function doLogin(){
+  var email = document.getElementById('auth-login-email').value.trim();
+  var pass  = document.getElementById('auth-login-pass').value;
+  if(!email||!pass){ authSetError('auth-login-err','Please enter email and password.'); return; }
+  var btn = document.getElementById('auth-login-btn');
+  btn.disabled = true; btn.textContent = 'Please wait…';
+  auth.signInWithEmailAndPassword(email, pass).then(function(){ sessionStorage.setItem('ct-session','1'); }).catch(function(err){
+    btn.disabled = false; btn.textContent = 'Sign In';
+    authSetError('auth-login-err',
+      err.code==='auth/user-not-found'||err.code==='auth/wrong-password'||err.code==='auth/invalid-credential'
+        ? 'Invalid email or password.' : err.message);
+  });
+}
+function doForgotPassword(){
+  var email = document.getElementById('auth-forgot-email').value.trim();
+  if(!email){ authSetError('auth-forgot-err','Please enter your email.'); return; }
+  auth.sendPasswordResetEmail(email)
+    .then(function(){ authSetError('auth-forgot-err',''); alert('Reset email sent to '+email); authShow('login'); })
+    .catch(function(err){ authSetError('auth-forgot-err', err.message); });
+}
+
+// PAGE NAV
+var _ctUserEmail = '';
+
+var currentPage = 'home';
+function showPage(page){
+  if(currentPage === 'overview' && page !== 'overview') clearSearch();
+  ['home','overview','oms'].forEach(function(p){
+    document.getElementById('page-'+p).classList.toggle('active', p===page);
+  });
+  currentPage = page;
+  window.scrollTo(0,0);
+  if(page === 'oms') omsRender();
+}
+
+function overviewBack(){
+  if(overviewFrom){ var dest = overviewFrom; overviewFrom = null; showPage(dest); }
+  else { showPage('home'); }
+}
+
+// Navigate from OMS into Overview with pre-filled search
+var overviewFrom = null;
+function goToOverview(type, num){
+  overviewFrom = currentPage;
+  showPage('overview');
+  setType(type);
+  var inp = document.getElementById('search-input');
+  inp.value = num;
+  document.getElementById('search-clear').style.display = 'block';
+  doSearch();
+}
+
+// UTILS
+function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtDate(d){ if(!d) return '—'; var p=d.split('-'); return p.length===3?p[1]+'/'+p[2]+'/'+p[0]:d; }
+function _ctHoldBreakdown(proc, endDate){
+  var meta = {
+    qa:    {lbl:'Waiting QA',    bg:'#fef3c7',bg2:'#dcfce7',clr:'#d97706'},
+    po:    {lbl:'Missing PO',    bg:'#fee2e2',bg2:'#dcfce7',clr:'#dc2626'},
+    pickup:{lbl:'Cust. Pick Up', bg:'#dbeafe',bg2:'#dcfce7',clr:'#1565c0'},
+    others:{lbl:'Others',        bg:'#f1f5f9',bg2:'#dcfce7',clr:'#475569'}
+  };
+  var parts = [];
+  if(proc.holds){
+    ['qa','po','pickup','others'].forEach(function(type){
+      var ho = (proc.holds||{})[type];
+      if(!ho || !ho.active) return;
+      var m = meta[type];
+      var closed = !!ho.closeDate;
+      var d = calcBusinessDays(ho.startDate, closed ? ho.closeDate : (endDate||undefined));
+      var lbl = (type==='others' && ho.description) ? 'Others: '+ho.description : m.lbl;
+      var bg  = closed ? m.bg2 : m.bg;
+      var clr = closed ? '#15803d' : m.clr;
+      parts.push(
+        '<div style="margin-top:5px;padding:5px 9px;border-radius:8px;background:'+bg+';text-align:left">'+
+          '<div style="font-size:.68rem;font-weight:800;color:'+clr+'">'+escHtml(lbl)+(closed?' ✓ Closed '+fmtDate(ho.closeDate):'')+'</div>'+
+          '<div style="font-size:1.1rem;font-weight:900;color:'+clr+'">'+d+'<span style="font-size:.6rem;font-weight:700"> d</span></div>'+
+        '</div>'
+      );
+    });
+  } else if(proc.holdReason){
+    var type = proc.holdReason==='Waiting QA' ? 'qa'
+             : proc.holdReason==='Missing PO'  ? 'po'
+             : proc.holdReason==='Waiting Customer Pick Up' ? 'pickup' : 'others';
+    var m = meta[type];
+    var lbl = (proc.holdReason==='Others' && proc.holdReasonOther) ? 'Others: '+proc.holdReasonOther : proc.holdReason;
+    var d = calcBusinessDays(proc.receivedDate, endDate||undefined);
+    parts.push(
+      '<div style="margin-top:5px;padding:5px 9px;border-radius:8px;background:'+m.bg+';text-align:left">'+
+        '<div style="font-size:.68rem;font-weight:800;color:'+m.clr+'">'+escHtml(lbl)+'</div>'+
+        '<div style="font-size:1.1rem;font-weight:900;color:'+m.clr+'">'+d+'<span style="font-size:.6rem;font-weight:700"> d</span></div>'+
+      '</div>'
+    );
+  }
+  if(!parts.length){
+    return '<div style="margin-top:8px;border-top:1px solid #fecaca;padding-top:8px;text-align:left;font-size:.68rem;color:#9ca3af;font-style:italic">No reason specified</div>';
+  }
+  return '<div style="margin-top:8px;border-top:1px solid #fecaca;padding-top:8px;text-align:left">'+
+    '<div style="font-size:.6rem;font-weight:800;color:#b91c1c;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Hold Reasons</div>'+
+    parts.join('')+
+  '</div>';
+}
+
+function calcDays(start, end){
+  if(!start) return null;
+  var e = end ? new Date(end+'T00:00:00') : new Date();
+  var s = new Date(start+'T00:00:00');
+  return Math.max(0, Math.floor((e-s)/86400000));
+}
+
+// Easter Sunday (Anonymous Gregorian algorithm)
+function easterSunday(y){
+  var a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4;
+  var f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30;
+  var i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7;
+  var m=Math.floor((a+11*h+22*l)/451);
+  var mo=Math.floor((h+l-7*m+114)/31),dy=((h+l-7*m+114)%31)+1;
+  return new Date(y,mo-1,dy);
+}
+
+// New Brunswick statutory holidays for a given year
+function nbHolidays(y){
+  var h=[];
+  function add(d){ h.push(d.toISOString().slice(0,10)); }
+  function observed(d){
+    // if falls on Sat → Mon; if Sun → Mon
+    var wd=d.getDay();
+    if(wd===6) return new Date(d.getFullYear(),d.getMonth(),d.getDate()+2);
+    if(wd===0) return new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);
+    return d;
+  }
+  function nthMonday(mo,n){ // mo=0-based month, n=1-based
+    var d=new Date(y,mo,1); d.setDate(d.getDate()+(((1-d.getDay())+7)%7)+(n-1)*7); return d;
+  }
+  // New Year's Day
+  add(observed(new Date(y,0,1)));
+  // Family Day – 3rd Monday of February (NB)
+  add(nthMonday(1,3));
+  // Good Friday
+  var easter=easterSunday(y);
+  add(new Date(easter.getFullYear(),easter.getMonth(),easter.getDate()-2));
+  // Victoria Day – Monday before May 25
+  var may25=new Date(y,4,25); var diff=(may25.getDay()+6)%7; add(new Date(y,4,25-diff));
+  // Canada Day
+  add(observed(new Date(y,6,1)));
+  // New Brunswick Day – 1st Monday of August
+  add(nthMonday(7,1));
+  // Labour Day – 1st Monday of September
+  add(nthMonday(8,1));
+  // National Day for Truth and Reconciliation
+  add(observed(new Date(y,8,30)));
+  // Thanksgiving – 2nd Monday of October
+  add(nthMonday(9,2));
+  // Remembrance Day
+  add(observed(new Date(y,10,11)));
+  // Christmas Day
+  add(observed(new Date(y,11,25)));
+  // Boxing Day
+  add(observed(new Date(y,11,26)));
+  return h;
+}
+
+function calcBusinessDays(start, end){
+  if(!start) return null;
+  var s = new Date(start+'T00:00:00');
+  var e = end ? new Date(end+'T00:00:00') : new Date();
+  if(e < s) return 0;
+  // Collect holiday sets for all years in range
+  var holidays = {};
+  for(var y=s.getFullYear(); y<=e.getFullYear(); y++){
+    nbHolidays(y).forEach(function(d){ holidays[d]=1; });
+  }
+  var days=0, cur=new Date(s);
+  while(cur <= e){
+    var wd=cur.getDay();
+    var iso=cur.toISOString().slice(0,10);
+    if(wd!==0 && wd!==6 && !holidays[iso]) days++;
+    cur.setDate(cur.getDate()+1);
+  }
+  return days;
+}
+function norm(s){ return (s||'').trim().toUpperCase(); }
+function formatTrackNum(v){
+  var s = String(v == null ? '' : v);
+  if(/^[\d.]+[eE][+\-]?\d+$/.test(s.trim())){
+    var n = parseFloat(s);
+    if(!isNaN(n) && isFinite(n)) s = Math.round(n).toLocaleString('en-US',{useGrouping:false,maximumFractionDigits:0});
+  }
+  return s;
+}
+function getTrackingUrl(carrier, carrierOther, trackingNum){
+  var c = (carrier==='Other' ? carrierOther : carrier)||'';
+  var t = encodeURIComponent(trackingNum||'');
+  if(!t) return null;
+  var cl = c.toLowerCase();
+  if(cl.includes('purolator'))       return 'https://www.purolator.com/en/shipping/tracker?pins='+t;
+  if(cl.includes('fedex'))           return 'https://www.fedex.com/apps/fedextrack/?action=track&trackingnumber='+t;
+  if(cl.includes('ups'))             return 'https://www.ups.com/track?tracknum='+t;
+  if(cl.includes('canada post')||cl.includes('canadapost')||cl.includes('canada-post')) return 'https://www.canadapost-postescanada.ca/track-reperage/en#'+t;
+  if(cl.includes('day') && cl.includes('ross')) return 'https://dayross.com/track-shipments';
+  if(cl.includes('midland') && cl.includes('courier')) return 'https://cssportal.midlandcourier.com/CSSPortal/static/application.html#/track/trackShipment';
+  if(cl.includes('midland')) return 'https://legacy.midlandtransport.com/MultiTrack.aspx';
+  return 'https://www.google.com/search?q='+encodeURIComponent((c ? c+' tracking ' : 'track shipment ')+trackingNum);
+}
+function doTrack(url, trackNum){
+  if(trackNum && navigator.clipboard) navigator.clipboard.writeText(trackNum).catch(function(){});
+  window.open(url, '_blank');
+}
+function infoRow(lbl, val){
+  if(!val && val!==0) return '';
+  return '<div class="info-row"><span class="info-lbl">'+escHtml(lbl)+'</span><span class="info-val">'+escHtml(String(val))+'</span></div>';
+}
+
+// SEARCH TYPE
+var searchType = 'wo';
+function setType(t){
+  searchType = t;
+  ['wo','so','mat','inc','out'].forEach(function(k){ document.getElementById('btn-'+k).classList.toggle('active', k===t); });
+  var ph = t==='wo' ? 'e.g. 6020183' : t==='so' ? 'e.g. 12345' : t==='out' ? 'e.g. 42500' : t==='mat' ? 'Part # or description...' : 'e.g. EPS-001';
+  document.getElementById('search-input').placeholder = ph;
+  document.getElementById('search-input').focus();
+}
+function clearSearch(){
+  var inp = document.getElementById('search-input'); inp.value = '';
+  document.getElementById('search-clear').style.display = 'none';
+  inp.focus(); showEmptyState();
+}
+function showEmptyState(){
+  document.body.classList.remove('has-results');
+  document.getElementById('results').innerHTML =
+    '<div class="empty-search"><div class="empty-search-icon">🗼</div><div class="empty-search-text">Enter a Work Order, Sales Order, Material description or Outgoing # above to begin</div></div>';
+}
+
+// SEARCH
+function doSearch(){
+  var raw = (document.getElementById('search-input').value||'').trim();
+  if(!raw) return;
+  var q = norm(raw);
+  if(searchType==='mat'){ renderMatResults(q, raw); return; }
+  var result = searchType==='wo' ? searchByWO(q) : searchType==='so' ? searchBySO(q) : searchType==='out' ? searchByOutgoing(q) : searchByIncoming(q);
+  renderResults(result, raw);
+}
+
+function searchByWO(q){
+  var incoming = Object.values(allData.incoming).filter(function(r){ return norm(r.wo)===q; });
+  var components = [];
+  Object.values(allData.items).forEach(function(doc){
+    (doc.lineItems||[]).forEach(function(li){
+      if(norm(li.workOrderNum)===q) components.push({material:li.material||'',qty:li.pc||'',date:doc.date||'',binLocation:li.binLocation||'',binStock:li.binStock||'',area:li.area||'',customer:li.customer||''});
+    });
+  });
+  components.sort(function(a,b){ return a.date.localeCompare(b.date); });
+  return {type:'wo', q:q,
+    incoming: incoming,
+    components: components,
+    process:  Object.values(allData.process).filter(function(r){ return norm(r.wo)===q; }),
+    shipping: Object.values(allData.shipping).filter(function(r){ return (r.workOrders||[]).some(function(w){ return norm(w)===q; }); }),
+    packing:  Object.values(allData.packing).filter(function(r){ return norm(r.orderNum)===q || norm(r.orderNum).includes(q); })
+  };
+}
+function searchBySO(q){
+  var soItems = [];
+  Object.values(allData.items).forEach(function(doc){
+    (doc.lineItems||[]).forEach(function(li){
+      if(norm(li.salesOrderNum)===q) soItems.push({material:li.material||'',qty:li.pc||'',date:doc.date||'',binLocation:li.binLocation||'',binStock:li.binStock||'',customer:li.customer||'',area:li.area||''});
+    });
+  });
+  soItems.sort(function(a,b){ return a.date.localeCompare(b.date); });
+  return {type:'so', q:q, incoming:[],
+    components: soItems,
+    process:  Object.values(allData.process).filter(function(r){ return norm(r.so)===q; }),
+    shipping: Object.values(allData.shipping).filter(function(r){ return (r.salesOrders||[]).some(function(s){ return norm(s)===q; }); }),
+    packing:  Object.values(allData.packing).filter(function(r){ return norm(r.orderNum)===q || norm(r.orderNum).includes(q); })
+  };
+}
+function searchByIncoming(q){
+  var inc = Object.values(allData.incoming).filter(function(r){ return norm(r.formNum)===q; });
+  if(inc.length && inc[0].wo){ var r = searchByWO(norm(inc[0].wo)); r.type='inc'; r.q=q; return r; }
+  return {type:'inc', q:q, incoming:inc, components:[], process:[], shipping:[], packing:[]};
+}
+function searchByOutgoing(q){
+  var shp = Object.values(allData.shipping).filter(function(r){ return norm(r.outgoing)===q; });
+  if(!shp.length) return {type:'out', q:q, incoming:[], components:[], process:[], shipping:[], packing:[]};
+  var allWOs = [];
+  shp.forEach(function(r){ (r.workOrders||[]).forEach(function(w){ if(w && allWOs.indexOf(norm(w))<0) allWOs.push(norm(w)); }); });
+  var incoming = [], components = [], process = [], packing = [];
+  allWOs.forEach(function(wo){
+    var r = searchByWO(wo);
+    r.incoming.forEach(function(x){ incoming.push(x); });
+    r.components.forEach(function(x){ components.push(x); });
+    r.process.forEach(function(x){ process.push(x); });
+    r.packing.forEach(function(x){ packing.push(x); });
+  });
+  return {type:'out', q:q, incoming:incoming, components:components, process:process, shipping:shp, packing:packing};
+}
+
+function renderMatResults(q, raw){
+  document.body.classList.add('has-results');
+  var matches = [];
+  Object.values(allData.items).forEach(function(doc){
+    (doc.lineItems||[]).forEach(function(li){
+      var mat = norm(li.material||'');
+      if(!mat || !mat.includes(q)) return;
+      matches.push({
+        material:    li.material||'',
+        qty:         li.pc||'',
+        date:        doc.date||'',
+        binLocation: li.binLocation||'',
+        binStock:    li.binStock||'',
+        workOrderNum:li.workOrderNum||'',
+        salesOrderNum:li.salesOrderNum||'',
+        area:        li.area||'',
+        customer:    li.customer||''
+      });
+    });
+  });
+  matches.sort(function(a,b){ return b.date.localeCompare(a.date); });
+  var el = document.getElementById('results');
+  if(!matches.length){
+    el.innerHTML = '<div class="not-found"><div class="not-found-icon">🔍</div>'+
+      '<div class="not-found-title">No materials found matching "'+escHtml(raw)+'"</div>'+
+      '<div class="not-found-sub">Try a shorter keyword or check the description.</div></div>';
+    return;
+  }
+  var h = '<div class="ct-card"><div class="ct-card-title">📦 Material / Components — '+matches.length+' result'+(matches.length===1?'':'s')+' for "'+escHtml(raw)+'"</div>';
+  h += '<table class="ct-table"><thead><tr><th>Material / Description</th><th>Qty</th><th>Date</th><th>Location</th><th>Work Order #</th><th>Sales Order #</th><th>Area</th><th>Customer</th></tr></thead><tbody>';
+  matches.forEach(function(c){
+    var binHtml = c.binLocation==='WIP' ? '<span class="bin-badge bin-wip">WIP</span>'
+      : c.binLocation==='Stock' ? '<span class="bin-badge bin-stock">Stock'+(c.binStock?' — '+escHtml(c.binStock):'')+'</span>'
+      : c.binLocation ? '<span class="bin-badge bin-nobin">'+escHtml(c.binLocation)+'</span>' : '—';
+    var woLink = c.workOrderNum ? '<a href="javascript:void(0)" onclick="setType(\'wo\');document.getElementById(\'search-input\').value=\''+escHtml(c.workOrderNum)+'\';doSearch()" style="color:#1565c0;font-weight:700;text-decoration:none">'+escHtml(c.workOrderNum)+'</a>' : '—';
+    var soLink = c.salesOrderNum ? '<a href="javascript:void(0)" onclick="setType(\'so\');document.getElementById(\'search-input\').value=\''+escHtml(c.salesOrderNum)+'\';doSearch()" style="color:#1565c0;font-weight:700;text-decoration:none">'+escHtml(c.salesOrderNum)+'</a>' : '—';
+    h += '<tr><td>'+escHtml(c.material||'—')+'</td><td>'+escHtml(c.qty||'—')+'</td><td>'+fmtDate(c.date)+'</td><td>'+binHtml+'</td><td>'+woLink+'</td><td>'+soLink+'</td><td>'+escHtml(c.area||'—')+'</td><td>'+escHtml(c.customer||'—')+'</td></tr>';
+  });
+  h += '</tbody></table></div>';
+  el.innerHTML = h;
+}
+
+// STATUS
+function getStatus(result){
+  if(result.shipping.length) return 'shipped';
+  if(result.process.length)  return 'on-hold';
+  if(result.packing.length)  return 'packing';
+  if(result.incoming.length || result.components.length) return 'active';
+  return 'notfound';
+}
+var STATUS_CFG = {
+  shipped:  {color:'#059669',bg:'#f0fdf4',border:'#6ee7b7',icon:'✅',label:'SHIPPED'},
+  'on-hold':{color:'#dc2626',bg:'#fff5f5',border:'#fca5a5',icon:'⏸',label:'SHIPPING ON HOLD'},
+  packing:  {color:'#d97706',bg:'#fffbeb',border:'#fcd34d',icon:'📦',label:'PACKING & HOLD'},
+  active:   {color:'#2563eb',bg:'#eff6ff',border:'#bfdbfe',icon:'⚙️',label:'ACTIVE — IN PROCESS'},
+  notfound: {color:'#6b7280',bg:'#f9fafb',border:'#e5e7eb',icon:'🔍',label:'NOT FOUND'}
+};
+
+// RENDER OVERVIEW
+var _viewIncList = [];
+function renderResults(result, raw){
+  document.body.classList.add('has-results');
+  _viewIncList = result.incoming;
+  var status = getStatus(result);
+  var sc = STATUS_CFG[status];
+  var inc  = result.incoming[0] || {};
+  var shpList = result.shipping.slice().sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+  var proc = result.process[0] || {};
+  var pack = result.packing[0] || {};
+  var startDate = inc.date || (result.components[0]||{}).date || '';
+  var endDate   = shpList.length ? shpList[shpList.length-1].date : null;
+  var daysAtSA  = startDate ? calcDays(startDate, endDate) : null;
+
+  if(status==='notfound'){
+    document.getElementById('results').innerHTML =
+      '<div class="not-found"><div class="not-found-icon">🔍</div>'+
+      '<div class="not-found-title">No records found for "'+escHtml(raw)+'"</div>'+
+      '<div class="not-found-sub">Check the number and try again, or switch the search type above.</div></div>';
+    return;
+  }
+
+  var typeLbl = result.type==='wo' ? 'Work Order #' : result.type==='so' ? 'Sales Order #' : result.type==='out' ? 'Outgoing #' : 'Incoming #';
+  var h = '';
+
+  h += '<div class="status-banner" style="background:'+sc.bg+';border-color:'+sc.border+'">';
+  h += '<div class="sb-left"><div class="sb-icon">'+sc.icon+'</div><div>';
+  h += '<div class="sb-status" style="color:'+sc.color+'">'+sc.label+'</div>';
+  h += '<div class="sb-title">'+typeLbl+' '+escHtml(result.q)+(inc.customer?' &nbsp;·&nbsp; '+escHtml(inc.customer):'')+'</div>';
+  h += '</div></div>';
+  h += '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">';
+  if(daysAtSA!==null) h += '<div class="days-badge" style="background:'+sc.color+'"><div class="db-num">'+daysAtSA+'</div><div class="db-lbl">Days at SA</div></div>';
+  if(result.type==='wo' && result.incoming.length) h += '<button class="ct-btn ct-btn-gray" style="background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;font-size:.75rem;padding:7px 13px" onclick="viewEpsForm(0)">📄 EPS Form</button>';
+  h += '</div>';
+  h += '</div>';
+
+  if(result.incoming.length){
+    h += '<div class="ct-grid'+(result.type!=='so'?'3':'2')+'">';
+    h += '<div class="ct-card" style="margin-bottom:0"><div class="ct-card-title">⚙️ Equipment</div>';
+    h += infoRow('Customer',inc.customer)+infoRow('Equipment',inc.equipment)+infoRow('Category',inc.area);
+    h += infoRow('Manufacturer',inc.manufacturer)+infoRow('Model #',inc.modelNumber)+infoRow('Serial #',inc.serialNumber);
+    h += infoRow('HP',inc.hp)+infoRow('KW',inc.kw)+infoRow('RPM',inc.rpm)+infoRow('Frame',inc.frame)+infoRow('Type/Size',inc.typeSize);
+    h += '</div>';
+    h += '<div class="ct-card" style="margin-bottom:0"><div class="ct-card-title">📋 Incoming Details</div>';
+    h += infoRow('Incoming #',inc.formNum)+infoRow('Work Order #',inc.wo)+infoRow('Previous WO #',inc.prevWo);
+    h += infoRow('Date Received',fmtDate(inc.date))+infoRow('Job Type',inc.whatToDo);
+    h += infoRow('Cust. Stock #',inc.customerStockNumber)+infoRow('Delivered by',inc.deliveryBy)+infoRow('Received by',inc.receivedBy);
+    if(inc.notes) h += infoRow('Notes',inc.notes);
+    h += '</div>';
+    if(result.type!=='so'){ var _locDisp = (inc.designatedLocation==='Others' && inc.locationOther) ? inc.locationOther : inc.designatedLocation; h += '<div class="ct-card" style="margin-bottom:0"><div class="ct-card-title">📍 Location</div>'+infoRow('Location',_locDisp)+'</div>'; }
+    h += '</div>';
+
+    var shpPhotosLink = '';
+    shpList.forEach(function(s){ if(!shpPhotosLink && s.photosLink) shpPhotosLink = s.photosLink; });
+    var noPh = '<span style="font-size:.8rem;color:var(--light);font-style:italic">No Pictures taken</span>';
+    h += '<div class="ct-card"><div class="ct-card-title">📷 Photos</div>';
+    h += '<div style="display:flex;gap:24px;flex-wrap:wrap">';
+    h += '<div style="flex:1;min-width:180px"><div style="font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Incoming</div>';
+    h += inc.photosLink ? '<a class="ct-btn ct-btn-gray" href="'+escHtml(inc.photosLink)+'" target="_blank">📷 View Incoming Photos</a>' : noPh;
+    h += '</div><div style="flex:1;min-width:180px"><div style="font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Shipping</div>';
+    h += shpPhotosLink ? '<a class="ct-btn ct-btn-gray" href="'+escHtml(shpPhotosLink)+'" target="_blank">📷 View Shipping Photos</a>' : noPh;
+    h += '</div></div>';
+    h += '</div>';
+  }
+
+  if(result.components.length){
+    var compTitle = result.type==='so' ? '📦 Items — Sales Order' : '📦 Components Received';
+    h += '<div class="ct-card"><div class="ct-card-title">'+compTitle+' ('+result.components.length+')</div>';
+    h += '<table class="ct-table"><thead><tr><th>Material / Description</th><th>Qty</th><th>Date Received</th>';
+    h += result.type==='so' ? '<th>Bin Location</th><th>Customer</th>' : '<th>Location</th>';
+    h += '</tr></thead><tbody>';
+    result.components.forEach(function(c){
+      var binHtml = c.binLocation==='WIP' ? '<span class="bin-badge bin-wip">WIP</span>'
+        : c.binLocation==='Stock' ? '<span class="bin-badge bin-stock">Stock'+(c.binStock?' — '+escHtml(c.binStock):'')+'</span>'
+        : c.binLocation ? '<span class="bin-badge bin-nobin">'+escHtml(c.binLocation)+'</span>' : '—';
+      h += '<tr><td>'+escHtml(c.material||'—')+'</td><td>'+escHtml(c.qty||'—')+'</td><td>'+fmtDate(c.date)+'</td>';
+      h += result.type==='so' ? '<td>'+binHtml+'</td><td>'+escHtml(c.customer||'—')+'</td>' : '<td>'+binHtml+'</td>';
+      h += '</tr>';
+    });
+    h += '</tbody></table></div>';
+  }
+
+  if(result.process.length){
+    var holdEndDate = shpList.length ? shpList[0].date : null;
+    var holdDays = calcBusinessDays(proc.receivedDate, holdEndDate);
+    var holdActive = !holdEndDate;
+    var isEqHold = (proc.customer||'').toUpperCase().includes('EQUIPEX');
+    var nextWedHold = '';
+    if(isEqHold && proc.receivedDate){
+      var dw = new Date(proc.receivedDate + 'T00:00:00');
+      var ahead = (3 - dw.getDay() + 7) % 7 || 7;
+      dw.setDate(dw.getDate() + ahead);
+      nextWedHold = dw.toISOString().slice(0,10);
+    }
+    h += '<div class="ct-card card-danger"><div class="ct-card-title">⏸ Shipping On Hold</div>';
+    h += '<div style="display:flex;align-items:flex-start;gap:28px;flex-wrap:wrap">';
+    if(holdDays!==null){
+      h += '<div style="text-align:center;flex-shrink:0">';
+      h += '<div class="hold-days" style="color:#dc2626">'+holdDays+'</div>';
+      h += '<div class="hold-lbl">Business Days on Hold</div>';
+      h += _ctHoldBreakdown(proc, holdEndDate);
+      if(isEqHold && nextWedHold){
+        h += '<div style="margin-top:10px;background:#fffbeb;border:1.5px solid #f59e0b;border-radius:6px;padding:6px 10px;text-align:left">';
+        h += '<div style="font-size:.6rem;font-weight:800;color:#92400e;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Next Shipping Date</div>';
+        h += '<div style="font-size:.95rem;font-weight:900;color:#92400e">'+fmtDate(nextWedHold)+'</div>';
+        h += '</div>';
+      }
+      h += '</div>';
+    }
+    h += '<div style="flex:1">'+infoRow('Date Received in Hold',fmtDate(proc.receivedDate))+infoRow('Work Order #',proc.wo)+infoRow('Customer',proc.customer)+infoRow('Customer PO #',proc.po)+infoRow('Outgoing #',proc.outgoing)+infoRow('Material',proc.material)+(proc.notes?infoRow('Notes',proc.notes):'')+'</div></div></div>';
+  }
+
+  if(result.packing.length){
+    var packEndDate = shpList.length ? shpList[0].date : null;
+    var packDays = calcBusinessDays(pack.pickDate, packEndDate);
+    h += '<div class="ct-card card-warning"><div class="ct-card-title">📦 Packing & Hold</div>';
+    h += '<div style="display:flex;align-items:flex-start;gap:28px;flex-wrap:wrap">';
+    if(packDays!==null) h += '<div style="text-align:center;flex-shrink:0"><div class="hold-days" style="color:#d97706">'+packDays+'</div><div class="hold-lbl">Days on Hold</div></div>';
+    h += '<div style="flex:1">'+infoRow('Order #',pack.orderNum)+infoRow('Customer',pack.customer)+infoRow('Pick Date',fmtDate(pack.pickDate))+'</div></div></div>';
+  }
+
+  shpList.forEach(function(s){
+    var carrierName = s.carrier==='Other' ? (s.carrierOther||'Other') : (s.carrier||'—');
+    var trackNum = formatTrackNum(s.trackingNum);
+    var trackUrl = getTrackingUrl(s.carrier||'', s.carrierOther||'', trackNum);
+    var allOrders = [].concat(
+      (s.workOrders||[]).map(function(o){ return 'WO: '+o; }),
+      (s.salesOrders||[]).map(function(o){ return 'SO: '+o; }),
+      (s.transferNums||[]).map(function(o){ return 'TR: '+o; })
+    ).filter(Boolean);
+    h += '<div class="ct-card card-success"><div class="ct-card-title">🚚 Shipment — '+fmtDate(s.date)+'</div>';
+    h += '<div class="ct-grid2" style="margin-bottom:0"><div>';
+    h += infoRow('Ship Date',fmtDate(s.date))+infoRow('Customer',s.customer)+infoRow('Destination',[s.city,s.province,s.country].filter(Boolean).join(', ')||null)+infoRow('Outgoing #',s.outgoing)+infoRow('Orders',allOrders.join('  ·  ')||null)+infoRow('Notes',s.notes);
+    h += '</div><div>';
+    h += infoRow('Carrier',carrierName)+infoRow('Tracking #',trackNum)+infoRow('Freight Type',s.freightType)+infoRow('Pieces',s.pc)+infoRow('Weight',s.lb?s.lb+' lb':null)+infoRow('Material',s.material);
+    h += '</div></div>';
+    if(trackNum && trackUrl){
+      h += '<div class="btn-row"><button class="ct-btn ct-btn-blue" onclick="doTrack(\''+trackUrl.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\',\''+trackNum.replace(/'/g,"\\'")+'\')">🔍 Track — '+escHtml(carrierName)+'</button></div>';
+    }
+    h += '</div>';
+  });
+
+  if(result.incoming.length > 1){
+    h += '<div class="ct-card"><div class="ct-card-title">📋 Additional Incoming Records ('+result.incoming.length+')</div>';
+    h += '<table class="ct-table"><thead><tr><th>Incoming #</th><th>Date</th><th>Equipment</th><th>Job Type</th><th></th></tr></thead><tbody>';
+    result.incoming.forEach(function(r, i){ h += '<tr><td>'+escHtml(r.formNum||'—')+'</td><td>'+fmtDate(r.date)+'</td><td>'+escHtml(r.equipment||'—')+'</td><td>'+escHtml(r.whatToDo||'—')+'</td><td><button class="ct-btn ct-btn-gray" style="padding:4px 10px;font-size:.7rem;background:#e3f2fd;color:#1565c0;border:1px solid #90caf9" onclick="viewEpsForm('+i+')">📄</button></td></tr>'; });
+    h += '</tbody></table></div>';
+  }
+  document.getElementById('results').innerHTML = h;
+}
+
+// ── EPS FORM VIEWER ──
+function viewEpsForm(idx){
+  var r = _viewIncList[idx||0];
+  if(!r) return;
+  var data = {
+    formNum:         r.formNum||'',
+    wo:              r.wo||'',
+    prevWo:          r.prevWo||'',
+    customerPO:      r.customerPO||'',
+    date:            r.date||'',
+    customer:        r.customer||'',
+    customerContact: r.customerContact||'',
+    telephone:       r.telephone||'',
+    address:         r.address||'',
+    custwo:          r.customerWorkOrder||'',
+    equipment:       r.equipment||'',
+    area:            r.area||'',
+    manufacturer:    r.manufacturer||'',
+    model:           r.modelNumber||'',
+    serial:          r.serialNumber||'',
+    typesize:        r.typeSize||'',
+    hp:              r.hp||'',
+    rpm:             r.rpm||'',
+    frame:           r.frame||'',
+    kw:              r.kw||'',
+    custstock:       r.customerStockNumber||'',
+    custasset:       r.customerAsset||'',
+    otherdata:       r.otherData||'',
+    location:        r.designatedLocation||'',
+    locationOther:   r.locationOther||'',
+    attachments:     r.attachments||'',
+    attachOther:     r.attachOther||'',
+    datepicstaken:   r.datePicsTaken||r.datepicstaken||'',
+    picsqty:         r.picsQty||r.picsqty||'',
+    picstime:        r.picsTime||r.picstime||'',
+    whattodo:        r.whatToDo||'',
+    priority:        r.priority||'',
+    delivery:        r.deliveryBy||'',
+    received:        r.receivedBy||'',
+    notes:           r.notes||''
+  };
+  data.epsNum = r.formNum || r.epsNum || '';
+  data.from   = 'ct';
+  window.open('eps-form.html?' + new URLSearchParams(data).toString(), '_blank');
+}
+
+// ══════════════════════════
+// ORDER & MATERIAL STATUS
+// ══════════════════════════
+var omsSection   = 'incoming';
+var omsArea      = 'all';
+var omsItemCat   = 'all';
+var omsItemArea  = 'all';
+var omsProvince  = null;
+var omsSearch = '';
+var urlParamsApplied = false;
+
+var PROV_ABBR = {
+  'NEW BRUNSWICK':'NB','NOVA SCOTIA':'NS','PRINCE EDWARD ISLAND':'PE',
+  'PEI':'PE','NEWFOUNDLAND AND LABRADOR':'NL','NEWFOUNDLAND':'NL','NF':'NL',
+  'QUÉBEC':'QC','QUEBEC':'QC','ONTARIO':'ON','ALBERTA':'AB',
+  'BRITISH COLUMBIA':'BC','MANITOBA':'MB','SASKATCHEWAN':'SK',
+  'YUKON':'YT','NORTHWEST TERRITORIES':'NT','NUNAVUT':'NU'
+};
+var CA_PROVS_CT = {NB:1,NS:1,PE:1,NL:1,QC:1,ON:1,AB:1,BC:1,MB:1,SK:1,YT:1,NT:1,NU:1};
+function destKeyCT(r){
+  var raw  = (r.province||'').trim();
+  var ctry = (r.country||'').trim();
+  var ctryUp = ctry.toUpperCase();
+  if(!raw && !ctry) return 'Unknown';
+  var norm = PROV_ABBR[raw.toUpperCase()] || raw;
+  if(!norm) return ctry || 'Unknown';
+  var isCanada = !ctry || ctryUp==='CANADA' || ctryUp==='CA' || CA_PROVS_CT[norm.toUpperCase()];
+  if(isCanada) return norm.toUpperCase();
+  var isUSA = ctryUp==='USA'||ctryUp==='US'||ctryUp==='UNITED STATES';
+  return norm.toUpperCase() + ' · ' + (isUSA ? 'USA' : ctry);
+}
+
+function clearOmsProvince(){
+  omsProvince = null;
+  document.getElementById('oms-prov-banner').style.display = 'none';
+  omsRenderShipping();
+}
+
+function applyUrlParams(){
+  var params = new URLSearchParams(window.location.search);
+  if(params.get('page') === 'oms'){
+    var prov    = params.get('province');
+    var section = params.get('section');
+    if(prov){ omsProvince = prov; }
+    showPage('oms');
+    if(section) omsSetSection(section);
+  }
+}
+
+function omsDateMatch(dateISO){
+  if(!dateISO) return false;
+  var yr = document.getElementById('oms-year').value;
+  var mo = document.getElementById('oms-month').value;
+  var df = document.getElementById('oms-day-from').value;
+  var dt = document.getElementById('oms-day-to').value;
+  if(yr && !dateISO.startsWith(yr)) return false;
+  if(mo && dateISO.slice(5,7) !== mo) return false;
+  var dayNum = parseInt(dateISO.slice(8,10), 10);
+  if(df && dayNum < parseInt(df, 10)) return false;
+  if(dt && dayNum > parseInt(dt, 10)) return false;
+  return true;
+}
+
+function omsPopulateDays(){
+  var yr = parseInt(document.getElementById('oms-year').value) || 0;
+  var mo = parseInt(document.getElementById('oms-month').value) || 0;
+  var days = (yr && mo) ? new Date(yr, mo, 0).getDate() : 31;
+  ['oms-day-from','oms-day-to'].forEach(function(id){
+    var sel = document.getElementById(id);
+    var isFrom = id === 'oms-day-from';
+    var curVal = sel.value;
+    var opts = '<option value="">'+(isFrom ? '1st' : 'Last')+'</option>';
+    for(var d=1; d<=days; d++) opts += '<option value="'+d+'"'+(String(d)===curVal?' selected':'')+'>'+d+'</option>';
+    sel.innerHTML = opts;
+  });
+}
+
+function omsSetSection(s){
+  omsSection = s;
+  ['incoming','items','salesorders','shipping'].forEach(function(k){
+    document.getElementById('oms-stab-'+k).classList.toggle('active', k===s);
+    document.getElementById('oms-sec-'+k).style.display = k===s ? '' : 'none';
+  });
+  omsRenderSection();
+}
+
+function omsSetArea(a){
+  omsArea = a;
+  ['all','electrical','mechanical','aircompressor','generator'].forEach(function(k){
+    document.getElementById('oms-area-'+k).classList.toggle('active', k===a);
+  });
+  omsRenderIncoming();
+}
+
+function omsSetItemCat(c){
+  omsItemCat = c;
+  ['all','wip','so','other'].forEach(function(k){
+    document.getElementById('oms-item-'+k).classList.toggle('active', k===c);
+  });
+  omsRenderItems();
+}
+function omsSetItemArea(a){
+  omsItemArea = a;
+  ['all','electrical','mechanical','aircompressor','generator'].forEach(function(k){
+    document.getElementById('oms-iarea-'+k).classList.toggle('active', k===a);
+  });
+  omsRenderItems();
+}
+
+function omsReset(){
+  document.getElementById('oms-year').value  = '';
+  document.getElementById('oms-month').value = '';
+  omsPopulateDays();
+  document.getElementById('oms-day-from').value = '';
+  document.getElementById('oms-day-to').value   = '';
+  omsProvince = null;
+  var b = document.getElementById('oms-prov-banner'); if(b) b.style.display = 'none';
+  omsSearch = '';
+  var ci = document.getElementById('oms-cust-input'); if(ci) ci.value = '';
+  var cc = document.getElementById('oms-cust-clr'); if(cc) cc.style.display = 'none';
+  omsItemCat = 'all';
+  ['all','wip','so','other'].forEach(function(k){
+    document.getElementById('oms-item-'+k).classList.toggle('active', k==='all');
+  });
+  omsItemArea = 'all';
+  ['all','electrical','mechanical','aircompressor','generator'].forEach(function(k){
+    document.getElementById('oms-iarea-'+k).classList.toggle('active', k==='all');
+  });
+  omsRender();
+}
+
+function omsApply(){
+  omsPopulateDays();
+  omsRender();
+}
+
+function omsRender(){
+  omsRenderKPIs();
+  omsRenderSection();
+}
+
+function omsRenderSection(){
+  if(omsSection==='incoming')      omsRenderIncoming();
+  else if(omsSection==='items')    omsRenderItems();
+  else if(omsSection==='salesorders') omsRenderSalesOrders();
+  else omsRenderShipping();
+}
+
+function omsRenderSalesOrders(){
+  var custQ = omsSearch.toUpperCase();
+  var yr = document.getElementById('oms-year').value;
+  var mo = document.getElementById('oms-month').value;
+  var df = document.getElementById('oms-day-from').value;
+  var dt = document.getElementById('oms-day-to').value;
+  var hasDateFilter = yr || mo || df || dt;
+
+  // Collect unique SO numbers with metadata
+  var soMap = {};
+  function ensureSo(so){ if(!soMap[so]) soMap[so] = {customers:[], itemDates:[], shpDates:[], procDates:[], itemCount:0}; }
+
+  Object.values(allData.items).forEach(function(doc){
+    (doc.lineItems||[]).forEach(function(li){
+      if(li.applicationType !== 'Sales Order' || !li.salesOrderNum) return;
+      var so = li.salesOrderNum.trim().toUpperCase();
+      ensureSo(so);
+      if(li.customer && soMap[so].customers.indexOf(li.customer)<0) soMap[so].customers.push(li.customer);
+      if(doc.date) soMap[so].itemDates.push(doc.date);
+      soMap[so].itemCount++;
+    });
+  });
+  Object.values(allData.shipping).forEach(function(r){
+    (r.salesOrders||[]).forEach(function(s){
+      if(!s) return;
+      var so = s.trim().toUpperCase();
+      ensureSo(so);
+      if(r.customer && soMap[so].customers.indexOf(r.customer)<0) soMap[so].customers.push(r.customer);
+      if(r.date) soMap[so].shpDates.push(r.date);
+    });
+  });
+  // Also collect SOs that exist only in Process on Hold or Packing
+  Object.values(allData.process).forEach(function(r){
+    if(!r.so) return;
+    var so = r.so.trim().toUpperCase();
+    ensureSo(so);
+    if(r.customer && soMap[so].customers.indexOf(r.customer)<0) soMap[so].customers.push(r.customer);
+    if(r.receivedDate) soMap[so].procDates.push(r.receivedDate);
+  });
+  Object.values(allData.packing).forEach(function(r){
+    if(!r.orderNum) return;
+    var so = r.orderNum.trim().toUpperCase();
+    // Only add if looks like a SO (not a WO) — skip if already in map as WO
+    ensureSo(so);
+    if(r.customer && soMap[so].customers.indexOf(r.customer)<0) soMap[so].customers.push(r.customer);
+  });
+
+  var soList = Object.keys(soMap).map(function(soNum){
+    var info = soMap[soNum];
+    var allDates = info.itemDates.concat(info.shpDates).concat(info.procDates);
+    allDates.sort();
+    var lastDate  = allDates[allDates.length-1] || '';
+    var customer  = info.customers[0] || '';
+    var dateMatch = allDates.some(function(d){ return omsDateMatch(d); });
+    var onHold  = Object.values(allData.process).some(function(r){ return norm(r.so)===soNum; });
+    var inPack  = Object.values(allData.packing).some(function(r){ return norm(r.orderNum)===soNum; });
+    // Shipped always wins — even if previously on hold
+    var status = info.shpDates.length > 0 ? 'shipped' : onHold ? 'on-hold' : inPack ? 'packing' : info.itemCount > 0 ? 'active' : 'notfound';
+    return {soNum:soNum, customer:customer, itemCount:info.itemCount, lastDate:lastDate, status:status, dateMatch:dateMatch};
+  });
+
+  if(hasDateFilter) soList = soList.filter(function(s){ return s.dateMatch; });
+  if(custQ) soList = soList.filter(function(s){
+    var statusLbl = (STATUS_CFG[s.status]||{}).label||'';
+    return s.soNum.includes(custQ) || s.customer.toUpperCase().includes(custQ) || statusLbl.toUpperCase().includes(custQ);
+  });
+  soList.sort(function(a,b){ return (b.lastDate||'').localeCompare(a.lastDate||''); });
+
+  var tbody = document.getElementById('oms-salesorders-body');
+  if(!soList.length){ tbody.innerHTML = '<tr><td colspan="5" class="oms-empty">No Sales Orders found for this filter</td></tr>'; return; }
+  tbody.innerHTML = soList.map(function(r){
+    var badge = omsStatusBadge(r.status);
+    return '<tr style="cursor:pointer" onclick="goToOverview(\'so\',\''+escHtml(r.soNum)+'\')">' +
+      '<td><button class="order-link" onclick="event.stopPropagation();goToOverview(\'so\',\''+escHtml(r.soNum)+'\')">'+escHtml(r.soNum)+'</button></td>'+
+      '<td style="text-transform:uppercase">'+escHtml(r.customer||'—')+'</td>'+
+      '<td>'+badge+'</td>'+
+      '<td style="text-align:center;font-weight:700">'+r.itemCount+'</td>'+
+      '<td>'+fmtDate(r.lastDate)+'</td>'+
+      '</tr>';
+  }).join('');
+}
+
+function omsRenderKPIs(){
+  var incCount = Object.values(allData.incoming).filter(function(r){ return omsDateMatch(r.date); }).length;
+  var wipCount = 0, salesCount = 0, otherCount = 0;
+  Object.values(allData.items).forEach(function(doc){
+    if(!omsDateMatch(doc.date)) return;
+    (doc.lineItems||[]).forEach(function(li){
+      if(li.binLocation==='WIP') wipCount++;
+      else if(li.applicationType==='Sales Order') salesCount++;
+      else otherCount++;
+    });
+  });
+  var shpCount = Object.values(allData.shipping).filter(function(r){ return omsDateMatch(r.date); }).length;
+  document.getElementById('oms-kpis').innerHTML =
+    '<div class="oms-kpi"><div class="oms-kpi-num">'+incCount+'</div><div class="oms-kpi-lbl">Incoming Forms</div></div>'+
+    '<div class="oms-kpi"><div class="oms-kpi-num">'+wipCount+'</div><div class="oms-kpi-lbl">WIP Items</div></div>'+
+    '<div class="oms-kpi"><div class="oms-kpi-num">'+salesCount+'</div><div class="oms-kpi-lbl">Sales Order Items</div></div>'+
+    '<div class="oms-kpi"><div class="oms-kpi-num">'+shpCount+'</div><div class="oms-kpi-lbl">Shipments</div></div>';
+}
+
+function normArea(a){
+  var s = (a||'').toLowerCase();
+  if(s.includes('electric')) return 'electrical';
+  if(s.includes('mechanic')) return 'mechanical';
+  if(s.includes('compressor')||s.includes('air comp')) return 'aircompressor';
+  if(s.includes('generator')) return 'generator';
+  return 'other';
+}
+
+function omsWoStatus(wo){
+  if(!wo) return null;
+  var w = norm(wo);
+  // Shipped always wins — even if previously on hold
+  var shipped = Object.values(allData.shipping).some(function(r){ return (r.workOrders||[]).some(function(x){ return norm(x)===w; }); });
+  if(shipped) return 'shipped';
+  var onHold = Object.values(allData.process).some(function(r){ return norm(r.wo)===w; });
+  if(onHold) return 'on-hold';
+  var inPack = Object.values(allData.packing).some(function(r){ return norm(r.orderNum)===w; });
+  if(inPack) return 'packing';
+  return 'active';
+}
+
+function omsStatusBadge(status){
+  var sc = STATUS_CFG[status] || STATUS_CFG.active;
+  return '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:.67rem;font-weight:700;white-space:nowrap;background:'+sc.bg+';color:'+sc.color+';border:1px solid '+sc.border+'">'+sc.icon+' '+sc.label+'</span>';
+}
+
+function omsRenderIncoming(){
+  var q = omsSearch.toUpperCase();
+  var rows = Object.values(allData.incoming)
+    .filter(function(r){ return omsDateMatch(r.date); })
+    .sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+  if(omsArea !== 'all') rows = rows.filter(function(r){ return normArea(r.area) === omsArea; });
+  if(q) rows = rows.filter(function(r){
+    return (r.formNum||'').toUpperCase().includes(q)
+        || (r.wo||'').toUpperCase().includes(q)
+        || (r.customer||'').toUpperCase().includes(q)
+        || (r.equipment||'').toUpperCase().includes(q)
+        || (r.area||'').toUpperCase().includes(q)
+        || (r.whatToDo||'').toUpperCase().includes(q)
+        || (r.manufacturer||'').toUpperCase().includes(q)
+        || (r.serialNumber||'').toUpperCase().includes(q)
+        || ((STATUS_CFG[omsWoStatus(r.wo)]||{}).label||'').toUpperCase().includes(q);
+  });
+  var tbody = document.getElementById('oms-incoming-body');
+  if(!rows.length){ tbody.innerHTML = '<tr><td colspan="8" class="oms-empty">No records found for this filter</td></tr>'; return; }
+  tbody.innerHTML = rows.map(function(r){
+    var woLink = r.wo ? '<button class="order-link" onclick="goToOverview(\'wo\',\''+escHtml(r.wo)+'\')">'+escHtml(r.wo)+'</button>' : '—';
+    var status = r.wo ? omsWoStatus(r.wo) : null;
+    return '<tr><td>'+fmtDate(r.date)+'</td><td>'+escHtml(r.formNum||'—')+'</td><td>'+woLink+'</td>'+
+      '<td>'+escHtml(r.customer||'—')+'</td>'+
+      '<td style="text-transform:uppercase">'+escHtml(r.equipment||'—')+'</td>'+
+      '<td><span class="area-badge" style="text-transform:uppercase">'+escHtml(r.area||'—')+'</span></td>'+
+      '<td style="text-transform:uppercase">'+escHtml(r.whatToDo||'—')+'</td>'+
+      '<td>'+(status ? omsStatusBadge(status) : '—')+'</td></tr>';
+  }).join('');
+}
+
+function omsRenderItems(){
+  var allRows = [];
+  Object.values(allData.items).forEach(function(doc){
+    if(!omsDateMatch(doc.date)) return;
+    (doc.lineItems||[]).forEach(function(li){
+      allRows.push({date:doc.date, docNum:doc.docNum||'',
+        material:li.material||'', qty:li.pc||'',
+        binLocation:li.binLocation||'', binStock:li.binStock||'',
+        area:li.area||'', customer:li.customer||'',
+        wo:li.workOrderNum||'', so:li.salesOrderNum||'',
+        appType:li.applicationType||''});
+    });
+  });
+  var rows;
+  if(omsItemCat==='wip')        rows = allRows.filter(function(r){ return r.binLocation==='WIP'; });
+  else if(omsItemCat==='so')    rows = allRows.filter(function(r){ return r.appType==='Sales Order' && r.binLocation!=='WIP'; });
+  else if(omsItemCat==='other') rows = allRows.filter(function(r){ return r.binLocation!=='WIP' && r.appType!=='Sales Order'; });
+  else                          rows = allRows;
+  if(omsItemArea !== 'all') rows = rows.filter(function(r){ return normArea(r.area) === omsItemArea; });
+  if(omsSearch){ var _q = omsSearch.toUpperCase(); rows = rows.filter(function(r){
+    return (r.docNum||'').toUpperCase().includes(_q)
+        || (r.material||'').toUpperCase().includes(_q)
+        || (r.wo||'').toUpperCase().includes(_q)
+        || (r.so||'').toUpperCase().includes(_q)
+        || (r.customer||'').toUpperCase().includes(_q)
+        || (r.area||'').toUpperCase().includes(_q)
+        || (r.binLocation||'').toUpperCase().includes(_q);
+  }); }
+  rows.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+  var tbody = document.getElementById('oms-items-body');
+  if(!rows.length){ tbody.innerHTML = '<tr><td colspan="9" class="oms-empty">No items found for this filter</td></tr>'; return; }
+  tbody.innerHTML = rows.map(function(r){
+    var binHtml = r.binLocation==='WIP' ? '<span class="bin-badge bin-wip">WIP</span>'
+      : r.binLocation==='Stock' ? '<span class="bin-badge bin-stock">Stock'+(r.binStock?' — '+escHtml(r.binStock):'')+'</span>'
+      : r.binLocation ? '<span class="bin-badge bin-nobin">'+escHtml(r.binLocation)+'</span>' : '—';
+    var woLink = r.wo ? '<button class="order-link" onclick="goToOverview(\'wo\',\''+escHtml(r.wo)+'\')">'+escHtml(r.wo)+'</button>' : '—';
+    var soLink = r.so ? '<button class="order-link" onclick="goToOverview(\'so\',\''+escHtml(r.so)+'\')">'+escHtml(r.so)+'</button>' : '—';
+    return '<tr><td>'+fmtDate(r.date)+'</td><td>'+escHtml(r.docNum||'—')+'</td>'+
+      '<td style="text-transform:uppercase">'+escHtml(r.material||'—')+'</td><td style="text-align:center">'+escHtml(r.qty||'—')+'</td>'+
+      '<td>'+woLink+'</td><td>'+soLink+'</td>'+
+      '<td style="text-transform:uppercase">'+escHtml(r.area||'—')+'</td><td style="text-transform:uppercase">'+escHtml(r.customer||'—')+'</td><td>'+binHtml+'</td></tr>';
+  }).join('');
+}
+
+function omsRenderShipping(){
+  var banner = document.getElementById('oms-prov-banner');
+  if(omsProvince){
+    banner.style.display = 'flex';
+    document.getElementById('oms-prov-label').textContent = omsProvince;
+  } else {
+    banner.style.display = 'none';
+  }
+  var _sq = omsSearch.toUpperCase();
+  var rows = Object.values(allData.shipping)
+    .filter(function(r){ return omsDateMatch(r.date); })
+    .filter(function(r){ return !omsProvince || destKeyCT(r) === omsProvince; })
+    .filter(function(r){
+      if(!_sq) return true;
+      var trackNum = formatTrackNum(r.trackingNum||'');
+      return (r.customer||'').toUpperCase().includes(_sq)
+          || (r.outgoing||'').toUpperCase().includes(_sq)
+          || (r.material||'').toUpperCase().includes(_sq)
+          || (r.city||'').toUpperCase().includes(_sq)
+          || (trackNum||'').toUpperCase().includes(_sq)
+          || (r.salesOrders||[]).some(function(s){ return (s||'').toUpperCase().includes(_sq); })
+          || (r.workOrders||[]).some(function(w){ return (w||'').toUpperCase().includes(_sq); })
+          || (r.transferNums||[]).some(function(t){ return (t||'').toUpperCase().includes(_sq); });
+    })
+    .sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+  var tbody = document.getElementById('oms-shipping-body');
+  if(!rows.length){ tbody.innerHTML = '<tr><td colspan="9" class="oms-empty">No shipments found for this filter</td></tr>'; return; }
+  tbody.innerHTML = rows.map(function(r){
+    var carrierName = r.carrier==='Other' ? (r.carrierOther||'Other') : (r.carrier||'—');
+    var trackNum = formatTrackNum(r.trackingNum);
+    var dest = [r.city,r.province,r.country].filter(Boolean).join(', ')||'—';
+    var wos = (r.workOrders||[]).filter(Boolean);
+    var sos = (r.salesOrders||[]).filter(Boolean);
+    var woHtml = wos.length ? wos.map(function(w){ return '<button class="order-link" onclick="goToOverview(\'wo\',\''+escHtml(w)+'\')">'+escHtml(w)+'</button>'; }).join('<br>') : '—';
+    var soHtml = sos.length ? sos.map(function(s){ return '<button class="order-link" onclick="goToOverview(\'so\',\''+escHtml(s)+'\')">'+escHtml(s)+'</button>'; }).join('<br>') : '—';
+    return '<tr><td>'+fmtDate(r.date)+'</td><td style="text-transform:uppercase">'+escHtml(r.customer||'—')+'</td><td style="text-transform:uppercase">'+escHtml(dest)+'</td>'+
+      '<td>'+woHtml+'</td><td>'+soHtml+'</td>'+
+      '<td style="text-transform:uppercase">'+escHtml(carrierName)+'</td><td style="font-size:.72rem">'+escHtml(trackNum||'—')+'</td>'+
+      '<td style="text-align:center">'+escHtml(r.pc||'—')+'</td>'+
+      '<td style="text-align:center">'+escHtml(r.lb||'—')+'</td></tr>';
+  }).join('');
+}
+
+omsPopulateDays();
+
+// EXCEL EXPORT
+function downloadOmsExcel(){
+  var wb = XLSX.utils.book_new();
+
+  var yr = document.getElementById('oms-year').value;
+  var mo = document.getElementById('oms-month').value;
+  var df = document.getElementById('oms-day-from').value;
+  var dt = document.getElementById('oms-day-to').value;
+  var MO_NAME = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var dayPart = df && dt ? '-D'+df.padStart(2,'0')+'to'+dt.padStart(2,'0') : df ? '-D'+df.padStart(2,'0')+'to31' : dt ? '-D01to'+dt.padStart(2,'0') : '';
+  var periodLabel = (yr||'All') + (mo ? '-'+MO_NAME[parseInt(mo,10)-1] : '') + dayPart;
+
+  var xlsQ = omsSearch ? omsSearch.toUpperCase() : '';
+
+  // ── Sheet 1: Incoming Forms ──
+  var incRows = Object.values(allData.incoming)
+    .filter(function(r){ return omsDateMatch(r.date); })
+    .sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+  if(omsArea !== 'all') incRows = incRows.filter(function(r){ return normArea(r.area) === omsArea; });
+  if(xlsQ) incRows = incRows.filter(function(r){
+    return (r.formNum||'').toUpperCase().includes(xlsQ)
+        || (r.wo||'').toUpperCase().includes(xlsQ)
+        || (r.customer||'').toUpperCase().includes(xlsQ)
+        || (r.equipment||'').toUpperCase().includes(xlsQ)
+        || (r.area||'').toUpperCase().includes(xlsQ)
+        || (r.whatToDo||'').toUpperCase().includes(xlsQ)
+        || (r.manufacturer||'').toUpperCase().includes(xlsQ)
+        || (r.serialNumber||'').toUpperCase().includes(xlsQ);
+  });
+  var incData = [['Date','Incoming #','Work Order #','Customer','Equipment','Category','Job Type','Manufacturer','Model #','Serial #','HP','KW','RPM','Frame','Delivered By','Received By','Notes']];
+  incRows.forEach(function(r){
+    incData.push([fmtDate(r.date),r.formNum||'',r.wo||'',r.customer||'',r.equipment||'',r.area||'',r.whatToDo||'',r.manufacturer||'',r.modelNumber||'',r.serialNumber||'',r.hp||'',r.kw||'',r.rpm||'',r.frame||'',r.deliveryBy||'',r.receivedBy||'',r.notes||'']);
+  });
+  var wsInc = XLSX.utils.aoa_to_sheet(incData);
+  wsInc['!cols'] = [8,10,12,18,20,14,14,16,13,13,5,5,6,7,14,14,24].map(function(w){ return {wch:w}; });
+  XLSX.utils.book_append_sheet(wb, wsInc, 'Incoming Forms');
+
+  // ── Sheets 2-4: Items (WIP / Sales Order / Other) ──
+  var wipData   = [['Date','Receipt #','Material / Description','Qty','Work Order #','Sales Order #','Area','Customer','Bin']];
+  var soData    = [['Date','Receipt #','Material / Description','Qty','Work Order #','Sales Order #','Area','Customer','Bin']];
+  var otherData = [['Date','Receipt #','Material / Description','Qty','Work Order #','Sales Order #','Area','Customer','Bin']];
+
+  Object.values(allData.items).forEach(function(doc){
+    if(!omsDateMatch(doc.date)) return;
+    (doc.lineItems||[]).forEach(function(li){
+      var cat = li.binLocation==='WIP' ? 'wip' : li.applicationType==='Sales Order' ? 'so' : 'other';
+      if(omsItemCat !== 'all' && omsItemCat !== cat) return;
+      if(omsItemArea !== 'all' && normArea(li.area) !== omsItemArea) return;
+      if(xlsQ){
+        var hit = (doc.docNum||'').toUpperCase().includes(xlsQ)
+               || (li.material||'').toUpperCase().includes(xlsQ)
+               || (li.workOrderNum||'').toUpperCase().includes(xlsQ)
+               || (li.salesOrderNum||'').toUpperCase().includes(xlsQ)
+               || (li.customer||'').toUpperCase().includes(xlsQ)
+               || (li.area||'').toUpperCase().includes(xlsQ)
+               || (li.binLocation||'').toUpperCase().includes(xlsQ);
+        if(!hit) return;
+      }
+      var bin = li.binLocation==='Stock' ? 'Stock'+(li.binStock?' — '+li.binStock:'') : (li.binLocation||'');
+      var row = [fmtDate(doc.date),doc.docNum||'',li.material||'',li.pc||'',li.workOrderNum||'',li.salesOrderNum||'',li.area||'',li.customer||'',bin];
+      if(cat==='wip') wipData.push(row);
+      else if(cat==='so') soData.push(row);
+      else otherData.push(row);
+    });
+  });
+
+  var itemCols = [8,10,26,5,12,12,14,18,14].map(function(w){ return {wch:w}; });
+  var wsWip   = XLSX.utils.aoa_to_sheet(wipData);   wsWip['!cols']   = itemCols;
+  var wsSo    = XLSX.utils.aoa_to_sheet(soData);    wsSo['!cols']    = itemCols;
+  var wsOther = XLSX.utils.aoa_to_sheet(otherData); wsOther['!cols'] = itemCols;
+  XLSX.utils.book_append_sheet(wb, wsWip,   'WIP Items');
+  XLSX.utils.book_append_sheet(wb, wsSo,    'Sales Order Items');
+  XLSX.utils.book_append_sheet(wb, wsOther, 'Other Items');
+
+  // ── Sheet 5: Shipping ──
+  var shpRows = Object.values(allData.shipping)
+    .filter(function(r){ return omsDateMatch(r.date); })
+    .sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+  if(omsProvince) shpRows = shpRows.filter(function(r){ return (r.province||'').toUpperCase() === omsProvince.toUpperCase(); });
+  if(xlsQ) shpRows = shpRows.filter(function(r){
+    var carrierName = r.carrier==='Other' ? (r.carrierOther||'Other') : (r.carrier||'');
+    return (r.customer||'').toUpperCase().includes(xlsQ)
+        || (r.outgoing||'').toUpperCase().includes(xlsQ)
+        || (r.material||'').toUpperCase().includes(xlsQ)
+        || (r.city||'').toUpperCase().includes(xlsQ)
+        || carrierName.toUpperCase().includes(xlsQ)
+        || (r.trackingNum||'').toUpperCase().includes(xlsQ)
+        || (r.workOrders||[]).some(function(w){ return (w||'').toUpperCase().includes(xlsQ); })
+        || (r.salesOrders||[]).some(function(s){ return (s||'').toUpperCase().includes(xlsQ); });
+  });
+  var shpData = [['Date','Customer','City','Province','Country','Work Orders','Sales Orders','Transfer #s','Carrier','Tracking #','Freight Type','Pieces','Weight (lb)','Material','Outgoing #','Notes']];
+  shpRows.forEach(function(r){
+    var carrierName = r.carrier==='Other' ? (r.carrierOther||'Other') : (r.carrier||'');
+    var trackNum = formatTrackNum(r.trackingNum);
+    shpData.push([fmtDate(r.date),r.customer||'',r.city||'',r.province||'',r.country||'',(r.workOrders||[]).join(', '),(r.salesOrders||[]).join(', '),(r.transferNums||[]).join(', '),carrierName,trackNum,r.freightType||'',r.pc||'',r.lb||'',r.material||'',r.outgoing||'',r.notes||'']);
+  });
+  var wsShp = XLSX.utils.aoa_to_sheet(shpData);
+  wsShp['!cols'] = [8,18,14,10,10,16,14,12,14,18,12,7,10,20,10,24].map(function(w){ return {wch:w}; });
+  XLSX.utils.book_append_sheet(wb, wsShp, 'Shipping');
+
+  XLSX.writeFile(wb, 'OMS-'+periodLabel+'.xlsx');
+}
+</script>
+</body>
+</html>

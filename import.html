@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Source Atlantic — Data Import</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f8;color:#1a1a2e;min-height:100vh;padding:32px 20px}
+.wrap{max-width:700px;margin:0 auto}
+.header{background:linear-gradient(135deg,#0f2027,#1565c0);color:#fff;border-radius:14px;padding:28px 32px;margin-bottom:24px}
+.header h1{font-size:1.3rem;font-weight:900;margin-bottom:4px}
+.header p{opacity:.7;font-size:.85rem}
+.card{background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);padding:24px;margin-bottom:16px;border:1px solid #e2e8f0}
+.card h2{font-size:.85rem;font-weight:800;color:#1565c0;text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px}
+.file-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.file-label{font-size:.82rem;font-weight:700;color:#374151;min-width:155px}
+input[type="file"]{flex:1;font-size:.8rem;border:1.5px solid #d1d5db;border-radius:8px;padding:7px 10px;background:#f9fafb;cursor:pointer}
+input[type="file"]::-webkit-file-upload-button{background:#1565c0;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:.75rem;font-weight:700;cursor:pointer;margin-right:10px}
+.badge{font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.badge-wait{background:#fef9c3;color:#854d0e;border:1px solid #fde68a}
+.badge-ok{background:#dbeafe;color:#1e40af;border:1px solid #93c5fd}
+.badge-done{background:#f0fdf4;color:#166534;border:1px solid #86efac}
+.badge-err{background:#fef2f2;color:#991b1b;border:1px solid #fca5a5}
+.btn{width:100%;padding:13px;background:linear-gradient(135deg,#1255c4,#1565c0);color:#fff;border:none;border-radius:10px;font-size:.92rem;font-weight:800;cursor:pointer;font-family:inherit;transition:all .18s;margin-top:10px;box-shadow:0 3px 10px rgba(21,101,192,.35)}
+.btn:hover{filter:brightness(1.1)}
+.btn:disabled{background:#93c5fd;cursor:not-allowed;filter:none;box-shadow:none}
+.btn-sm{padding:9px 18px;width:auto;font-size:.82rem;margin-top:0}
+.log{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:16px;font-family:monospace;font-size:.78rem;min-height:100px;max-height:280px;overflow-y:auto;line-height:1.8;margin-top:14px}
+.log .ok{color:#4ade80}
+.log .er{color:#f87171}
+.log .in{color:#93c5fd}
+.progress-wrap{background:#e2e8f0;border-radius:20px;height:8px;margin-top:14px;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,#1565c0,#60a5fa);border-radius:20px;transition:width .4s;width:0%}
+.auth-row{display:flex;gap:10px;margin-bottom:12px}
+.auth-input{flex:1;padding:9px 13px;border:1.5px solid #d1d5db;border-radius:8px;font-size:.88rem;font-family:inherit;outline:none}
+.auth-input:focus{border-color:#1565c0}
+#login-card{margin-bottom:16px}
+#import-card{display:none}
+.user-line{font-size:.82rem;color:#166534;font-weight:700;padding:8px 0}
+.btn-add{padding:4px 11px;background:#fff7ed;color:#c2410c;border:1.5px solid #fed7aa;border-radius:8px;font-size:.74rem;font-weight:800;cursor:pointer;white-space:nowrap;transition:all .15s}
+.btn-add:hover{background:#ffedd5;border-color:#c2410c}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <h1>Source Atlantic — Data Import</h1>
+    <p>Import all historical records (2022–2026) into the Shipping &amp; Receiving app</p>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="card" id="login-card">
+    <h2>🔐 Sign In First</h2>
+    <div class="auth-row">
+      <input class="auth-input" type="email" id="email" placeholder="Email" value="lcdsilva@hotmail.com">
+      <input class="auth-input" type="password" id="pass" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div id="login-err" style="color:#b91c1c;font-size:.8rem;font-weight:600;margin-bottom:8px;display:none"></div>
+    <button class="btn btn-sm" onclick="doLogin()" id="login-btn">Sign In</button>
+  </div>
+
+  <!-- IMPORT -->
+  <div class="card" id="import-card">
+    <h2>📁 Select CSV Files</h2>
+    <div id="user-line" class="user-line"></div>
+
+    <div class="file-row">
+      <span class="file-label">📋 Incoming Form</span>
+      <input type="file" id="f-incoming" accept=".csv">
+      <span class="badge badge-wait" id="b-incoming">Waiting</span>
+      <button class="btn-add" id="add-incoming" style="display:none" onclick="unlockSection('incoming')">➕ Add 2022–2024</button>
+    </div>
+    <div class="file-row">
+      <span class="file-label">📦 Incoming Items</span>
+      <input type="file" id="f-items" accept=".csv">
+      <span class="badge badge-wait" id="b-items">Waiting</span>
+      <button class="btn-add" id="add-items" style="display:none" onclick="unlockSection('items')">➕ Add 2022–2024</button>
+    </div>
+    <div class="file-row">
+      <span class="file-label">🚚 Shipment Freight</span>
+      <input type="file" id="f-shipping" accept=".csv">
+      <span class="badge badge-wait" id="b-shipping">Waiting</span>
+      <button class="btn-add" id="add-shipping" style="display:none" onclick="unlockSection('shipping')">➕ Add 2022–2024</button>
+    </div>
+    <div class="file-row">
+      <span class="file-label">💰 Daily Cash</span>
+      <input type="file" id="f-payments" accept=".csv">
+      <span class="badge badge-wait" id="b-payments">Waiting</span>
+      <button class="btn-add" id="add-payments" style="display:none" onclick="unlockSection('payments')">➕ Add 2022–2024</button>
+    </div>
+
+    <div class="progress-wrap"><div class="progress-bar" id="prog"></div></div>
+    <button class="btn" id="btn-import" onclick="startImport()">⬆️ Start Import</button>
+    <div class="log" id="log" style="display:none"></div>
+  </div>
+
+  <!-- FIX FREIGHT CARD -->
+  <div class="card" id="fix-freight-card" style="display:none">
+    <h2>🔧 Fix Collect / Prepaid on Existing Records</h2>
+    <p style="font-size:.82rem;color:#6b7280;margin-bottom:14px">The 3900+ imported shipping records have wrong freight type (was reading "Services" column instead of "Billing"). Select the <strong>Shipment Freight.csv</strong> to patch all existing records with the correct Collect / Prepaid value — no data is deleted, only the freight type field is updated.</p>
+    <div class="file-row">
+      <span class="file-label">🚚 Shipment Freight</span>
+      <input type="file" id="f-fix-freight" accept=".csv">
+    </div>
+    <button class="btn" id="btn-fix-freight" onclick="runFixFreight()" style="background:linear-gradient(135deg,#c2410c,#ea580c)">🔧 Fix Freight Types Now</button>
+    <div class="log" id="log-fix" style="display:none"></div>
+  </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script>
+var FB_CFG = {
+  apiKey:            'AIzaSyBuS3afVcx3W-zfgZfDYIutNltuEfP8Fhc',
+  authDomain:        'source-atlantic-sr.firebaseapp.com',
+  databaseURL:       'https://source-atlantic-sr-default-rtdb.firebaseio.com',
+  projectId:         'source-atlantic-sr',
+  storageBucket:     'source-atlantic-sr.firebasestorage.app',
+  messagingSenderId: '953329380095',
+  appId:             '1:953329380095:web:f7865dda88a33ff9457aca'
+};
+firebase.initializeApp(FB_CFG);
+var db   = firebase.database();
+var auth = firebase.auth();
+var SR   = 'shipping_receiving';
+
+// ── AUTH ──
+auth.onAuthStateChanged(function(user){
+  if(user){
+    document.getElementById('login-card').style.display = 'none';
+    document.getElementById('import-card').style.display = 'block';
+    document.getElementById('fix-freight-card').style.display = 'block';
+    document.getElementById('user-line').textContent = '✓ Signed in as ' + user.email;
+    checkLock();
+  } else {
+    document.getElementById('login-card').style.display = 'block';
+    document.getElementById('import-card').style.display = 'none';
+    document.getElementById('fix-freight-card').style.display = 'none';
+  }
+});
+
+function doLogin(){
+  var email = document.getElementById('email').value.trim();
+  var pass  = document.getElementById('pass').value;
+  var errEl = document.getElementById('login-err');
+  var btn   = document.getElementById('login-btn');
+  errEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Signing in...';
+  auth.signInWithEmailAndPassword(email, pass)
+    .catch(function(e){
+      errEl.textContent = 'Invalid email or password.';
+      errEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Sign In';
+    });
+}
+
+// sectionMode: when a section already has data, unlock only the missing years (2022–2024)
+var sectionMode = {};  // path → {from, to}
+
+// ── CHECK EACH SECTION FOR EXISTING IMPORTED DATA ──
+function checkLock(){
+  var sections=[
+    {path:'incoming', fid:'f-incoming', bid:'b-incoming', addBtn:'add-incoming'},
+    {path:'items',    fid:'f-items',    bid:'b-items',    addBtn:'add-items'},
+    {path:'shipping', fid:'f-shipping', bid:'b-shipping', addBtn:'add-shipping'},
+    {path:'payments', fid:'f-payments', bid:'b-payments', addBtn:'add-payments'}
+  ];
+  sections.forEach(function(s){
+    db.ref(SR+'/'+s.path).limitToFirst(50).once('value').then(function(snap){
+      var count = snap.val() ? Object.keys(snap.val()).length : 0;
+      if(count >= 50){
+        document.getElementById(s.fid).disabled = true;
+        var b = document.getElementById(s.bid);
+        b.className = 'badge badge-done';
+        b.textContent = '✓ 2025–2026 imported';
+        document.getElementById(s.addBtn).style.display = 'inline-block';
+      }
+    });
+  });
+}
+
+function unlockSection(path){
+  // When sections already have 2025+ data, only import the missing 2022-2024 range
+  var r = {from:'2022-01-01', to:'2024-12-31', label:'✔ 2022–2024 unlocked'};
+  sectionMode[path] = r;
+  var inp = document.getElementById('f-'+path);
+  inp.disabled = false;
+  var b = document.getElementById('b-'+path);
+  b.className = 'badge badge-ok';
+  b.textContent = r.label;
+  document.getElementById('add-'+path).style.display = 'none';
+  inp.click();
+}
+
+// ── CSV PARSER ──
+function parseCSV(text){
+  if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+  var rows=[],row=[],cell='',inQ=false;
+  for(var i=0;i<text.length;i++){
+    var c=text[i];
+    if(c==='"'){if(inQ&&text[i+1]==='"'){cell+='"';i++;}else inQ=!inQ;}
+    else if(c===','&&!inQ){row.push(cell.trim());cell='';}
+    else if((c==='\n'||c==='\r')&&!inQ){
+      if(c==='\r'&&text[i+1]==='\n')i++;
+      row.push(cell.trim());cell='';
+      if(row.some(function(x){return x!=='';}))rows.push(row);
+      row=[];
+    }else cell+=c;
+  }
+  if(cell||row.length){row.push(cell.trim());if(row.some(function(x){return x!=='';}))rows.push(row);}
+  if(!rows.length)return[];
+  var hdrs=rows[0].map(function(h){return h.trim();});
+  return rows.slice(1).map(function(r){
+    var o={};hdrs.forEach(function(h,i){o[h]=(r[i]||'').trim();});return o;
+  });
+}
+
+function readFile(file){
+  return new Promise(function(res){
+    var fr=new FileReader();
+    fr.onload=function(e){res(e.target.result);};
+    fr.readAsText(file,'utf-8');
+  });
+}
+
+function toISO(d){
+  if(!d)return'';var p=d.split('/');if(p.length!==3)return'';
+  return p[2].padStart(4,'0')+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0');
+}
+function money(s){return parseFloat((s||'').replace(/[$,\s]/g,''))||0;}
+
+function dateInRange(dt, path){
+  if(!dt) return false;
+  var m = sectionMode[path];
+  if(m) return dt >= m.from && dt <= m.to;
+  return true; // no existing data → import all valid dates
+}
+
+var AREA={'WELDING':'Welding','ELECTRICAL':'Electrical','MECHANICAL':'Mechanical',
+  'AIR COMPRESSOR':'Air Compressor','COMPRESSOR AIR':'Air Compressor',
+  'GENERATOR':'Generator','GENERATOR SERVICE':'Generator','COMPRESSOR':'Air Compressor'};
+function mapArea(s){return AREA[(s||'').toUpperCase()]||s||'';}
+
+function mapBin(b){
+  var u=(b||'').toUpperCase().trim();
+  if(!u||u==='NOBIN'||u==='NO BIN')return{binLocation:'',binStock:''};
+  if(u==='WIP')return{binLocation:'WIP',binStock:''};
+  return{binLocation:'Stock',binStock:b};
+}
+var SVC={'SALES ORDER':'Sales Order','SERVICE ORDER':'Work Order','WORK ORDER':'Work Order','FOR STOCK':''};
+function mapSvc(s){var v=SVC[(s||'').toUpperCase()];return v!==undefined?v:(s||'');}
+function mapFreight(s){
+  var u=(s||'').toUpperCase().trim();
+  if(u.includes('COLLECT'))return'Collect';
+  if(u.includes('PREPAID'))return'Prepaid';
+  return'';
+}
+
+// ── BUILD FUNCTIONS ──
+function diagRows(rows, dateCol, sectionPath){
+  if(!rows.length){log('  ⚠ CSV empty — 0 rows parsed','er');return;}
+  log('  Total rows in CSV: '+rows.length,'in');
+  var cols = Object.keys(rows[0]);
+  log('  Columns found: '+cols.join(' | '),'in');
+  var samples = rows.slice(0,3).map(function(r){
+    var raw = r[dateCol]||'(empty)';
+    var iso = toISO(r[dateCol]||'');
+    return '"'+raw+'" → '+iso;
+  });
+  log('  Date column "'+dateCol+'" (first 3): '+samples.join(' | '),'in');
+  var m = sectionMode[sectionPath];
+  log('  Importing range: '+(m ? m.from+' to '+m.to : 'all dates'),'in');
+  // Count how many rows fall in range
+  var inCount = rows.filter(function(r){return dateInRange(toISO(r[dateCol]||''),sectionPath);}).length;
+  log('  Rows matching range: '+inCount+' of '+rows.length,'in');
+  if(inCount===0) log('  ⚠ No rows match the date range — CSV may not contain '+
+    (m ? m.from.slice(0,4)+'-'+m.to.slice(0,4) : 'valid')+' data','er');
+}
+
+function buildIncoming(rows){
+  diagRows(rows,'Incoming Date','incoming');
+  var res={},skip=0;
+  rows.forEach(function(r){
+    var dt=toISO(r['Incoming Date']);if(!dateInRange(dt,'incoming')){skip++;return;}
+    var k=db.ref(SR+'/incoming').push().key;
+    res[k]={formNum:r['Incoming Number']||'',customer:r['Customer']||'',
+      wo:r['Work Order #']||'',prevWo:r['Previous Work Order #']||'',date:dt,
+      equipment:r['Basic Description']||'',area:mapArea(r['Department']),
+      manufacturer:r['Manufacturer']||'',modelNumber:r['Model Number']||'',
+      serialNumber:r['Serial Number']||'',typeSize:r['Type/Size']||'',
+      hp:r['HP']||'',rpm:r['RPM']||'',frame:r['Frame']||'',kw:r['KW']||'',
+      customerStockNumber:r['Customer Stock #']||'',
+      designatedLocation:r['Designated Location']||'',
+      deliveryBy:r['Delivered by']||'',receivedBy:r['Received by']||'',
+      whatToDo:r['Kind of Job']||'',notes:r['Comments']||'',_imported:true};
+  });
+  return{res:res,skip:skip};
+}
+
+function buildItems(rows){
+  diagRows(rows,'Receipt','items');
+  var groups={},skip=0;
+  rows.forEach(function(r){
+    var dt=toISO(r['Receipt']);if(!dateInRange(dt,'items')){skip++;return;}
+    var doc=r['Receipt #'];if(!doc)return;
+    if(!groups[doc])groups[doc]={date:dt,docNum:doc,poNum:r['PO Number']||'',
+      transferNum:r['Transfer Number']||'',supplier:r['Supply Name']||'',lineItems:[],_imported:true};
+    var bn=mapBin(r['BIN Location']);
+    groups[doc].lineItems.push({material:r['Short Item Description']||'',pc:r['Qty Rec']||'',
+      lb:'',rl:'',weightLb:'',weightKg:'',binLocation:bn.binLocation,binStock:bn.binStock,
+      applicationType:mapSvc(r['Type of Service']),salesOrderNum:r['Sales Order #']||'',
+      workOrderNum:r['Work Order #']||'',area:mapArea(r['Area Work Order']),
+      customer:r['Customer Work Order']||''});
+  });
+  var res={};
+  Object.values(groups).forEach(function(d){res[db.ref(SR+'/items').push().key]=d;});
+  return{res:res,skip:skip};
+}
+
+function buildPayments(rows){
+  var res={},skip=0;
+  rows.forEach(function(r){
+    var dt=toISO(r['Prepared date']);if(!dt||!dateInRange(dt,'payments')){skip++;return;}
+    [['Cash','Cash'],['Cheque','Cheque'],['Visa','Visa'],['Mastercard','Mastercard'],['Debit','Debit']].forEach(function(m){
+      var amt=money(r[m[1]]);if(amt<=0)return;
+      var k=db.ref(SR+'/payments').push().key;
+      res[k]={date:dt,method:m[0],amount:amt.toFixed(2),orderType:r['SO/WO ?']||'',
+        orderNum:r['SO/Work Order Number']||'',
+        chequeNum:m[0]==='Cheque'?(r['Cheque Number']||''):'',
+        customer:'',notes:'',_imported:true};
+    });
+  });
+  return{res:res,skip:skip};
+}
+
+function buildShipping(rows){
+  var res={},skip=0;
+  rows.forEach(function(r){
+    var dt=toISO(r['Date']);if(!dt||!dateInRange(dt,'shipping')){skip++;return;}
+    var p=function(k){return(r[k]||'').trim();};
+    var wos=['Work Order #','Work Order #2','Work Order #3','Work Order #4','Work Order #5'].map(p).filter(Boolean);
+    var sos=['Sales Order #','Sales Order #2','Sales Order #3','Sales Order #4','Sales Order #5'].map(p).filter(Boolean);
+    var trs=['Transfer #','Transfer #2'].map(p).filter(Boolean);
+    var k=db.ref(SR+'/shipping').push().key;
+    res[k]={date:dt,outgoing:p('Outgoing Form'),city:p('City'),province:p('Province'),
+      postalCode:p('Postal Code'),country:p('Country'),pc:p('Pieces'),lb:p('Weight'),
+      material:p('Description'),freightType:mapFreight(p('Billing')),workOrders:wos,salesOrders:sos,
+      transferNums:trs,carrier:p('Transportation Name'),carrierOther:'',
+      trackingNum:p('Airbill Number'),notes:p('Comments'),customer:p('Consignee'),_imported:true};
+  });
+  return{res:res,skip:skip};
+}
+
+// ── PUSH IN CHUNKS ──
+function pushChunked(path,data){
+  var keys=Object.keys(data),chunks=[];
+  for(var i=0;i<keys.length;i+=200){
+    var c={};keys.slice(i,i+200).forEach(function(k){c[k]=data[k];});chunks.push(c);
+  }
+  var idx=0;
+  function next(){
+    if(idx>=chunks.length)return Promise.resolve();
+    return db.ref(SR+'/'+path).update(chunks[idx++]).then(next);
+  }
+  return next();
+}
+
+// ── LOG ──
+function log(msg,type){
+  var el=document.getElementById('log');
+  el.style.display='block';
+  var s=document.createElement('span');
+  s.className=type||'in';s.textContent=msg+'\n';
+  el.appendChild(s);el.scrollTop=el.scrollHeight;
+}
+function setBadge(id,cls,txt){
+  var b=document.getElementById('b-'+id);
+  b.className='badge badge-'+cls;b.textContent=txt;
+}
+function setProgress(pct){document.getElementById('prog').style.width=pct+'%';}
+
+// ── MAIN IMPORT ──
+async function startImport(){
+  var btn=document.getElementById('btn-import');
+  btn.disabled=true;btn.textContent='Importing...';
+  document.getElementById('log').innerHTML='';
+  log('Starting import...','in');
+
+  var steps=[
+    {id:'incoming',label:'Incoming Forms', build:buildIncoming,path:'incoming',fid:'f-incoming'},
+    {id:'items',   label:'Incoming Items', build:buildItems,   path:'items',   fid:'f-items'},
+    {id:'shipping',label:'Shipment',       build:buildShipping,path:'shipping',fid:'f-shipping'},
+    {id:'payments',label:'Payments',       build:buildPayments,path:'payments',fid:'f-payments'}
+  ];
+
+  var done=0;
+  for(var i=0;i<steps.length;i++){
+    var s=steps[i];
+    var inp=document.getElementById(s.fid);
+    if(inp.disabled){
+      log('  Skipping '+s.label+' — already imported','in');
+      setBadge(s.id,'done','✓ Already done');
+      done++;setProgress(done/steps.length*100);
+      continue;
+    }
+    if(!inp.files||!inp.files[0]){
+      log('  Skipping '+s.label+' — no file selected','in');
+      setBadge(s.id,'wait','Skipped');
+      done++;setProgress(done/steps.length*100);
+      continue;
+    }
+    try{
+      setBadge(s.id,'ok','Reading...');
+      log('  Reading '+s.label+'...','in');
+      var text=await readFile(inp.files[0]);
+      var rows=parseCSV(text);
+      var built=s.build(rows);
+      var count=Object.keys(built.res).length;
+      var m = sectionMode[s.path];
+      var rangeStr = m ? (m.from.slice(0,4)+' to '+m.to.slice(0,4)) : 'all years';
+      log('  Parsed: '+count+' records in range ['+rangeStr+'] ('+built.skip+' skipped — no date)','in');
+      if(count>0){
+        setBadge(s.id,'ok','Uploading...');
+        log('  Uploading '+s.label+'...','in');
+        await pushChunked(s.path,built.res);
+        log('  ✓ '+s.label+': '+count+' records uploaded','ok');
+        setBadge(s.id,'done','✓ '+count+' uploaded');
+      } else {
+        log('  ⚠ '+s.label+': no records found for ['+rangeStr+']','in');
+        setBadge(s.id,'done','No records');
+      }
+    } catch(e){
+      log('  ✗ Error on '+s.label+': '+e.message,'er');
+      setBadge(s.id,'err','✗ Error');
+    }
+    done++;setProgress(done/steps.length*100);
+  }
+
+  log('\n✅ Done! Sections already imported are now locked automatically.','ok');
+  btn.textContent='✅ Import Complete';
+  btn.style.background='#16a34a';
+  btn.disabled=false;
+  setTimeout(function(){ checkLock(); }, 1000);
+}
+
+// ── FIX FREIGHT TYPES ON EXISTING RECORDS ──
+function logFix(msg,type){
+  var el=document.getElementById('log-fix');
+  el.style.display='block';
+  var s=document.createElement('span');
+  s.className=type||'in';s.textContent=msg+'\n';
+  el.appendChild(s);el.scrollTop=el.scrollHeight;
+}
+
+async function runFixFreight(){
+  var inp=document.getElementById('f-fix-freight');
+  if(!inp.files||!inp.files[0]){alert('Please select Shipment Freight.csv first.');return;}
+  var btn=document.getElementById('btn-fix-freight');
+  btn.disabled=true;btn.textContent='Fixing...';
+  document.getElementById('log-fix').innerHTML='';
+
+  try{
+    logFix('Reading CSV...','in');
+    var text=await readFile(inp.files[0]);
+    var rows=parseCSV(text);
+    logFix('  CSV rows: '+rows.length,'in');
+
+    // Build lookup: outgoing form# → correct freightType
+    var lookup={};
+    rows.forEach(function(r){
+      var out=(r['Outgoing Form']||'').trim();
+      var ft=mapFreight(r['Billing']||'');
+      if(out&&ft) lookup[out]=ft;
+    });
+    logFix('  Outgoing forms with Collect/Prepaid: '+Object.keys(lookup).length,'in');
+
+    // Read all Firebase shipping records
+    logFix('Reading Firebase shipping records...','in');
+    var snap=await db.ref(SR+'/shipping').once('value');
+    var shpData=snap.val()||{};
+    var allKeys=Object.keys(shpData);
+    logFix('  Firebase records: '+allKeys.length,'in');
+
+    // Build patch updates
+    var updates={};
+    var matched=0,alreadyOk=0,noMatch=0;
+    allKeys.forEach(function(k){
+      var rec=shpData[k];
+      var out=(rec.outgoing||'').trim();
+      if(out&&lookup[out]){
+        if(rec.freightType===lookup[out]){alreadyOk++;return;}
+        updates[k+'/freightType']=lookup[out];
+        matched++;
+      } else {
+        noMatch++;
+      }
+    });
+    logFix('  To update: '+matched+' | Already correct: '+alreadyOk+' | No CSV match: '+noMatch,'in');
+
+    if(matched===0){
+      logFix('  Nothing to update.','in');
+    } else {
+      logFix('Applying '+matched+' updates to Firebase...','in');
+      // Send in chunks of 500
+      var uKeys=Object.keys(updates);
+      for(var i=0;i<uKeys.length;i+=500){
+        var chunk={};
+        uKeys.slice(i,i+500).forEach(function(k){chunk[k]=updates[k];});
+        await db.ref(SR+'/shipping').update(chunk);
+        logFix('  Sent '+(Math.min(i+500,uKeys.length))+' / '+uKeys.length,'in');
+      }
+      logFix('✅ Done! '+matched+' records updated with correct Collect / Prepaid.','ok');
+    }
+  }catch(e){
+    logFix('✗ Error: '+e.message,'er');
+  }
+  btn.disabled=false;btn.textContent='🔧 Fix Freight Types Now';
+}
+</script>
+</body>
+</html>

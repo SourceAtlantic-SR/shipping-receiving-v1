@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EPS Incoming Form</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;font-size:9pt;color:#000;background:#888}
+
+/* ── Print bar (screen only) ── */
+.pbar{position:fixed;top:0;left:0;right:0;height:44px;background:#1a237e;color:#fff;
+  display:flex;align-items:center;gap:10px;padding:0 16px;z-index:200;
+  box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.pbar b{flex:1;font-size:10.5pt}
+.pbtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;
+  border-radius:4px;padding:5px 14px;cursor:pointer;font-size:9pt;font-weight:600}
+.pbtn:hover{background:rgba(255,255,255,.28)}
+.pbtn-p{background:#fff;color:#1a237e}
+.pbtn-p:hover{background:#e8eaf6}
+
+/* ══════════════════════════════════════════════
+   PAGE — US Letter  8.5" × 11"  (portrait)
+   215.9 mm × 279.4 mm
+   ══════════════════════════════════════════════ */
+@media screen{
+  .pg{margin:56px auto 32px;box-shadow:0 6px 32px rgba(0,0,0,.35)}
+}
+.pg{
+  width:215.9mm;
+  height:279.4mm;
+  background:#fff;
+  padding:3mm 7mm 2mm;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* ── Outer form border ── */
+.fw{
+  border:1.5px solid #000;
+  width:100%;
+  flex:1;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* ── Generic row ── */
+.fr{display:flex;border-bottom:1px solid #000;flex-shrink:0}
+.fr:last-child{border-bottom:none}
+
+/* ── Generic cell ── */
+.fc{
+  border-right:1px solid #000;
+  padding:2px 5px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+}
+.fc:last-child{border-right:none}
+
+/* ── Field label (bold small) ── */
+.fl{font-weight:700;font-size:8pt;display:block;line-height:1.6;white-space:nowrap}
+
+/* ── Field value ── */
+.fv{font-size:9pt;display:block;font-weight:400;min-height:10px}
+
+/* ── Section wrapper — fills available height proportionally ── */
+.sec{display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.sec>.fr{flex:1;min-height:0}
+.sec>.sh{flex:0 0 auto}
+
+/* ── Section header bar ── */
+.sh{
+  background:#c8c8c8;
+  font-weight:700;
+  font-size:9pt;
+  padding:2px 6px;
+  border-bottom:1px solid #000;
+  letter-spacing:.1px;
+}
+
+/* ── Checkboxes ── */
+.cb{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:10px;height:10px;border:1.2px solid #000;
+  vertical-align:middle;margin-right:3px;font-size:6pt;line-height:1;flex-shrink:0;
+}
+.cb.on{background:#000;color:#fff}
+
+/* ── Footer ── */
+.ftr{margin-top:2px;font-size:6.5pt;color:#333;line-height:1.4;flex-shrink:0}
+.ftr-row{display:flex;justify-content:space-between;margin-bottom:1px}
+
+/* ── Print ── */
+@media print{
+  body{background:#fff}
+  .pbar{display:none}
+  .pg{margin:0;box-shadow:none;padding:3mm 7mm 2mm;width:215.9mm;height:279.4mm}
+  .sh{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#c8c8c8 !important}
+  [data-gray]{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#c8c8c8 !important}
+  .cb.on{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#000 !important;color:#fff !important}
+  @page{size:8.5in 11in portrait;margin:0}
+}
+</style>
+</head>
+<body>
+
+<!-- Screen print bar -->
+<div class="pbar">
+  <b>EPS Incoming Form &nbsp;·&nbsp; #<span id="pb-num">—</span><span id="pb-cust" style="font-weight:400;opacity:.75"></span></b>
+  <button class="pbtn pbtn-p" onclick="epsPrint()">🖨 Print / Save PDF</button>
+  <button class="pbtn" onclick="closePage()">✕ Close</button>
+</div>
+
+<div class="pg">
+<div class="fw">
+
+  <!-- ═══════════════════════════════════════════
+       HEADER ROW
+       Left  ~38%: SA logo + address
+       Right ~62%: Title / Incoming No / WO No
+       ═══════════════════════════════════════════ -->
+  <div class="fr" style="flex:0 0 auto;align-items:stretch">
+
+    <!-- Left: logo + address -->
+    <div style="flex:0 0 38%;border-right:1px solid #000;padding:4px 8px;
+                display:flex;flex-direction:column;justify-content:center;gap:2px">
+      <img src="logo.png" alt="Source Atlantic"
+           style="height:38px;width:auto;max-width:100%;display:block;margin-bottom:2px">
+      <div style="font-size:6.8pt;line-height:1.6;color:#222">
+        11 McIlveen Drive<br>
+        Saint John, NB &nbsp;E2L 4Y6<br>
+        Ph: (506) 634-2309 &nbsp;·&nbsp; Fax: (506) 644-2567
+      </div>
+    </div>
+
+    <!-- Right: title / Incoming No / Work Order No -->
+    <div style="flex:1;display:flex;flex-direction:column">
+
+      <!-- "EPS Incoming Form" title -->
+      <div style="flex:1;padding:3px 10px 2px;display:flex;align-items:center">
+        <span style="font-family:'Times New Roman',Times,serif;font-size:24pt;font-weight:700;
+                     letter-spacing:-.5px;line-height:1">EPS Incoming Form</span>
+      </div>
+
+      <!-- Incoming No row — above Work Order -->
+      <div style="display:flex;align-items:stretch;border-top:1px solid #000;flex-shrink:0">
+        <div data-gray style="padding:2px 8px;font-size:8.5pt;font-weight:700;border-right:1px solid #000;
+                    background:#c8c8c8;display:flex;align-items:center;white-space:nowrap">
+          Incoming No:
+        </div>
+        <div style="flex:1;padding:2px 10px;font-size:18pt;font-weight:700;color:#c0392b;
+                    letter-spacing:1px;display:flex;align-items:center" id="f-num">—</div>
+      </div>
+
+      <!-- Work Order No row — below Incoming No -->
+      <div style="display:flex;align-items:stretch;border-top:1px solid #000;flex-shrink:0">
+        <div data-gray style="padding:2px 8px;font-size:8.5pt;font-weight:700;border-right:1px solid #000;
+                    background:#c8c8c8;display:flex;align-items:center;white-space:nowrap">
+          Work Order No:
+        </div>
+        <div style="flex:1;padding:2px 10px;font-size:18pt;font-weight:700;
+                    letter-spacing:1px;display:flex;align-items:center" id="f-wo"></div>
+      </div>
+
+    </div>
+  </div><!-- /header row -->
+
+
+  <!-- ═══════════════════════════════════════════
+       1. CUSTOMER INFORMATION  —  3.5" = 88.9 mm
+       ═══════════════════════════════════════════ -->
+  <div class="sec" style="flex:35">
+    <div class="sh">1. CUSTOMER INFORMATION</div>
+
+    <!-- Row A: Customer | Customer Contact | Previous WO -->
+    <div class="fr">
+      <div class="fc" style="flex:0 0 33%">
+        <span class="fl">Customer:</span><span class="fv" id="f-customer"></span>
+      </div>
+      <div class="fc" style="flex:0 0 33%">
+        <span class="fl">Customer Contact:</span><span class="fv" id="f-customercontact"></span>
+      </div>
+      <div class="fc" style="flex:1">
+        <span class="fl">Previous Work Order No.:</span><span class="fv" id="f-prevwo"></span>
+      </div>
+    </div>
+
+    <!-- Row B: Address | Customer WO | Purchase Order -->
+    <div class="fr">
+      <div class="fc" style="flex:0 0 33%">
+        <span class="fl">Address:</span><span class="fv" id="f-address"></span>
+      </div>
+      <div class="fc" style="flex:0 0 33%">
+        <span class="fl">Customer Work Order No.:</span><span class="fv" id="f-custwo"></span>
+      </div>
+      <div class="fc" style="flex:1">
+        <span class="fl">Purchase Order No.:</span><span class="fv" id="f-customerpo"></span>
+      </div>
+    </div>
+
+    <!-- Row C: Telephone | Job Priority | Date -->
+    <div class="fr">
+      <div class="fc" style="flex:0 0 33%">
+        <span class="fl">Telephone Number:</span><span class="fv" id="f-telephone"></span>
+      </div>
+      <div class="fc" style="flex:0 0 33%">
+        <span class="fl">Job Priority:</span>
+        <div style="font-size:9pt;padding-top:1px">
+          <span class="cb" id="cb-reg"></span>&nbsp;REGULAR
+          &nbsp;&nbsp;&nbsp;
+          <span class="cb" id="cb-rush"></span>&nbsp;RUSH
+        </div>
+      </div>
+      <div class="fc" style="flex:1">
+        <span class="fl">Date:</span><span class="fv" id="f-date"></span>
+      </div>
+    </div>
+
+    <!-- Row D: Date Pictures Taken | Pictures Taken (spans 2 cols) -->
+    <div class="fr">
+      <div class="fc" style="flex:0 0 33%">
+        <span class="fl">Date Pictures Taken:</span><span class="fv" id="f-datepics"></span>
+      </div>
+      <div class="fc" style="flex:1">
+        <span class="fl">Pictures Taken:</span>
+        <div style="font-size:9pt;padding-top:1px">
+          <span class="cb" id="cb-pics-yes"></span>&nbsp;YES
+          &nbsp;&nbsp;
+          <span class="cb" id="cb-pics-no"></span>&nbsp;NO
+          &nbsp;&nbsp;
+          <span id="f-picstime-disp"
+            style="display:inline-block;border-bottom:1px solid #000;
+                   min-width:34px;text-align:center;vertical-align:bottom"></span>
+          &nbsp;<span class="cb" id="cb-am"></span>&nbsp;AM
+          &nbsp;<span class="cb" id="cb-pm"></span>&nbsp;PM
+          &nbsp;&nbsp;&nbsp;Num.:&nbsp;<span id="f-picsqty-disp"
+            style="display:inline-block;border-bottom:1px solid #000;
+                   min-width:28px;text-align:center;vertical-align:bottom"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row E: Checkboxes (left) | Other Instructions (right) — tallest row -->
+    <div class="fr" style="flex:3">
+      <div class="fc" style="flex:0 0 33%;justify-content:center;gap:5px;padding:5px 5px">
+        <div style="font-size:8.5pt">
+          <span class="cb" id="cb-dis"></span>&nbsp;Dismantle, Inspect and Estimate
+        </div>
+        <div style="font-size:8.5pt">
+          <span class="cb" id="cb-rep-ret"></span>&nbsp;Repair Unit and Return
+        </div>
+        <div style="font-size:8.5pt">
+          <span class="cb" id="cb-rep-store"></span>&nbsp;Repair Unit and Store at EPS
+        </div>
+      </div>
+      <div class="fc" style="flex:1;display:flex;flex-direction:column">
+        <span class="fl">Other Instructions:</span>
+        <span class="fv" id="f-notes" style="flex:1;white-space:pre-wrap"></span>
+      </div>
+    </div>
+
+  </div><!-- /sec 1 -->
+
+
+  <!-- ═══════════════════════════════════════════
+       2. UNIT DESCRIPTION & IDENTIFICATION  — 2.5" = 63.5 mm
+       ═══════════════════════════════════════════ -->
+  <div class="sec" style="flex:25">
+    <div class="sh">2. UNIT DESCRIPTION &amp; IDENTIFICATION</div>
+
+    <!-- Department row — bordered cells -->
+    <div class="fr" style="flex:0 0 auto">
+      <div class="fc" style="flex:0 0 auto;padding:3px 6px;font-weight:700;font-size:9pt;
+                              justify-content:center;white-space:nowrap">
+        DEPARTMENT:
+      </div>
+      <div class="fc" style="flex:1;padding:3px 6px;font-size:9pt;
+                              justify-content:center;align-items:center;flex-direction:row;gap:4px">
+        <span class="cb" id="cb-elec"></span>&nbsp;Electrical
+      </div>
+      <div class="fc" style="flex:1;padding:3px 6px;font-size:9pt;
+                              justify-content:center;align-items:center;flex-direction:row;gap:4px">
+        <span class="cb" id="cb-mech"></span>&nbsp;Mechanical
+      </div>
+      <div class="fc" style="flex:1;padding:3px 6px;font-size:9pt;
+                              justify-content:center;align-items:center;flex-direction:row;gap:4px">
+        <span class="cb" id="cb-air"></span>&nbsp;Air
+      </div>
+      <div class="fc" style="flex:1;padding:3px 6px;font-size:9pt;
+                              justify-content:center;align-items:center;flex-direction:row;gap:4px">
+        <span class="cb" id="cb-gen"></span>&nbsp;Generator
+      </div>
+      <div class="fc" style="flex:1;padding:3px 6px;font-size:9pt;
+                              justify-content:center;align-items:center;flex-direction:row;gap:4px">
+        <span class="cb" id="cb-weld"></span>&nbsp;Welding
+      </div>
+    </div>
+
+    <!-- Basic Description | Type/Size | KW -->
+    <div class="fr">
+      <div class="fc" style="flex:0 0 55%">
+        <span class="fl">Basic Description:</span><span class="fv" id="f-desc"></span>
+      </div>
+      <div class="fc" style="flex:1">
+        <span class="fl">Type/Size:</span><span class="fv" id="f-typesize"></span>
+      </div>
+      <div class="fc" style="flex:0 0 13%;align-items:flex-end">
+        <span class="fl" style="text-align:right;width:100%">KW</span>
+        <span class="fv" id="f-kw"></span>
+      </div>
+    </div>
+
+    <!-- Manufacturer | HP | RPM | Frame -->
+    <div class="fr">
+      <div class="fc" style="flex:0 0 55%">
+        <span class="fl">Manufacturer:</span><span class="fv" id="f-manufacturer"></span>
+      </div>
+      <div class="fc" style="flex:0 0 10%;align-items:flex-end">
+        <span class="fl" style="text-align:right;width:100%">HP</span>
+        <span class="fv" id="f-hp"></span>
+      </div>
+      <div class="fc" style="flex:1;align-items:flex-end">
+        <span class="fl" style="text-align:right;width:100%">RPM</span>
+        <span class="fv" id="f-rpm"></span>
+      </div>
+      <div class="fc" style="flex:0 0 13%;align-items:flex-end">
+        <span class="fl" style="text-align:right;width:100%">Frame</span>
+        <span class="fv" id="f-frame"></span>
+      </div>
+    </div>
+
+    <!-- Model Number | Customer Stock Number -->
+    <div class="fr">
+      <div class="fc" style="flex:1">
+        <span class="fl">Model Number:</span><span class="fv" id="f-model"></span>
+      </div>
+      <div class="fc" style="flex:1">
+        <span class="fl">Customer Stock Number:</span><span class="fv" id="f-custstock"></span>
+      </div>
+    </div>
+
+    <!-- Serial Number | Customer Asset/Component Number -->
+    <div class="fr">
+      <div class="fc" style="flex:1">
+        <span class="fl">Serial Number:</span><span class="fv" id="f-serial"></span>
+      </div>
+      <div class="fc" style="flex:1">
+        <span class="fl">Customer Asset/Component Number:</span><span class="fv"></span>
+      </div>
+    </div>
+
+    <!-- Other Data (full width) -->
+    <div class="fr">
+      <div class="fc" style="flex:1">
+        <span class="fl">Other Data:</span><span class="fv" id="f-otherdata"></span>
+      </div>
+    </div>
+
+  </div><!-- /sec 2 -->
+
+
+  <!-- ═══════════════════════════════════════════
+       3. ATTACHMENTS FOR UNIT LISTED ABOVE  —  2.0" = 50.8 mm
+       ═══════════════════════════════════════════ -->
+  <div class="sec" style="flex:20">
+    <div class="sh">3. ATTACHMENTS FOR UNIT LISTED ABOVE</div>
+
+    <div class="fr">
+      <div class="fc" style="flex:1;padding:4px 8px;font-size:9pt;
+                              flex-direction:row;align-items:center;gap:4px">
+        <span class="cb" id="cb-att-coupling"></span>&nbsp;Coupling
+      </div>
+      <div class="fc" style="flex:1;padding:4px 8px;font-size:9pt;
+                              flex-direction:row;align-items:center;gap:4px">
+        <span class="cb" id="cb-att-junctionbox"></span>&nbsp;Junction Box
+      </div>
+      <div class="fc" style="flex:1;padding:4px 8px;font-size:9pt;
+                              flex-direction:row;align-items:center;gap:4px">
+        <span class="cb" id="cb-att-impeller"></span>&nbsp;Impeller
+      </div>
+    </div>
+
+    <div class="fr">
+      <div class="fc" style="flex:1;padding:4px 8px;font-size:9pt;
+                              flex-direction:row;align-items:center;gap:4px">
+        <span class="cb" id="cb-att-pulley"></span>&nbsp;Pulley
+      </div>
+      <div class="fc" style="flex:1;padding:4px 8px;font-size:9pt;
+                              flex-direction:row;align-items:center;gap:4px">
+        <span class="cb" id="cb-att-mountingfoot"></span>&nbsp;Mounting Foot
+      </div>
+      <div class="fc" style="flex:1;padding:4px 8px;font-size:9pt;
+                              flex-direction:row;align-items:center;gap:4px">
+        <span class="cb" id="cb-att-volute"></span>&nbsp;Volute
+      </div>
+    </div>
+
+    <div class="fr" style="flex:2">
+      <div class="fc" style="flex:1;padding:4px 8px;font-size:9pt;
+                              flex-direction:row;align-items:flex-start;gap:4px">
+        <span class="cb" id="cb-att-other" style="margin-top:2px"></span>
+        &nbsp;<strong>OTHER INCOMING ATTACHMENTS:</strong>
+        &nbsp;<span id="f-attach-other" style="flex:1"></span>
+      </div>
+    </div>
+
+  </div><!-- /sec 3 -->
+
+
+  <!-- ═══════════════════════════════════════════
+       4. DESIGNATED LOCATION  —  1.5" = 38.1 mm
+       ═══════════════════════════════════════════ -->
+  <div class="sec" style="flex:15">
+    <div class="sh">4. DESIGNATED LOCATION</div>
+
+    <!-- Large open area for location text -->
+    <div class="fr" style="flex:2">
+      <div style="flex:1;padding:4px 8px">
+        <span style="font-size:9.5pt;font-weight:600" id="f-location"></span>
+        <span style="font-size:9pt;margin-left:6px" id="f-benchname"></span>
+      </div>
+    </div>
+
+    <!-- Delivered By | Received By -->
+    <div class="fr" style="flex:1">
+      <div style="flex:1;border-right:1px solid #000;padding:3px 8px 6px;
+                  display:flex;align-items:flex-end;gap:4px">
+        <span style="font-weight:700;font-size:9pt;white-space:nowrap;flex-shrink:0">Delivered By:</span>
+        <span style="flex:1;border-bottom:1.5px solid #000;display:block;min-height:18px" id="f-delivery"></span>
+      </div>
+      <div style="flex:1;padding:3px 8px 6px;display:flex;align-items:flex-end;gap:4px">
+        <span style="font-weight:700;font-size:9pt;white-space:nowrap;flex-shrink:0">Received By:</span>
+        <span style="flex:1;border-bottom:1.5px solid #000;display:block;min-height:18px" id="f-received"></span>
+      </div>
+    </div>
+
+  </div><!-- /sec 4 -->
+
+</div><!-- /fw -->
+
+<!-- FOOTER -->
+<div class="ftr">
+  <div class="ftr-row">
+    <span>EPS-RF-029 (Issue 01, Rev. 03, September 15, 2023)</span>
+    <span>Page 1 of 1</span>
+  </div>
+  <div style="font-style:italic">
+    This document is an uncontrolled copy when printed. It is the document holder's responsibility
+    to ensure that they have the most current version of this document specific to Source
+    Atlantic's 9001 program
+  </div>
+</div>
+
+</div><!-- /pg -->
+
+<script>
+(function(){
+  var p = new URLSearchParams(window.location.search);
+  function g(k){ return p.get(k)||''; }
+  function set(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; }
+  function chk(id){ var e=document.getElementById(id); if(e){e.classList.add('on');e.textContent='✓';} }
+  function fmtDate(raw){
+    if(!raw) return '';
+    var d = new Date(raw+'T12:00:00');
+    return d.toLocaleDateString('en-CA',{year:'numeric',month:'short',day:'numeric'});
+  }
+
+  var num  = g('epsNum')||'—';
+  var wo   = g('wo');
+  var cust = g('customer');
+
+  // Print bar
+  document.getElementById('pb-num').textContent = num;
+  if(cust) document.getElementById('pb-cust').textContent = ' — '+cust;
+
+  // Always fill form # and WO
+  set('f-num', num);
+  set('f-wo',  wo);
+
+  if(wo){
+    var prio  = g('priority');
+    var wtd   = g('whattodo').toLowerCase();
+    var area  = g('area').toLowerCase();
+    var pqty  = g('picsqty');
+    var ptime = g('picstime');
+
+    // Section 1
+    set('f-customer',        cust);
+    set('f-customercontact', g('customerContact'));
+    set('f-prevwo',          g('prevWo'));
+    set('f-address',         g('address'));
+    set('f-custwo',          g('custwo'));
+    set('f-customerpo',      g('customerPO'));
+    set('f-telephone',       g('telephone'));
+    set('f-date',            fmtDate(g('date')));
+    set('f-datepics',        fmtDate(g('datepicstaken')) || fmtDate(g('date')));
+
+    if(prio==='Rush')         chk('cb-rush');
+    else if(prio==='Regular') chk('cb-reg');
+
+    var hasPics = pqty && parseInt(pqty)>0;
+    if(pqty) chk(hasPics ? 'cb-pics-yes' : 'cb-pics-no');
+    if(ptime){
+      var tp = ptime.split(':');
+      var hh = parseInt(tp[0]), mm = tp[1]||'00';
+      var isPM = hh >= 12, h12 = (hh%12)||12;
+      document.getElementById('f-picstime-disp').textContent = h12+':'+mm;
+      chk(isPM ? 'cb-pm' : 'cb-am');
+    }
+    if(pqty) document.getElementById('f-picsqty-disp').textContent = pqty;
+
+    if(wtd.includes('dismantle')||wtd.includes('inspect')) chk('cb-dis');
+    if(wtd.includes('repair')&&wtd.includes('return'))     chk('cb-rep-ret');
+    if(wtd.includes('store')||wtd.includes('partner'))     chk('cb-rep-store');
+    set('f-notes', g('notes'));
+
+    // Section 2 — Department
+    if(area.includes('electric'))                               chk('cb-elec');
+    else if(area.includes('mechanic'))                          chk('cb-mech');
+    else if(area.includes('air')||area.includes('compressor'))  chk('cb-air');
+    else if(area.includes('generator'))                         chk('cb-gen');
+    else if(area.includes('weld'))                              chk('cb-weld');
+
+    // Section 2 — Nameplate
+    set('f-desc',         g('equipment'));
+    set('f-typesize',     g('typesize'));
+    set('f-kw',           g('kw'));
+    set('f-manufacturer', g('manufacturer'));
+    set('f-hp',           g('hp'));
+    set('f-rpm',          g('rpm'));
+    set('f-frame',        g('frame'));
+    set('f-model',        g('model'));
+    set('f-custstock',    g('custstock'));
+    set('f-serial',       g('serial'));
+    set('f-otherdata',    g('otherdata'));
+
+    // Section 3 — Attachments
+    var att      = g('attachments').toLowerCase();
+    var attOther = g('attachOther');
+    if(att.includes('coupling'))  chk('cb-att-coupling');
+    if(att.includes('junction'))  chk('cb-att-junctionbox');
+    if(att.includes('impeller'))  chk('cb-att-impeller');
+    if(att.includes('pulley'))    chk('cb-att-pulley');
+    if(att.includes('mounting'))  chk('cb-att-mountingfoot');
+    if(att.includes('volute'))    chk('cb-att-volute');
+    if(attOther){ chk('cb-att-other'); set('f-attach-other', attOther); }
+
+    // Section 4 — Location
+    var loc      = g('location');
+    var bench    = g('benchname');
+    var locOther = g('locationOther');
+    set('f-location',  (loc==='Others'&&locOther) ? locOther : loc);
+    set('f-benchname', bench ? '— '+bench : '');
+
+    // Signatures
+    set('f-delivery', g('delivery'));
+    set('f-received', g('received'));
+  }
+
+  document.title = 'EPS Form #'+num+(cust?' — '+cust:'');
+})();
+
+function closePage(){
+  var from = new URLSearchParams(window.location.search).get('from')||'';
+  window.close();
+  setTimeout(function(){
+    window.location.replace(from==='ct' ? 'control-tower.html#overview' : 'index.html');
+  }, 300);
+}
+
+function epsPrint(){
+  var done = false;
+  function closeMe(){
+    if(done) return; done=true;
+    setTimeout(closePage, 400);
+  }
+  window.addEventListener('afterprint', closeMe);
+  var mq = window.matchMedia && window.matchMedia('print');
+  if(mq && mq.addEventListener) mq.addEventListener('change', function(e){ if(!e.matches) closeMe(); });
+  else if(mq && mq.addListener)  mq.addListener(function(e){ if(!e.matches) closeMe(); });
+  window.print();
+}
+</script>
+</body>
+</html>

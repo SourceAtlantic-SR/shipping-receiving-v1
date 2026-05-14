@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DB Cleanup — Delete 2022 &amp; 2023</title>
+<style>
+  body{font-family:system-ui,sans-serif;max-width:700px;margin:40px auto;padding:0 20px;background:#f8fafc}
+  h1{color:#1e293b;font-size:1.4rem;margin-bottom:4px}
+  p.sub{color:#64748b;font-size:.85rem;margin-bottom:24px}
+  .card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:20px;margin-bottom:16px}
+  .card h2{font-size:1rem;margin:0 0 12px;color:#334155}
+  table{width:100%;border-collapse:collapse;font-size:.85rem}
+  th{background:#f1f5f9;text-align:left;padding:6px 10px;border-bottom:2px solid #e2e8f0}
+  td{padding:6px 10px;border-bottom:1px solid #f1f5f9}
+  .num{text-align:right;font-weight:600;color:#dc2626}
+  .green{color:#16a34a}
+  #status{color:#64748b;font-size:.85rem;margin:12px 0;min-height:20px}
+  #log{background:#0f172a;color:#94a3b8;font-size:.78rem;padding:14px;border-radius:8px;
+       max-height:220px;overflow-y:auto;font-family:monospace;white-space:pre-wrap;display:none}
+  .btn{padding:10px 22px;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer}
+  .btn-scan{background:#3b82f6;color:#fff}
+  .btn-del{background:#dc2626;color:#fff;display:none}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .warn{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;
+        font-size:.85rem;color:#b91c1c;margin:12px 0;display:none}
+  input[type=email],input[type=password]{padding:8px 10px;border:1px solid #cbd5e1;border-radius:6px;
+        font-size:.9rem;width:100%;box-sizing:border-box;margin-bottom:10px}
+  label{font-size:.82rem;color:#475569;display:block;margin-bottom:3px}
+  #auth-section{display:block}
+  #main-section{display:none}
+</style>
+</head>
+<body>
+<h1>Database Cleanup — Remove 2022 &amp; 2023 Records</h1>
+<p class="sub">Scans all collections and permanently deletes records dated 2022 and 2023.</p>
+
+<div id="auth-section" class="card">
+  <h2>Login</h2>
+  <label>Email</label>
+  <input type="email" id="email" value="lcdsilva@hotmail.com">
+  <label>Password</label>
+  <input type="password" id="password" placeholder="Your Firebase password">
+  <button class="btn btn-scan" onclick="doLogin()">Login</button>
+  <div id="auth-status" style="margin-top:8px;font-size:.83rem;color:#64748b"></div>
+</div>
+
+<div id="main-section">
+  <div class="card">
+    <h2>Step 1 — Scan collections</h2>
+    <div id="status">Click Scan to check what will be deleted.</div>
+    <div id="results"></div>
+    <div class="warn" id="warn">
+      ⚠️ This will permanently delete all records above. This cannot be undone.<br>
+      Are you sure you want to continue?
+    </div>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button class="btn btn-scan" id="btn-scan" onclick="doScan()">🔍 Scan</button>
+      <button class="btn btn-del" id="btn-del" onclick="doDelete()">🗑 Delete 2022 &amp; 2023</button>
+    </div>
+  </div>
+  <div id="log"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script>
+var FB_CFG = {
+  apiKey:            'AIzaSyBuS3afVcx3W-zfgZfDYIutNltuEfP8Fhc',
+  authDomain:        'source-atlantic-sr.firebaseapp.com',
+  databaseURL:       'https://source-atlantic-sr-default-rtdb.firebaseio.com',
+  storageBucket:     'source-atlantic-sr.firebasestorage.app',
+  messagingSenderId: '953329380095',
+  appId:             '1:953329380095:web:f7865dda88a33ff9457aca'
+};
+firebase.initializeApp(FB_CFG);
+var db   = firebase.database();
+var auth = firebase.auth();
+var SR   = 'shipping_receiving';
+
+var COLLECTIONS = [
+  { key: 'incoming',      dateField: 'date' },
+  { key: 'items',         dateField: 'date' },
+  { key: 'shipping',      dateField: 'date' },
+  { key: 'payments',      dateField: 'date' },
+  { key: 'packing',       dateField: 'date' },
+  { key: 'process',       dateField: 'date' },
+  { key: 'ship_errors',   dateField: 'date' },
+  { key: 'subcontractor', dateField: 'date' },
+];
+var OLD_YEARS = ['2022', '2023'];
+
+var toDelete = {}; // { collectionKey: [fbKey, ...] }
+
+function log(msg){
+  var el = document.getElementById('log');
+  el.style.display = 'block';
+  el.textContent += msg + '\n';
+  el.scrollTop = el.scrollHeight;
+}
+
+function setStatus(msg){ document.getElementById('status').textContent = msg; }
+
+function doLogin(){
+  var email = document.getElementById('email').value.trim();
+  var pass  = document.getElementById('password').value;
+  var st    = document.getElementById('auth-status');
+  st.textContent = 'Logging in…';
+  auth.signInWithEmailAndPassword(email, pass)
+    .then(function(){
+      document.getElementById('auth-section').style.display = 'none';
+      document.getElementById('main-section').style.display = 'block';
+      st.textContent = '';
+    })
+    .catch(function(e){ st.textContent = 'Error: ' + e.message; });
+}
+
+function isOldYear(dateStr){
+  if(!dateStr) return false;
+  var y = String(dateStr).slice(0,4);
+  return OLD_YEARS.includes(y);
+}
+
+function doScan(){
+  toDelete = {};
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('btn-del').style.display = 'none';
+  document.getElementById('warn').style.display = 'none';
+  document.getElementById('log').style.display = 'none';
+  document.getElementById('log').textContent = '';
+  document.getElementById('btn-scan').disabled = true;
+  setStatus('Scanning…');
+
+  var pending = COLLECTIONS.length;
+  var rows = [];
+
+  COLLECTIONS.forEach(function(col){
+    db.ref(SR+'/'+col.key).once('value').then(function(snap){
+      var data = snap.val() || {};
+      var keys = Object.keys(data).filter(function(k){
+        return isOldYear(data[k][col.dateField]);
+      });
+      toDelete[col.key] = keys;
+      rows.push({ col: col.key, count: keys.length });
+      log('  ' + col.key + ': ' + keys.length + ' old records found');
+      pending--;
+      if(pending === 0) showScanResults(rows);
+    }).catch(function(e){
+      log('  ERROR reading ' + col.key + ': ' + e.message);
+      pending--;
+      if(pending === 0) showScanResults(rows);
+    });
+  });
+}
+
+function showScanResults(rows){
+  document.getElementById('btn-scan').disabled = false;
+  var total = rows.reduce(function(s,r){ return s+r.count; }, 0);
+  var html = '<table><tr><th>Collection</th><th style="text-align:right">Records to delete</th></tr>';
+  rows.forEach(function(r){
+    html += '<tr><td>'+r.col+'</td><td class="'+(r.count>0?'num':'green')+'">'+
+            (r.count>0 ? r.count : '✓ none')+'</td></tr>';
+  });
+  html += '<tr style="font-weight:700"><td>TOTAL</td><td class="'+(total>0?'num':'green')+'">'+total+'</td></tr>';
+  html += '</table>';
+  document.getElementById('results').innerHTML = html;
+
+  if(total > 0){
+    document.getElementById('warn').style.display = 'block';
+    document.getElementById('btn-del').style.display = 'inline-block';
+    setStatus('Found ' + total + ' records from 2022/2023. Review above and click Delete to proceed.');
+  } else {
+    setStatus('No records from 2022 or 2023 found. Nothing to delete.');
+  }
+}
+
+function doDelete(){
+  if(!confirm('Delete ALL 2022 and 2023 records permanently?\nThis cannot be undone.')) return;
+  document.getElementById('btn-del').disabled = true;
+  document.getElementById('btn-scan').disabled = true;
+  document.getElementById('warn').style.display = 'none';
+  setStatus('Deleting…');
+  log('\n--- DELETING ---');
+
+  var ops = [];
+  Object.keys(toDelete).forEach(function(col){
+    toDelete[col].forEach(function(key){
+      ops.push({ col: col, key: key });
+    });
+  });
+
+  if(ops.length === 0){ setStatus('Nothing to delete.'); return; }
+
+  var done = 0;
+  var errors = 0;
+  ops.forEach(function(op){
+    db.ref(SR+'/'+op.col+'/'+op.key).remove()
+      .then(function(){
+        done++;
+        log('  deleted ' + op.col + '/' + op.key);
+        if(done + errors === ops.length) finish(done, errors);
+      })
+      .catch(function(e){
+        errors++;
+        log('  ERROR deleting ' + op.col + '/' + op.key + ': ' + e.message);
+        if(done + errors === ops.length) finish(done, errors);
+      });
+  });
+}
+
+function finish(done, errors){
+  document.getElementById('btn-scan').disabled = false;
+  if(errors === 0){
+    setStatus('Done! ' + done + ' records deleted successfully.');
+    document.getElementById('results').innerHTML =
+      '<p style="color:#16a34a;font-weight:600">✓ ' + done + ' records deleted. Database now contains only 2024, 2025, and 2026 data.</p>';
+    document.getElementById('btn-del').style.display = 'none';
+  } else {
+    setStatus('Completed with ' + errors + ' errors. ' + done + ' records deleted.');
+    document.getElementById('btn-del').disabled = false;
+  }
+}
+</script>
+</body>
+</html>
