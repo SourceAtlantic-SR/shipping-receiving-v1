@@ -3297,7 +3297,7 @@ function saveIncoming(){
     incomingData[k] = record;
     renderIncoming();
   }
-  closeIncomingModal();
+  openIncomingModal();
 }
 
 function printIncomingLabel(){
@@ -4691,7 +4691,7 @@ function saveShipment(){
     if(!key) record.createdAt = new Date().toISOString();
     shpData[k] = record; renderShipping();
   }
-  closeShipModal();
+  openShipModal();
 }
 
 function deleteShipment(){
@@ -5119,7 +5119,7 @@ function saveItem(){
     if(!key) record.createdAt = new Date().toISOString();
     itemsData[k]=record; renderItems();
   }
-  closeItemModal();
+  openItemModal();
   wipEmailQueue = [];
   var hasWip = lineItems.some(function(li){ return li.binLocation==='WIP'; });
   var wipEM  = lineItems.filter(function(li){
