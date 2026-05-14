@@ -492,6 +492,7 @@ function enforceUpper(el){
   if(!el) return;
   if(el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA') return;
   if(el.type && el.type !== 'text') return;
+  if(el.dataset && el.dataset.nocase !== undefined) return;
   if(el.classList && el.classList.contains('no-upper')) return;
   var v = el.value.toUpperCase();
   if(el.value === v) return;
