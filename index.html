@@ -725,7 +725,7 @@ document.addEventListener('keydown', function(ev){
   <!-- ══ INCOMING FORM SECTION ══ -->
   <div id="section-incoming">
     <div class="section-sub-nav">
-      <button class="sub-nav-btn active" id="inc-subbtn-entry" onclick="showIncScreen('entry')">✏️ New Entry</button>
+      <button class="sub-nav-btn active" id="inc-subbtn-entry" onclick="openIncomingModal()">✏️ New Entry</button>
       <button class="sub-nav-btn" id="inc-subbtn-reports" onclick="showIncScreen('reports')">📊 Reports</button>
     </div>
 
@@ -1059,7 +1059,7 @@ document.addEventListener('keydown', function(ev){
   <!-- ══ INCOMING ITEMS SECTION ══ -->
   <div id="section-items" style="display:none">
     <div class="section-sub-nav">
-      <button class="sub-nav-btn active" id="itm-subbtn-entry" onclick="showItmScreen('entry')">✏️ New Entry</button>
+      <button class="sub-nav-btn active" id="itm-subbtn-entry" onclick="openItemModal()">✏️ New Entry</button>
       <button class="sub-nav-btn" id="itm-subbtn-reports" onclick="showItmScreen('reports')">📊 Reports</button>
     </div>
 
@@ -1169,7 +1169,7 @@ document.addEventListener('keydown', function(ev){
   <!-- ══ SHIPPING SECTION ══ -->
   <div id="section-shipping" style="display:none">
     <div class="section-sub-nav">
-      <button class="sub-nav-btn active" id="shp-subbtn-entry" onclick="showShpScreen('entry')">✏️ New Shipment</button>
+      <button class="sub-nav-btn active" id="shp-subbtn-entry" onclick="openShipModal()">✏️ New Shipment</button>
       <button class="sub-nav-btn" id="shp-subbtn-reports" onclick="showShpScreen('reports')">📊 Reports</button>
     </div>
 
