@@ -1030,7 +1030,6 @@ document.addEventListener('keydown', function(ev){
           <select class="year-select" id="inc-day" onchange="filterIncoming()" style="min-width:80px"><option value="">All Days</option></select>
           <input class="search-input" type="text" id="inc-search" placeholder="Search form #, WO, customer, equipment..." oninput="filterIncoming()">
           <button class="btn btn-secondary" onclick="exportIncomingCSV()">⬇️ Export Excel</button>
-          <button class="btn btn-primary admin-only" onclick="openIncomingModal()">+ New Incoming</button>
         </div>
       </div>
       <div class="table-wrap">
@@ -1144,7 +1143,6 @@ document.addEventListener('keydown', function(ev){
           <select class="year-select" id="itm-day" onchange="filterItems()" style="min-width:80px"><option value="">All Days</option></select>
           <input class="search-input" type="text" id="itm-search" placeholder="Search doc #, PO, supplier, customer, SO#, WO#, transfer, material…" oninput="filterItems()">
           <button class="btn btn-secondary" onclick="exportItemsCSV()">⬇️ Export Excel</button>
-          <button class="btn btn-primary admin-only" onclick="openItemModal()">+ New Item</button>
         </div>
       </div>
       <div class="table-wrap">
@@ -1385,7 +1383,6 @@ document.addEventListener('keydown', function(ev){
           <select class="year-select" id="shp-day" onchange="filterShipping()" style="min-width:80px"><option value="">All Days</option></select>
           <input class="search-input" type="text" id="shp-search" placeholder="Search outgoing #, city, material..." oninput="filterShipping()">
           <button class="btn btn-secondary" onclick="exportShippingCSV()">⬇️ Export Excel</button>
-          <button class="btn btn-primary admin-only" onclick="openShipModal()">+ New Shipment</button>
         </div>
       </div>
       <div class="table-wrap">
