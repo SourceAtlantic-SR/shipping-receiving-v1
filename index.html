@@ -2437,13 +2437,7 @@ function processAuthUser(user){
   if(isAdmin && db) initPresence(user);
   if(!isAdmin){
     var wantsPayments = new URLSearchParams(window.location.search).get('payments') === '1';
-    if(wantsPayments && isPaymentsViewer){
-      document.getElementById('app-loading').style.display = 'flex';
-      initDataListeners();
-      return;
-    }
-    window.location.replace('control-tower.html');
-    return;
+    if(payTab) payTab.style.display = canAccessPayments(user.email) ? '' : 'none';
   }
   document.getElementById('app-loading').style.display = 'flex';
   initDataListeners();
