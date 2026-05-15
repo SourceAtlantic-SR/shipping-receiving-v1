@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Shipping & Receiving v3 — Source Atlantic</title>
+<title>Shipping & Receiving — Source Atlantic</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1318,7 +1318,7 @@ document.addEventListener('keydown', function(ev){
               <div class="form-group full" id="shp-wo-group">
                 <label>Work Order Number(s)</label>
                 <div class="tag-input-row">
-                  <input type="text" id="shp-wo-input" placeholder="WO# aqui" onkeydown="if(event.key==='Enter'){event.preventDefault();addShpTag('wo')}" oninput="shpWoInputHandler(this.value)" onchange="updateShpOrderFields()" data-maxdigits="7" style="width:105px;max-width:100%;flex:none">
+                  <input type="text" id="shp-wo-input" placeholder="Add Work Order #" onkeydown="if(event.key==='Enter'){event.preventDefault();addShpTag('wo')}" oninput="shpWoInputHandler(this.value)" onchange="updateShpOrderFields()" data-maxdigits="7" style="width:105px;max-width:100%;flex:none">
                   <button class="btn btn-secondary btn-sm" onclick="addShpTag('wo')">+ Add</button>
                 </div>
                 <div class="tags-list" id="shp-wo-tags"></div>
@@ -4428,10 +4428,10 @@ function showToast(msg){
 }
 
 function shpWoInputHandler(val){
-  try{ checkShpOutgoing(); }catch(e){ showToast('E1:'+e.message); }
-  try{ updateShpOrderFields(); }catch(e){ showToast('E2:'+e.message); }
-  try{ checkInputOrderType('shp-wo-input','shp-wo-hint','wo'); }catch(e){ showToast('E3:'+e.message); }
-  try{ shpWoRealTimeLookup(); }catch(e){ showToast('E4:'+e.message); }
+  try{ checkShpOutgoing(); }catch(e){}
+  try{ updateShpOrderFields(); }catch(e){}
+  try{ checkInputOrderType('shp-wo-input','shp-wo-hint','wo'); }catch(e){}
+  try{ shpWoRealTimeLookup(); }catch(e){}
   try{ shpCheckOrderStatus(val,'wo','shp-wo-status'); }catch(e){}
 }
 
