@@ -787,19 +787,19 @@ document.addEventListener('keydown', function(ev){
               Customer
               <button type="button" onclick="openShipToModal('select')" style="font-size:.7rem;padding:2px 8px;border:1px solid var(--blue-500);border-radius:4px;background:#eff6ff;color:var(--blue-600);cursor:pointer;font-weight:700;font-family:inherit;white-space:nowrap">📋 ID List</button>
             </label>
-            <input type="text" id="inc-customer" placeholder="Customer name" list="customer-suggestions" autocomplete="off" oninput="autoFillShipToId()">
+            <input type="text" id="inc-customer" placeholder="Customer name" list="customer-suggestions" autocomplete="off" oninput="autoFillShipToId()" style="width:200px;max-width:100%">
           </div>
           <div class="form-group">
             <label>Ship To ID #</label>
-            <input type="text" id="inc-ship-to-id" placeholder="e.g. 137193">
+            <input type="text" id="inc-ship-to-id" placeholder="e.g. 137193" style="width:90px;max-width:100%">
           </div>
           <div class="form-group">
             <label>Customer Contact</label>
-            <input type="text" id="inc-customer-contact" placeholder="Contact person name">
+            <input type="text" id="inc-customer-contact" placeholder="Contact person name" style="width:180px;max-width:100%">
           </div>
           <div class="form-group">
             <label>Telephone Number</label>
-            <input type="text" id="inc-telephone" placeholder="Phone number">
+            <input type="text" id="inc-telephone" placeholder="Phone number" style="width:145px;max-width:100%">
           </div>
           <div class="form-group full">
             <label>Address</label>
@@ -807,7 +807,7 @@ document.addEventListener('keydown', function(ev){
           </div>
           <div class="form-group">
             <label>Customer Work Order No.</label>
-            <input type="text" id="inc-custwo" placeholder="Customer's WO #">
+            <input type="text" id="inc-custwo" placeholder="Customer's WO #" style="width:105px;max-width:100%">
           </div>
           <div class="form-group">
             <label>Purchase Order No.</label>
@@ -873,7 +873,7 @@ document.addEventListener('keydown', function(ev){
               <label class="inc-cb-item"><input type="checkbox" id="inc-wtd-other" onchange="toggleWtdOther()"> Others</label>
             </div>
             <div id="inc-wtd-other-group" style="display:none;margin-top:6px">
-              <input type="text" id="inc-whattodo-other" placeholder="Specify...">
+              <input type="text" id="inc-whattodo-other" placeholder="Specify..." style="width:200px;max-width:100%">
             </div>
             <input type="hidden" id="inc-whattodo">
           </div>
@@ -911,20 +911,20 @@ document.addEventListener('keydown', function(ev){
           </div>
           <div class="form-group full" id="equip-other-group" style="display:none">
             <label>Other — Describe Equipment</label>
-            <input type="text" id="inc-equip-other" placeholder="Describe the equipment..." list="material-suggestions" autocomplete="off" oninput="enforceUpper(this)">
+            <input type="text" id="inc-equip-other" placeholder="Describe the equipment..." list="material-suggestions" autocomplete="off" oninput="enforceUpper(this)" style="width:200px;max-width:100%">
           </div>
           <div class="form-subgrid">
             <div class="form-group">
               <label>Manufacturer</label>
-              <input type="text" id="inc-manufacturer" placeholder="e.g. ABB, Baldor">
+              <input type="text" id="inc-manufacturer" placeholder="e.g. ABB, Baldor" style="width:170px;max-width:100%">
             </div>
             <div class="form-group">
               <label>Model Number</label>
-              <input type="text" id="inc-model" placeholder="Model #">
+              <input type="text" id="inc-model" placeholder="Model #" style="width:140px;max-width:100%">
             </div>
             <div class="form-group">
               <label>Serial Number</label>
-              <input type="text" id="inc-serial" placeholder="Serial #">
+              <input type="text" id="inc-serial" placeholder="Serial #" style="width:140px;max-width:100%">
             </div>
             <div class="form-group">
               <label>Type / Size</label>
@@ -953,7 +953,7 @@ document.addEventListener('keydown', function(ev){
           </div>
           <div class="form-group full">
             <label>Customer Asset / Component Number</label>
-            <input type="text" id="inc-custasset" placeholder="Asset / Component #">
+            <input type="text" id="inc-custasset" placeholder="Asset / Component #" style="width:140px;max-width:100%">
           </div>
           <div class="form-group full">
             <label>Other Data</label>
@@ -974,7 +974,7 @@ document.addEventListener('keydown', function(ev){
           </div>
           <div class="form-group full">
             <label>Other Incoming Attachments</label>
-            <input type="text" id="inc-attach-other" placeholder="Describe other attachments...">
+            <input type="text" id="inc-attach-other" placeholder="Describe other attachments..." style="width:200px;max-width:100%">
           </div>
 
           <!-- ══ 4. DESIGNATED LOCATION ══ -->
@@ -992,7 +992,7 @@ document.addEventListener('keydown', function(ev){
           </div>
           <div id="inc-location-other-group" style="display:none" class="form-group full">
             <label>Location — Specify</label>
-            <input type="text" id="inc-location-other" placeholder="Specify location...">
+            <input type="text" id="inc-location-other" placeholder="Specify location..." style="width:200px;max-width:100%">
           </div>
           <input type="hidden" id="inc-bench-name">
           <div class="form-group">
@@ -1012,11 +1012,11 @@ document.addEventListener('keydown', function(ev){
           </div>
           <div class="form-group" id="inc-delivery-driver-group" style="display:none">
             <label>Our Truck — Driver Name</label>
-            <input type="text" id="inc-delivery-driver" placeholder="Driver name">
+            <input type="text" id="inc-delivery-driver" placeholder="Driver name" style="width:180px;max-width:100%">
           </div>
           <div class="form-group" id="inc-delivery-other-group" style="display:none">
             <label>Delivered By — Specify</label>
-            <input type="text" id="inc-delivery-other" placeholder="Specify carrier...">
+            <input type="text" id="inc-delivery-other" placeholder="Specify carrier..." style="width:170px;max-width:100%">
           </div>
           <div class="form-group">
             <label>Received By</label>
@@ -1029,7 +1029,7 @@ document.addEventListener('keydown', function(ev){
           </div>
           <div class="form-group" id="inc-received-other-group" style="display:none">
             <label>Received By — Name</label>
-            <input type="text" id="inc-received-other" placeholder="Enter name">
+            <input type="text" id="inc-received-other" placeholder="Enter name" style="width:180px;max-width:100%">
           </div>
           <div class="form-group full">
             <label>Notes</label>
@@ -1122,7 +1122,7 @@ document.addEventListener('keydown', function(ev){
           </div>
           <div class="form-group">
             <label>Supplier</label>
-            <input type="text" id="itm-supplier" placeholder="Supplier name" list="supplier-suggestions" autocomplete="off">
+            <input type="text" id="itm-supplier" placeholder="Supplier name" list="supplier-suggestions" autocomplete="off" style="width:200px;max-width:100%">
           </div>
           <div class="form-group">
             <label>Requested By</label>
@@ -1142,7 +1142,7 @@ document.addEventListener('keydown', function(ev){
           </div>
           <div class="form-group" id="itm-reqby-other-group" style="display:none">
             <label>Requested By — Name</label>
-            <input type="text" id="itm-reqby-other" placeholder="Type the name">
+            <input type="text" id="itm-reqby-other" placeholder="Type the name" style="width:180px;max-width:100%">
           </div>
         </div>
 
@@ -1236,7 +1236,7 @@ document.addEventListener('keydown', function(ev){
           <!-- Customer — inline below SO so user sees it immediately after entering an order -->
           <div class="form-group" id="shp-customer-group">
             <label>Customer</label>
-            <input type="text" id="shp-customer" placeholder="Customer name" list="customer-suggestions" autocomplete="off" oninput="setTimeout(lookupPostalFromCustomer,0)" onchange="setTimeout(lookupPostalFromCustomer,0)">
+            <input type="text" id="shp-customer" placeholder="Customer name" list="customer-suggestions" autocomplete="off" oninput="setTimeout(lookupPostalFromCustomer,0)" onchange="setTimeout(lookupPostalFromCustomer,0)" style="width:200px;max-width:100%">
           </div>
           <div id="shp-customer-filled" class="full" style="display:none;background:#f0f7ff;border:1.5px solid #93c5fd;border-radius:8px;padding:10px 14px;align-items:center;gap:10px;flex-wrap:wrap">
             <div style="flex:1;min-width:0">
@@ -1248,13 +1248,13 @@ document.addEventListener('keydown', function(ev){
           </div>
           <div class="form-group">
             <label>Customer PO #</label>
-            <input type="text" id="shp-customer-po" placeholder="e.g. PO-12345">
+            <input type="text" id="shp-customer-po" placeholder="e.g. PO-12345" style="width:105px;max-width:100%">
           </div>
 
           <div class="form-group full" id="shp-tr-group">
             <label>Transfer Number(s)</label>
             <div class="tag-input-row">
-              <input type="text" id="shp-tr-input" placeholder="Add Transfer #" onkeydown="if(event.key==='Enter'){event.preventDefault();addShpTag('tr')}" oninput="updateShpOrderFields()" onchange="updateShpOrderFields()">
+              <input type="text" id="shp-tr-input" placeholder="Add Transfer #" onkeydown="if(event.key==='Enter'){event.preventDefault();addShpTag('tr')}" oninput="updateShpOrderFields()" onchange="updateShpOrderFields()" style="width:105px;max-width:100%;flex:none">
               <button class="btn btn-secondary btn-sm" onclick="addShpTag('tr')">+ Add</button>
             </div>
             <div class="tags-list" id="shp-tr-tags"></div>
@@ -1291,7 +1291,7 @@ document.addEventListener('keydown', function(ev){
           </div>
           <div class="form-group full" id="shp-material-other-group" style="display:none">
             <label>Other — Describe Material</label>
-            <input type="text" id="shp-material-other" placeholder="Describe the material..." list="material-suggestions" autocomplete="off" oninput="enforceUpper(this)">
+            <input type="text" id="shp-material-other" placeholder="Describe the material..." list="material-suggestions" autocomplete="off" oninput="enforceUpper(this)" style="width:200px;max-width:100%">
           </div>
           <div class="form-subgrid" style="grid-template-columns:auto auto auto">
             <div class="form-group">
@@ -1337,12 +1337,12 @@ document.addEventListener('keydown', function(ev){
 
           <div class="form-group" id="shp-city-group" style="display:none">
             <label>City</label>
-            <input type="text" id="shp-city" placeholder="City" oninput="setTimeout(lookupCityProvince,0);setTimeout(lookupPostalFromCustomer,0)" onchange="setTimeout(lookupCityProvince,0);setTimeout(lookupPostalFromCustomer,0)" list="city-list" autocomplete="off">
+            <input type="text" id="shp-city" placeholder="City" oninput="setTimeout(lookupCityProvince,0);setTimeout(lookupPostalFromCustomer,0)" onchange="setTimeout(lookupCityProvince,0);setTimeout(lookupPostalFromCustomer,0)" list="city-list" autocomplete="off" style="width:140px;max-width:100%">
             <datalist id="city-list"></datalist>
           </div>
           <div class="form-group" id="shp-province-group" style="display:none">
             <label>Province / State</label>
-            <input type="text" id="shp-province" placeholder="e.g. NB" list="province-list">
+            <input type="text" id="shp-province" placeholder="e.g. NB" list="province-list" style="width:55px;max-width:100%">
             <datalist id="province-list">
               <option value="AB"><option value="BC"><option value="MB"><option value="NB">
               <option value="NL"><option value="NS"><option value="NT"><option value="NU">
@@ -1352,11 +1352,11 @@ document.addEventListener('keydown', function(ev){
           </div>
           <div class="form-group" id="shp-postal-group" style="display:none">
             <label>Postal Code</label>
-            <input type="text" id="shp-postal" placeholder="e.g. E2L 4L1" oninput="detectCountryFromPostal()">
+            <input type="text" id="shp-postal" placeholder="e.g. E2L 4L1" oninput="detectCountryFromPostal()" style="width:90px;max-width:100%">
           </div>
           <div class="form-group" id="shp-country-group" style="display:none">
             <label>Country</label>
-            <input type="text" id="shp-country" placeholder="Canada" value="Canada">
+            <input type="text" id="shp-country" placeholder="Canada" value="Canada" style="width:85px;max-width:100%">
           </div>
 
           <!-- ── Transportation ── -->
@@ -1381,7 +1381,7 @@ document.addEventListener('keydown', function(ev){
           </div>
           <div class="form-group" id="shp-carrier-other-group" style="display:none">
             <label>Carrier Name</label>
-            <input type="text" id="shp-carrier-other" placeholder="Enter carrier name">
+            <input type="text" id="shp-carrier-other" placeholder="Enter carrier name" style="width:170px;max-width:100%">
           </div>
           <div class="form-group full">
             <label>Tracking Number</label>
@@ -1715,11 +1715,11 @@ document.addEventListener('keydown', function(ev){
         </div>
         <div class="form-group">
           <label>Incoming Form #</label>
-          <input type="text" id="sub-incoming" placeholder="e.g. INC-2024-001" oninput="prefillSubFromIncoming('incoming')">
+          <input type="text" id="sub-incoming" placeholder="e.g. INC-2024-001" oninput="prefillSubFromIncoming('incoming')" style="width:140px;max-width:100%">
         </div>
         <div class="form-group full">
           <label>Customer</label>
-          <input type="text" id="sub-customer" placeholder="Customer name" list="customer-suggestions" autocomplete="off">
+          <input type="text" id="sub-customer" placeholder="Customer name" list="customer-suggestions" autocomplete="off" style="width:200px;max-width:100%">
         </div>
         <div class="form-group full">
           <label>Material</label>
@@ -1736,11 +1736,11 @@ document.addEventListener('keydown', function(ev){
         </div>
         <div class="form-group full" id="sub-material-other-group" style="display:none">
           <label>Other — Describe Material</label>
-          <input type="text" id="sub-material-other" class="no-upper" placeholder="Describe the material..." list="material-suggestions" autocomplete="off">
+          <input type="text" id="sub-material-other" class="no-upper" placeholder="Describe the material..." list="material-suggestions" autocomplete="off" style="width:200px;max-width:100%">
         </div>
         <div class="form-group full">
           <label>Part / Component Sent <span style="font-weight:400;font-size:.72rem;opacity:.6;text-transform:none;letter-spacing:0">(leave blank if sending complete unit)</span></label>
-          <input type="text" id="sub-part-sent" class="no-upper" placeholder="e.g. Shaft, Bearing, Rotor, Stator...">
+          <input type="text" id="sub-part-sent" class="no-upper" placeholder="e.g. Shaft, Bearing, Rotor, Stator..." style="width:200px;max-width:100%">
         </div>
 
         <!-- ── Subcontractor ── -->
@@ -1748,7 +1748,7 @@ document.addEventListener('keydown', function(ev){
 
         <div class="form-group full">
           <label>Subcontractor Name</label>
-          <input type="text" id="sub-name" placeholder="Subcontractor company name">
+          <input type="text" id="sub-name" placeholder="Subcontractor company name" style="width:200px;max-width:100%">
         </div>
         <div class="form-group">
           <label>Outgoing #</label>
@@ -1780,7 +1780,7 @@ document.addEventListener('keydown', function(ev){
         </div>
         <div class="form-group" id="sub-carrier-other-group" style="display:none">
           <label>Carrier Name</label>
-          <input type="text" id="sub-carrier-other" placeholder="Enter carrier name">
+          <input type="text" id="sub-carrier-other" placeholder="Enter carrier name" style="width:170px;max-width:100%">
         </div>
         <div class="form-group">
           <label>Tracking Number</label>
@@ -1821,11 +1821,11 @@ document.addEventListener('keydown', function(ev){
 
         <div class="form-group">
           <label>Order Number *</label>
-          <input type="text" id="pkg-order" placeholder="e.g. ORD-00123">
+          <input type="text" id="pkg-order" placeholder="e.g. ORD-00123" style="width:140px;max-width:100%">
         </div>
         <div class="form-group">
           <label>Customer</label>
-          <input type="text" id="pkg-customer" list="customer-suggestions" placeholder="Customer name">
+          <input type="text" id="pkg-customer" list="customer-suggestions" placeholder="Customer name" style="width:200px;max-width:100%">
         </div>
         <div class="form-group">
           <label>Pick Date *</label>
@@ -1887,11 +1887,11 @@ document.addEventListener('keydown', function(ev){
 
         <div class="form-group" id="pay-order-num-group" style="display:none">
           <label id="pay-order-num-label">Order #</label>
-          <input type="text" id="pay-order-num" placeholder="Order number" oninput="payLookupOrder()">
+          <input type="text" id="pay-order-num" placeholder="Order number" oninput="payLookupOrder()" style="width:105px;max-width:100%">
         </div>
         <div class="form-group" id="pay-customer-group" style="display:none">
           <label>Customer</label>
-          <input type="text" id="pay-customer" list="customer-suggestions" placeholder="Customer name">
+          <input type="text" id="pay-customer" list="customer-suggestions" placeholder="Customer name" style="width:200px;max-width:100%">
         </div>
 
         <div class="form-group full">
@@ -1907,7 +1907,7 @@ document.addEventListener('keydown', function(ev){
 
         <div class="form-group" id="pay-cheque-group" style="display:none">
           <label>Cheque Number</label>
-          <input type="text" id="pay-cheque-num" placeholder="Cheque #">
+          <input type="text" id="pay-cheque-num" placeholder="Cheque #" style="width:105px;max-width:100%">
         </div>
 
         <div class="form-group full">
@@ -1992,7 +1992,7 @@ document.addEventListener('keydown', function(ev){
         </div>
         <div class="form-group" id="proc-customer-group" style="display:none">
           <label>Customer</label>
-          <input type="text" id="proc-customer" list="customer-suggestions" placeholder="Customer name" oninput="checkProcEquipex()" onchange="checkProcEquipex()">
+          <input type="text" id="proc-customer" list="customer-suggestions" placeholder="Customer name" oninput="checkProcEquipex()" onchange="checkProcEquipex()" style="width:200px;max-width:100%">
         </div>
         <div class="form-group" id="proc-po-group" style="display:none">
           <label>Purchase Order</label>
@@ -2000,7 +2000,7 @@ document.addEventListener('keydown', function(ev){
         </div>
         <div class="form-group" id="proc-material-group" style="display:none">
           <label>Material</label>
-          <input type="text" id="proc-material" list="material-suggestions" placeholder="Material description">
+          <input type="text" id="proc-material" list="material-suggestions" placeholder="Material description" style="width:200px;max-width:100%">
         </div>
 
         <div id="proc-wo-filled" class="full" style="display:none;background:#f0f7ff;border:1.5px solid #93c5fd;border-radius:8px;padding:10px 14px;align-items:flex-start;gap:12px;flex-wrap:wrap">
@@ -2212,19 +2212,19 @@ document.addEventListener('keydown', function(ev){
         <div class="form-section-header">Shipment Reference</div>
         <div class="form-group">
           <label>Outgoing Form #</label>
-          <input type="text" id="sherr-outgoing" placeholder="Outgoing #" oninput="enforceUpper(this)">
+          <input type="text" id="sherr-outgoing" placeholder="Outgoing #" oninput="enforceUpper(this)" style="width:80px;max-width:100%">
         </div>
         <div class="form-group">
           <label>Customer</label>
-          <input type="text" id="sherr-customer" placeholder="Customer name" list="customer-suggestions" autocomplete="off">
+          <input type="text" id="sherr-customer" placeholder="Customer name" list="customer-suggestions" autocomplete="off" style="width:200px;max-width:100%">
         </div>
         <div class="form-group">
           <label>Work Order #</label>
-          <input type="text" id="sherr-wo" placeholder="WO #" oninput="enforceUpper(this)">
+          <input type="text" id="sherr-wo" placeholder="WO #" oninput="enforceUpper(this)" style="width:105px;max-width:100%">
         </div>
         <div class="form-group">
           <label>Sales Order #</label>
-          <input type="text" id="sherr-so" placeholder="SO #" oninput="enforceUpper(this)">
+          <input type="text" id="sherr-so" placeholder="SO #" oninput="enforceUpper(this)" style="width:105px;max-width:100%">
         </div>
         <div class="form-group">
           <label>Carrier</label>
@@ -2244,7 +2244,7 @@ document.addEventListener('keydown', function(ev){
         </div>
         <div class="form-group">
           <label>Airbill / Tracking #</label>
-          <input type="text" id="sherr-tracking" placeholder="Original tracking #">
+          <input type="text" id="sherr-tracking" placeholder="Original tracking #" style="width:220px;max-width:100%">
         </div>
 
         <div class="form-section-header">Error Details</div>
@@ -2268,11 +2268,11 @@ document.addEventListener('keydown', function(ev){
         </div>
         <div class="form-group">
           <label>Return Tracking #</label>
-          <input type="text" id="sherr-return-tracking" placeholder="Return airbill #">
+          <input type="text" id="sherr-return-tracking" placeholder="Return airbill #" style="width:220px;max-width:100%">
         </div>
         <div class="form-group">
           <label>Responsible Party</label>
-          <input type="text" id="sherr-responsible" placeholder="Who caused the error">
+          <input type="text" id="sherr-responsible" placeholder="Who caused the error" style="width:180px;max-width:100%">
         </div>
         <div class="form-group">
           <label>Cost Impact ($)</label>
@@ -4907,11 +4907,11 @@ function renderItmLines(){
       '<td style="padding:4px 3px;width:48px"><input type="number" id="itm-l'+i+'-rl" placeholder="0" min="0" value="'+escAttr(item.rl||'')+'" style="'+fi+';text-align:center"></td>'+
       '<td style="padding:4px 6px;width:145px">'+
         '<select id="itm-l'+i+'-bin" onchange="toggleLineStock('+i+')" style="'+fi+'"><option value="">— BIN —</option>'+binSel+'</select>'+
-        '<input type="text" id="itm-l'+i+'-binstock" placeholder="BIN Location" oninput="enforceUpper(this)" value="'+escAttr(item.binStock||'')+'" style="'+fi+';margin-top:3px;display:'+(isStock?'block':'none')+'">'+
-        '<input type="text" id="itm-l'+i+'-wipwo" placeholder="Work Order #" oninput="enforceUpper(this);autoFillFromWo(this.value,'+i+')" value="'+escAttr(item.wipWo||'')+'" style="'+fi+';margin-top:3px;display:'+(isWIP?'block':'none')+'">'+
-        '<input type="text" id="itm-l'+i+'-wipcustomer" placeholder="Customer" oninput="enforceUpper(this)" value="'+escAttr(item.wipCustomer||'')+'" style="'+fi+';margin-top:3px;display:'+(isWIP?'block':'none')+'">'+
+        '<input type="text" id="itm-l'+i+'-binstock" placeholder="BIN Location" oninput="enforceUpper(this)" value="'+escAttr(item.binStock||'')+'" style="'+fi+';width:120px;max-width:100%;margin-top:3px;display:'+(isStock?'block':'none')+'">'+
+        '<input type="text" id="itm-l'+i+'-wipwo" placeholder="Work Order #" oninput="enforceUpper(this);autoFillFromWo(this.value,'+i+')" value="'+escAttr(item.wipWo||'')+'" style="'+fi+';width:105px;max-width:100%;margin-top:3px;display:'+(isWIP?'block':'none')+'">'+
+        '<input type="text" id="itm-l'+i+'-wipcustomer" placeholder="Customer" oninput="enforceUpper(this)" value="'+escAttr(item.wipCustomer||'')+'" style="'+fi+';width:180px;max-width:100%;margin-top:3px;display:'+(isWIP?'block':'none')+'">'+
         '<select id="itm-l'+i+'-wiparea" style="'+fi+';margin-top:3px;display:'+(isWIP?'block':'none')+'">'+'<option value="">— Area —</option>'+['Electrical','Mechanical','Air Compressor','Generator'].map(function(o){return '<option'+(item.wipArea===o?' selected':'')+'>'+o+'</option>';}).join('')+'</select>'+
-        '<input type="text" id="itm-l'+i+'-nobinso" placeholder="Sales Order #" oninput="enforceUpper(this)" value="'+escAttr(item.nobinSo||'')+'" style="'+fi+';margin-top:3px;display:'+(isNOBIN?'block':'none')+'">'+
+        '<input type="text" id="itm-l'+i+'-nobinso" placeholder="Sales Order #" oninput="enforceUpper(this)" value="'+escAttr(item.nobinSo||'')+'" style="'+fi+';width:105px;max-width:100%;margin-top:3px;display:'+(isNOBIN?'block':'none')+'">'+
         '<button type="button" id="itm-l'+i+'-wipbtn" class="btn btn-secondary btn-sm" onclick="printItemWipLabel('+i+')" style="margin-top:3px;font-size:.65rem;padding:2px 6px;display:'+(isWIP?'block':'none')+'">🏷️ WIP Label</button>'+
         '<button type="button" id="itm-l'+i+'-labelbtn" class="btn btn-secondary btn-sm" onclick="printItemGenericLabel('+i+')" style="margin-top:3px;font-size:.65rem;padding:2px 6px;display:'+(isOther?'block':'none')+'">🏷️ Print Label</button>'+
       '</td>'+
