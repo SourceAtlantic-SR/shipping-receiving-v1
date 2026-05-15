@@ -136,6 +136,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--surface-alt);colo
 #section-process .table-wrap table{width:100%;min-width:1080px}
 #section-process .table-wrap th{white-space:nowrap;padding:10px 12px;font-size:.66rem}
 #section-process .table-wrap td{font-size:.78rem;padding:8px 12px;white-space:nowrap}
+#section-process .table-wrap td:last-child,
+#section-process .table-wrap th:last-child{position:sticky;right:0;z-index:2;background:#fff;box-shadow:-3px 0 6px rgba(0,0,0,.06);overflow:visible!important;white-space:normal;vertical-align:middle;padding:6px 8px}
+#section-process .table-wrap tr:nth-child(even) td:last-child{background:#fafcff}
+#section-process .table-wrap tr:hover td:last-child{background:#f0f7ff}
+#section-process .table-wrap th:last-child{background:linear-gradient(180deg,var(--blue-600),var(--blue-500));z-index:5}
 #section-sherrors .table-wrap table{width:100%;min-width:860px}
 #section-sherrors .table-wrap td{white-space:nowrap;font-size:.78rem;padding:8px 10px}
 #section-sherrors .table-wrap th{white-space:nowrap;padding:10px;font-size:.66rem}
