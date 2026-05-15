@@ -133,9 +133,20 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--surface-alt);colo
 #section-shipping .table-wrap tr:nth-child(even) td:last-child{background:#fafcff}
 #section-shipping .table-wrap tr:hover td:last-child{background:#f0f7ff}
 #section-shipping .table-wrap th:last-child{background:linear-gradient(180deg,var(--blue-600),var(--blue-500));white-space:nowrap;z-index:5}
-#section-process .table-wrap table{width:100%;min-width:1080px}
-#section-process .table-wrap th{white-space:nowrap;padding:10px 12px;font-size:.66rem}
-#section-process .table-wrap td{font-size:.78rem;padding:8px 12px;white-space:nowrap}
+#section-process .table-wrap table{width:100%;min-width:860px;table-layout:fixed}
+#section-process .table-wrap th{white-space:nowrap;padding:10px 8px;font-size:.66rem}
+#section-process .table-wrap td{font-size:.78rem;padding:8px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#section-process .table-wrap th:nth-child(1),#section-process .table-wrap td:nth-child(1){width:90px}
+#section-process .table-wrap th:nth-child(2),#section-process .table-wrap td:nth-child(2){width:80px}
+#section-process .table-wrap th:nth-child(3),#section-process .table-wrap td:nth-child(3){width:80px}
+#section-process .table-wrap th:nth-child(4),#section-process .table-wrap td:nth-child(4){width:110px;max-width:110px}
+#section-process .table-wrap th:nth-child(5),#section-process .table-wrap td:nth-child(5){width:100px;max-width:100px}
+#section-process .table-wrap th:nth-child(6),#section-process .table-wrap td:nth-child(6){width:70px;max-width:70px}
+#section-process .table-wrap th:nth-child(7),#section-process .table-wrap td:nth-child(7){width:78px}
+#section-process .table-wrap th:nth-child(8),#section-process .table-wrap td:nth-child(8){width:90px}
+#section-process .table-wrap th:nth-child(9),#section-process .table-wrap td:nth-child(9){width:auto}
+#section-process .table-wrap th:nth-child(10),#section-process .table-wrap td:nth-child(10){width:75px}
+#section-process .table-wrap td:nth-child(4):hover,#section-process .table-wrap td:nth-child(5):hover,#section-process .table-wrap td:nth-child(6):hover{overflow:visible;white-space:normal;background:#fff;position:relative;z-index:1}
 #section-process .table-wrap td:last-child,
 #section-process .table-wrap th:last-child{position:sticky;right:0;z-index:2;background:#fff;box-shadow:-3px 0 6px rgba(0,0,0,.06);overflow:visible!important;white-space:normal;vertical-align:middle;padding:6px 8px}
 #section-process .table-wrap tr:nth-child(even) td:last-child{background:#fafcff}
