@@ -1249,6 +1249,19 @@ function applyUrlParams(){
     if(prov){ omsProvince = prov; }
     showPage('oms');
     if(section) omsSetSection(section);
+    return;
+  }
+  if(params.get('open') === 'incoming' && params.get('key')){
+    var rec = allData.incoming[params.get('key')];
+    if(rec){
+      var term = rec.formNum || rec.wo || '';
+      var type = rec.formNum ? 'inc' : 'wo';
+      if(term){
+        setType(type);
+        document.getElementById('search-input').value = term;
+        doSearch();
+      }
+    }
   }
 }
 

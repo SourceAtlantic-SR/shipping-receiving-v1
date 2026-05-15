@@ -2588,12 +2588,7 @@ function processAuthUser(user){
       initDataListeners();
       return;
     }
-    if(hasDeepLink){
-      document.getElementById('app-loading').style.display = 'flex';
-      initDataListeners();
-      return;
-    }
-    window.location.replace('control-tower.html');
+    window.location.replace('control-tower.html' + window.location.search);
     return;
   }
   document.getElementById('app-loading').style.display = 'flex';
