@@ -2572,8 +2572,15 @@ function processAuthUser(user){
   document.getElementById('auth-overlay').style.display = 'none';
   if(isAdmin && db) initPresence(user);
   if(!isAdmin){
-    var wantsPayments = new URLSearchParams(window.location.search).get('payments') === '1';
+    var _params       = new URLSearchParams(window.location.search);
+    var wantsPayments = _params.get('payments') === '1';
+    var hasDeepLink   = !!(_params.get('open') && _params.get('key'));
     if(wantsPayments && canAccessPayments(user.email)){
+      document.getElementById('app-loading').style.display = 'flex';
+      initDataListeners();
+      return;
+    }
+    if(hasDeepLink){
       document.getElementById('app-loading').style.display = 'flex';
       initDataListeners();
       return;
