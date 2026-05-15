@@ -848,11 +848,11 @@ document.addEventListener('keydown', function(ev){
               </div>
               <div class="form-group">
                 <label>Date</label>
-                <input type="date" id="inc-date">
+                <input type="date" id="inc-date" style="width:130px;max-width:100%">
               </div>
               <div class="form-group">
                 <label>Date Pictures Taken</label>
-                <input type="date" id="inc-datepics">
+                <input type="date" id="inc-datepics" style="width:130px;max-width:100%">
               </div>
               <div class="form-group">
                 <label>Pictures Taken</label>
@@ -920,7 +920,7 @@ document.addEventListener('keydown', function(ev){
               </div>
               <div class="form-group full">
                 <label>Basic Description</label>
-                <select id="inc-equip-type" onchange="toggleEquipOther()">
+                <select id="inc-equip-type" onchange="toggleEquipOther()" style="width:160px;max-width:100%">
                   <option value="">— Select —</option>
                   <option>AC Motor</option>
                   <option>DC Motor</option>
@@ -952,23 +952,23 @@ document.addEventListener('keydown', function(ev){
                 </div>
                 <div class="form-group">
                   <label>Type / Size</label>
-                  <input type="text" id="inc-typesize" placeholder="e.g. TEFC">
+                  <input type="text" id="inc-typesize" placeholder="e.g. TEFC" style="width:90px;max-width:100%">
                 </div>
                 <div class="form-group">
                   <label>HP</label>
-                  <input type="text" id="inc-hp" placeholder="e.g. 100">
+                  <input type="text" id="inc-hp" placeholder="e.g. 100" style="width:65px;max-width:100%">
                 </div>
                 <div class="form-group">
                   <label>RPM</label>
-                  <input type="text" id="inc-rpm" placeholder="e.g. 1800">
+                  <input type="text" id="inc-rpm" placeholder="e.g. 1800" style="width:70px;max-width:100%">
                 </div>
                 <div class="form-group">
                   <label>KW</label>
-                  <input type="text" id="inc-kw" placeholder="e.g. 75">
+                  <input type="text" id="inc-kw" placeholder="e.g. 75" style="width:60px;max-width:100%">
                 </div>
                 <div class="form-group">
                   <label>Frame</label>
-                  <input type="text" id="inc-frame" placeholder="e.g. 444T">
+                  <input type="text" id="inc-frame" placeholder="e.g. 444T" style="width:75px;max-width:100%">
                 </div>
                 <div class="form-group">
                   <label>Customer Stock #</label>
@@ -1154,7 +1154,7 @@ document.addEventListener('keydown', function(ev){
               </div>
               <div class="form-group">
                 <label>Date</label>
-                <input type="date" id="itm-date">
+                <input type="date" id="itm-date" style="width:130px;max-width:100%">
               </div>
               <div class="form-group">
                 <label>Supplier</label>
@@ -1256,7 +1256,7 @@ document.addEventListener('keydown', function(ev){
             <div class="form-block-body">
               <div class="form-group">
                 <label>Shipment Date</label>
-                <input type="date" id="shp-date">
+                <input type="date" id="shp-date" style="width:130px;max-width:100%">
               </div>
             </div>
           </div>
@@ -1676,7 +1676,7 @@ document.addEventListener('keydown', function(ev){
         <span class="dcf-controls-title">📋 Daily Cash Sales Form</span>
         <div class="dcf-date-nav">
           <button onclick="dcfPrevDay()">‹</button>
-          <input type="date" id="dcf-date-input" onchange="renderDcf()">
+          <input type="date" id="dcf-date-input" onchange="renderDcf()" style="width:130px;max-width:100%">
           <button onclick="dcfNextDay()">›</button>
           <button onclick="dcfGoToday()" style="background:#1565c0;color:#fff;border-color:#1565c0;padding:4px 12px">Today</button>
         </div>
@@ -1800,7 +1800,7 @@ document.addEventListener('keydown', function(ev){
 
         <div class="form-group">
           <label>Shipping Date</label>
-          <input type="date" id="sub-ship-date" onchange="calcSubWorkingDays()">
+          <input type="date" id="sub-ship-date" onchange="calcSubWorkingDays()" style="width:130px;max-width:100%">
         </div>
         <div class="form-group">
           <label>Shipping By</label>
@@ -1828,7 +1828,7 @@ document.addEventListener('keydown', function(ev){
         </div>
         <div class="form-group">
           <label>Return Date</label>
-          <input type="date" id="sub-return-date" onchange="calcSubWorkingDays()">
+          <input type="date" id="sub-return-date" onchange="calcSubWorkingDays()" style="width:130px;max-width:100%">
         </div>
         <div class="working-days-wrap">
           <div class="working-days-box" id="sub-working-days-box" style="display:none">
@@ -1869,11 +1869,11 @@ document.addEventListener('keydown', function(ev){
         </div>
         <div class="form-group">
           <label>Pick Date *</label>
-          <input type="date" id="pkg-pick-date" oninput="updateDaysOnHold()">
+          <input type="date" id="pkg-pick-date" oninput="updateDaysOnHold()" style="width:130px;max-width:100%">
         </div>
         <div class="form-group">
           <label>Current Date</label>
-          <input type="date" id="pkg-current-date" readonly style="background:#f8fbff;color:#6b7280;cursor:default">
+          <input type="date" id="pkg-current-date" readonly style="width:130px;max-width:100%;background:#f8fbff;color:#6b7280;cursor:default">
         </div>
 
         <div class="full" style="display:flex;align-items:center;gap:16px;padding:6px 0">
@@ -1906,7 +1906,7 @@ document.addEventListener('keydown', function(ev){
 
         <div class="form-group">
           <label>Payment Date *</label>
-          <input type="date" id="pay-date">
+          <input type="date" id="pay-date" style="width:130px;max-width:100%">
         </div>
         <div class="form-group">
           <label>Amount ($) *</label>
@@ -2079,15 +2079,15 @@ document.addEventListener('keydown', function(ev){
           <div class="form-block-body">
             <div class="form-group">
               <label>Shipping Area Received Date *</label>
-              <input type="date" id="proc-received-date" oninput="updateProcDays();checkProcEquipex()" onchange="updateProcDays();checkProcEquipex()">
+              <input type="date" id="proc-received-date" oninput="updateProcDays();checkProcEquipex()" onchange="updateProcDays();checkProcEquipex()" style="width:130px;max-width:100%">
             </div>
             <div class="form-group" id="proc-equipex-group" style="display:none">
               <label style="color:#b45309;font-weight:800">Next Shipping Date (Equipex)</label>
-              <input type="date" id="proc-next-ship" readonly style="background:#fffbeb;color:#92400e;font-weight:700;cursor:default;border-color:#f59e0b">
+              <input type="date" id="proc-next-ship" readonly style="width:130px;max-width:100%;background:#fffbeb;color:#92400e;font-weight:700;cursor:default;border-color:#f59e0b">
             </div>
             <div class="form-group">
               <label>Current Date</label>
-              <input type="date" id="proc-current-date" readonly style="background:#f8fbff;color:#6b7280;cursor:default">
+              <input type="date" id="proc-current-date" readonly style="width:130px;max-width:100%;background:#f8fbff;color:#6b7280;cursor:default">
             </div>
             <div class="form-group">
               <label>Pictures Qty</label>
@@ -2241,7 +2241,7 @@ document.addEventListener('keydown', function(ev){
             </div>
             <div class="form-group">
               <label>Date *</label>
-              <input type="date" id="sherr-date">
+              <input type="date" id="sherr-date" style="width:130px;max-width:100%">
             </div>
             <div class="form-group">
               <label>Status</label>
