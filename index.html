@@ -226,6 +226,19 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--surface-alt);colo
 .form-section-header:first-child{border-top:none;margin-top:0;padding-top:0}
 .form-section-header:first-child::before{display:none}
 
+/* ── FORM BLOCKS ── */
+.form-block{grid-column:1/-1;border-radius:10px;overflow:hidden;margin-top:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.07)}
+.form-block:first-child{margin-top:0}
+.form-block-hdr{padding:10px 16px;display:flex;align-items:center;gap:9px;font-size:.73rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#fff}
+.form-block-body{background:#fff;padding:14px 14px 8px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-block-body .full{grid-column:1/-1}
+.form-block-body .form-subgrid{grid-column:1/-1}
+.hdr-ref{background:linear-gradient(135deg,#334155,#64748b)}
+.hdr-blue{background:linear-gradient(135deg,#1565c0,#1976d2)}
+.hdr-slate{background:linear-gradient(135deg,#334155,#475569)}
+.hdr-amber{background:linear-gradient(135deg,#92400e,#b45309)}
+.hdr-green{background:linear-gradient(135deg,#065f46,#059669)}
+
 /* ── 3-COLUMN SUB-GRID ── */
 .form-subgrid{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 
@@ -334,6 +347,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--surface-alt);colo
   .form-grid{grid-template-columns:1fr}
   .form-grid .full{grid-column:1}
   .form-subgrid{grid-template-columns:1fr}
+  .form-block-body{grid-template-columns:1fr}
+  .form-block-body .full{grid-column:1}
   .main{padding:12px}
   .search-wrap,.search-input{width:100%}
   .section-actions{width:100%;justify-content:flex-start}
@@ -769,275 +784,294 @@ document.addEventListener('keydown', function(ev){
         <input type="hidden" id="inc-eps-num">
         <div class="form-grid">
 
-          <!-- ── Incoming # + WO # ── -->
-          <div class="form-group">
-            <label>Incoming Form #</label>
-            <input type="text" id="inc-form-num" placeholder="e.g. 32850" data-maxdigits="5" style="width:80px;max-width:100%">
-          </div>
-          <div class="form-group">
-            <label>Work Order #</label>
-            <input type="text" id="inc-wo" placeholder="e.g. 1234567" data-maxdigits="7" style="width:105px;max-width:100%">
-          </div>
-
-          <!-- ══ 1. CUSTOMER INFORMATION ══ -->
-          <div class="form-section-header">1. Customer Information</div>
-
-          <div class="form-group">
-            <label style="display:flex;align-items:center;justify-content:space-between;gap:6px">
-              Customer
-              <button type="button" onclick="openShipToModal('select')" style="font-size:.7rem;padding:2px 8px;border:1px solid var(--blue-500);border-radius:4px;background:#eff6ff;color:var(--blue-600);cursor:pointer;font-weight:700;font-family:inherit;white-space:nowrap">📋 ID List</button>
-            </label>
-            <input type="text" id="inc-customer" placeholder="Customer name" list="customer-suggestions" autocomplete="off" oninput="autoFillShipToId()" style="width:200px;max-width:100%">
-          </div>
-          <div class="form-group">
-            <label>Ship To ID #</label>
-            <input type="text" id="inc-ship-to-id" placeholder="e.g. 137193" style="width:90px;max-width:100%">
-          </div>
-          <div class="form-group">
-            <label>Customer Contact</label>
-            <input type="text" id="inc-customer-contact" placeholder="Contact person name" style="width:180px;max-width:100%">
-          </div>
-          <div class="form-group">
-            <label>Telephone Number</label>
-            <input type="text" id="inc-telephone" placeholder="Phone number" style="width:145px;max-width:100%">
-          </div>
-          <div class="form-group full">
-            <label>Address</label>
-            <input type="text" id="inc-address" placeholder="Customer address">
-          </div>
-          <div class="form-group">
-            <label>Customer Work Order No.</label>
-            <input type="text" id="inc-custwo" placeholder="Customer's WO #" style="width:105px;max-width:100%">
-          </div>
-          <div class="form-group">
-            <label>Purchase Order No.</label>
-            <input type="text" id="inc-customer-po" placeholder="e.g. 1234567" data-maxdigits="7" style="width:105px;max-width:100%">
-          </div>
-          <div class="form-group">
-            <label>Previous Work Order #</label>
-            <input type="text" id="inc-prev-wo" placeholder="e.g. 1234567" data-maxdigits="7" style="width:105px;max-width:100%">
-          </div>
-          <div class="form-group">
-            <label>Job Priority</label>
-            <div class="inc-toggle-group">
-              <button type="button" class="inc-toggle-btn" id="btn-prio-regular" onclick="setIncPriority('Regular')">REGULAR</button>
-              <button type="button" class="inc-toggle-btn" id="btn-prio-rush" onclick="setIncPriority('Rush')">🔴 RUSH</button>
-            </div>
-            <input type="hidden" id="inc-priority">
-          </div>
-          <div class="form-group">
-            <label>Date</label>
-            <input type="date" id="inc-date">
-          </div>
-          <div class="form-group">
-            <label>Date Pictures Taken</label>
-            <input type="date" id="inc-datepics">
-          </div>
-          <div class="form-group">
-            <label>Pictures Taken</label>
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px">
-              <div class="inc-toggle-group" style="margin:0">
-                <button type="button" class="inc-toggle-btn" id="btn-pics-yes" onclick="setIncPicsTaken('YES')">YES</button>
-                <button type="button" class="inc-toggle-btn" id="btn-pics-no" onclick="setIncPicsTaken('NO')">NO</button>
+          <!-- ══ BLOCK: FORM REFERENCE ══ -->
+          <div class="form-block">
+            <div class="form-block-hdr hdr-ref">📋 Form Reference</div>
+            <div class="form-block-body">
+              <div class="form-group">
+                <label>Incoming Form #</label>
+                <input type="text" id="inc-form-num" placeholder="e.g. 32850" data-maxdigits="5" style="width:80px;max-width:100%">
               </div>
-              <div style="display:flex;align-items:center;gap:3px" id="inc-pics-time-picker">
-                <select id="inc-pics-hour" data-nocase onchange="syncPicsTime()" style="padding:5px 4px;border:1px solid #d1d5db;border-radius:6px;font-size:.88rem;font-weight:600;color:#1e293b;background:#fff;cursor:pointer;-webkit-appearance:auto">
-                  <option value="">--</option>
-                  <option>1</option><option>2</option><option>3</option><option>4</option>
-                  <option>5</option><option>6</option><option>7</option><option>8</option>
-                  <option>9</option><option>10</option><option>11</option><option>12</option>
-                </select>
-                <span style="font-weight:700;color:#475569">:</span>
-                <select id="inc-pics-min" data-nocase onchange="syncPicsTime()" style="padding:5px 4px;border:1px solid #d1d5db;border-radius:6px;font-size:.88rem;font-weight:600;color:#1e293b;background:#fff;cursor:pointer;-webkit-appearance:auto">
-                  <option value="">--</option>
-                  <option>00</option><option>05</option><option>10</option><option>15</option>
-                  <option>20</option><option>25</option><option>30</option><option>35</option>
-                  <option>40</option><option>45</option><option>50</option><option>55</option>
-                </select>
-                <div class="inc-toggle-group" style="margin:0">
-                  <button type="button" class="inc-toggle-btn" id="btn-pics-am" onclick="setPicsAmPm('AM')">AM</button>
-                  <button type="button" class="inc-toggle-btn" id="btn-pics-pm" onclick="setPicsAmPm('PM')">PM</button>
+              <div class="form-group">
+                <label>Work Order #</label>
+                <input type="text" id="inc-wo" placeholder="e.g. 1234567" data-maxdigits="7" style="width:105px;max-width:100%">
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ BLOCK 1: CUSTOMER INFORMATION ══ -->
+          <div class="form-block">
+            <div class="form-block-hdr hdr-blue">🏢 1. Customer Information</div>
+            <div class="form-block-body">
+              <div class="form-group">
+                <label style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+                  Customer
+                  <button type="button" onclick="openShipToModal('select')" style="font-size:.7rem;padding:2px 8px;border:1px solid var(--blue-500);border-radius:4px;background:#eff6ff;color:var(--blue-600);cursor:pointer;font-weight:700;font-family:inherit;white-space:nowrap">📋 ID List</button>
+                </label>
+                <input type="text" id="inc-customer" placeholder="Customer name" list="customer-suggestions" autocomplete="off" oninput="autoFillShipToId()" style="width:200px;max-width:100%">
+              </div>
+              <div class="form-group">
+                <label>Ship To ID #</label>
+                <input type="text" id="inc-ship-to-id" placeholder="e.g. 137193" style="width:90px;max-width:100%">
+              </div>
+              <div class="form-group">
+                <label>Customer Contact</label>
+                <input type="text" id="inc-customer-contact" placeholder="Contact person name" style="width:180px;max-width:100%">
+              </div>
+              <div class="form-group">
+                <label>Telephone Number</label>
+                <input type="text" id="inc-telephone" placeholder="Phone number" style="width:145px;max-width:100%">
+              </div>
+              <div class="form-group full">
+                <label>Address</label>
+                <input type="text" id="inc-address" placeholder="Customer address">
+              </div>
+              <div class="form-group">
+                <label>Customer Work Order No.</label>
+                <input type="text" id="inc-custwo" placeholder="Customer's WO #" style="width:105px;max-width:100%">
+              </div>
+              <div class="form-group">
+                <label>Purchase Order No.</label>
+                <input type="text" id="inc-customer-po" placeholder="e.g. 1234567" data-maxdigits="7" style="width:105px;max-width:100%">
+              </div>
+              <div class="form-group">
+                <label>Previous Work Order #</label>
+                <input type="text" id="inc-prev-wo" placeholder="e.g. 1234567" data-maxdigits="7" style="width:105px;max-width:100%">
+              </div>
+              <div class="form-group">
+                <label>Job Priority</label>
+                <div class="inc-toggle-group">
+                  <button type="button" class="inc-toggle-btn" id="btn-prio-regular" onclick="setIncPriority('Regular')">REGULAR</button>
+                  <button type="button" class="inc-toggle-btn" id="btn-prio-rush" onclick="setIncPriority('Rush')">🔴 RUSH</button>
+                </div>
+                <input type="hidden" id="inc-priority">
+              </div>
+              <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="inc-date">
+              </div>
+              <div class="form-group">
+                <label>Date Pictures Taken</label>
+                <input type="date" id="inc-datepics">
+              </div>
+              <div class="form-group">
+                <label>Pictures Taken</label>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px">
+                  <div class="inc-toggle-group" style="margin:0">
+                    <button type="button" class="inc-toggle-btn" id="btn-pics-yes" onclick="setIncPicsTaken('YES')">YES</button>
+                    <button type="button" class="inc-toggle-btn" id="btn-pics-no" onclick="setIncPicsTaken('NO')">NO</button>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:3px" id="inc-pics-time-picker">
+                    <select id="inc-pics-hour" data-nocase onchange="syncPicsTime()" style="padding:5px 4px;border:1px solid #d1d5db;border-radius:6px;font-size:.88rem;font-weight:600;color:#1e293b;background:#fff;cursor:pointer;-webkit-appearance:auto">
+                      <option value="">--</option>
+                      <option>1</option><option>2</option><option>3</option><option>4</option>
+                      <option>5</option><option>6</option><option>7</option><option>8</option>
+                      <option>9</option><option>10</option><option>11</option><option>12</option>
+                    </select>
+                    <span style="font-weight:700;color:#475569">:</span>
+                    <select id="inc-pics-min" data-nocase onchange="syncPicsTime()" style="padding:5px 4px;border:1px solid #d1d5db;border-radius:6px;font-size:.88rem;font-weight:600;color:#1e293b;background:#fff;cursor:pointer;-webkit-appearance:auto">
+                      <option value="">--</option>
+                      <option>00</option><option>05</option><option>10</option><option>15</option>
+                      <option>20</option><option>25</option><option>30</option><option>35</option>
+                      <option>40</option><option>45</option><option>50</option><option>55</option>
+                    </select>
+                    <div class="inc-toggle-group" style="margin:0">
+                      <button type="button" class="inc-toggle-btn" id="btn-pics-am" onclick="setPicsAmPm('AM')">AM</button>
+                      <button type="button" class="inc-toggle-btn" id="btn-pics-pm" onclick="setPicsAmPm('PM')">PM</button>
+                    </div>
+                  </div>
+                  <input type="hidden" id="inc-pics-time">
+                  <input type="number" id="inc-pics-qty" placeholder="Num." min="0" style="width:68px">
                 </div>
               </div>
-              <input type="hidden" id="inc-pics-time">
-              <input type="number" id="inc-pics-qty" placeholder="Num." min="0" style="width:68px">
+              <div class="form-group full">
+                <label>What to Do</label>
+                <div class="inc-cb-group">
+                  <label class="inc-cb-item"><input type="checkbox" id="inc-wtd-dismantle"> Dismantle, Inspect and Estimate</label>
+                  <label class="inc-cb-item"><input type="checkbox" id="inc-wtd-repair-return"> Repair Unit and Return</label>
+                  <label class="inc-cb-item"><input type="checkbox" id="inc-wtd-repair-store"> Repair Unit and Store at EPS</label>
+                  <label class="inc-cb-item"><input type="checkbox" id="inc-wtd-balancing"> Balancing</label>
+                  <label class="inc-cb-item"><input type="checkbox" id="inc-wtd-other" onchange="toggleWtdOther()"> Others</label>
+                </div>
+                <div id="inc-wtd-other-group" style="display:none;margin-top:6px">
+                  <input type="text" id="inc-whattodo-other" placeholder="Specify..." style="width:200px;max-width:100%">
+                </div>
+                <input type="hidden" id="inc-whattodo">
+              </div>
             </div>
-          </div>
-          <div class="form-group full">
-            <label>What to Do</label>
-            <div class="inc-cb-group">
-              <label class="inc-cb-item"><input type="checkbox" id="inc-wtd-dismantle"> Dismantle, Inspect and Estimate</label>
-              <label class="inc-cb-item"><input type="checkbox" id="inc-wtd-repair-return"> Repair Unit and Return</label>
-              <label class="inc-cb-item"><input type="checkbox" id="inc-wtd-repair-store"> Repair Unit and Store at EPS</label>
-              <label class="inc-cb-item"><input type="checkbox" id="inc-wtd-balancing"> Balancing</label>
-              <label class="inc-cb-item"><input type="checkbox" id="inc-wtd-other" onchange="toggleWtdOther()"> Others</label>
-            </div>
-            <div id="inc-wtd-other-group" style="display:none;margin-top:6px">
-              <input type="text" id="inc-whattodo-other" placeholder="Specify..." style="width:200px;max-width:100%">
-            </div>
-            <input type="hidden" id="inc-whattodo">
           </div>
 
-          <!-- ══ 2. UNIT DESCRIPTION & IDENTIFICATION ══ -->
-          <div class="form-section-header">2. Unit Description &amp; Identification
-            <button type="button" onclick="openScanModal()" style="margin-left:auto;background:#0ea5e9;color:#fff;border:none;border-radius:6px;padding:4px 11px;font-size:.72rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap">📷 Scan Nameplate</button>
+          <!-- ══ BLOCK 2: UNIT DESCRIPTION & IDENTIFICATION ══ -->
+          <div class="form-block">
+            <div class="form-block-hdr hdr-slate">🔧 2. Unit Description &amp; Identification
+              <button type="button" onclick="openScanModal()" style="margin-left:auto;background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:6px;padding:4px 11px;font-size:.72rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap">📷 Scan Nameplate</button>
+            </div>
+            <div class="form-block-body">
+              <div class="form-group full">
+                <label>Department</label>
+                <div class="inc-toggle-group">
+                  <button type="button" class="inc-toggle-btn" id="btn-dept-elec" onclick="setIncDept('Electrical')">Electrical</button>
+                  <button type="button" class="inc-toggle-btn" id="btn-dept-mech" onclick="setIncDept('Mechanical')">Mechanical</button>
+                  <button type="button" class="inc-toggle-btn" id="btn-dept-air" onclick="setIncDept('Air Compressor')">Air</button>
+                  <button type="button" class="inc-toggle-btn" id="btn-dept-gen" onclick="setIncDept('Generator')">Generator</button>
+                  <button type="button" class="inc-toggle-btn" id="btn-dept-weld" onclick="setIncDept('Welding')">Welding</button>
+                </div>
+                <input type="hidden" id="inc-area">
+              </div>
+              <div class="form-group full">
+                <label>Basic Description</label>
+                <select id="inc-equip-type" onchange="toggleEquipOther()">
+                  <option value="">— Select —</option>
+                  <option>AC Motor</option>
+                  <option>DC Motor</option>
+                  <option>Submersible Pump</option>
+                  <option>Pump</option>
+                  <option>Air Compressor</option>
+                  <option>Generator</option>
+                  <option>Aero Motor</option>
+                  <option>DRUM</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-group full" id="equip-other-group" style="display:none">
+                <label>Other — Describe Equipment</label>
+                <input type="text" id="inc-equip-other" placeholder="Describe the equipment..." list="material-suggestions" autocomplete="off" oninput="enforceUpper(this)" style="width:200px;max-width:100%">
+              </div>
+              <div class="form-subgrid">
+                <div class="form-group">
+                  <label>Manufacturer</label>
+                  <input type="text" id="inc-manufacturer" placeholder="e.g. ABB, Baldor" style="width:170px;max-width:100%">
+                </div>
+                <div class="form-group">
+                  <label>Model Number</label>
+                  <input type="text" id="inc-model" placeholder="Model #" style="width:140px;max-width:100%">
+                </div>
+                <div class="form-group">
+                  <label>Serial Number</label>
+                  <input type="text" id="inc-serial" placeholder="Serial #" style="width:140px;max-width:100%">
+                </div>
+                <div class="form-group">
+                  <label>Type / Size</label>
+                  <input type="text" id="inc-typesize" placeholder="e.g. TEFC">
+                </div>
+                <div class="form-group">
+                  <label>HP</label>
+                  <input type="text" id="inc-hp" placeholder="e.g. 100">
+                </div>
+                <div class="form-group">
+                  <label>RPM</label>
+                  <input type="text" id="inc-rpm" placeholder="e.g. 1800">
+                </div>
+                <div class="form-group">
+                  <label>KW</label>
+                  <input type="text" id="inc-kw" placeholder="e.g. 75">
+                </div>
+                <div class="form-group">
+                  <label>Frame</label>
+                  <input type="text" id="inc-frame" placeholder="e.g. 444T">
+                </div>
+                <div class="form-group">
+                  <label>Customer Stock #</label>
+                  <input type="text" id="inc-custstock" placeholder="Stock #">
+                </div>
+              </div>
+              <div class="form-group full">
+                <label>Customer Asset / Component Number</label>
+                <input type="text" id="inc-custasset" placeholder="Asset / Component #" style="width:140px;max-width:100%">
+              </div>
+              <div class="form-group full">
+                <label>Other Data</label>
+                <input type="text" id="inc-otherdata" placeholder="Any other nameplate data...">
+              </div>
+            </div>
           </div>
 
-          <div class="form-group full">
-            <label>Department</label>
-            <div class="inc-toggle-group">
-              <button type="button" class="inc-toggle-btn" id="btn-dept-elec" onclick="setIncDept('Electrical')">Electrical</button>
-              <button type="button" class="inc-toggle-btn" id="btn-dept-mech" onclick="setIncDept('Mechanical')">Mechanical</button>
-              <button type="button" class="inc-toggle-btn" id="btn-dept-air" onclick="setIncDept('Air Compressor')">Air</button>
-              <button type="button" class="inc-toggle-btn" id="btn-dept-gen" onclick="setIncDept('Generator')">Generator</button>
-              <button type="button" class="inc-toggle-btn" id="btn-dept-weld" onclick="setIncDept('Welding')">Welding</button>
+          <!-- ══ BLOCK 3: ATTACHMENTS ══ -->
+          <div class="form-block">
+            <div class="form-block-hdr hdr-amber">📎 3. Attachments for Unit Listed Above</div>
+            <div class="form-block-body">
+              <div class="form-group full">
+                <div class="inc-cb-group inc-cb-row">
+                  <label class="inc-cb-item"><input type="checkbox" id="inc-attach-coupling"> Coupling</label>
+                  <label class="inc-cb-item"><input type="checkbox" id="inc-attach-pulley"> Pulley</label>
+                  <label class="inc-cb-item"><input type="checkbox" id="inc-attach-junctionbox"> Junction Box</label>
+                  <label class="inc-cb-item"><input type="checkbox" id="inc-attach-mountingfoot"> Mounting Foot</label>
+                  <label class="inc-cb-item"><input type="checkbox" id="inc-attach-impeller"> Impeller</label>
+                  <label class="inc-cb-item"><input type="checkbox" id="inc-attach-volute"> Volute</label>
+                </div>
+              </div>
+              <div class="form-group full">
+                <label>Other Incoming Attachments</label>
+                <input type="text" id="inc-attach-other" placeholder="Describe other attachments..." style="width:200px;max-width:100%">
+              </div>
             </div>
-            <input type="hidden" id="inc-area">
-          </div>
-          <div class="form-group full">
-            <label>Basic Description</label>
-            <select id="inc-equip-type" onchange="toggleEquipOther()">
-              <option value="">— Select —</option>
-              <option>AC Motor</option>
-              <option>DC Motor</option>
-              <option>Submersible Pump</option>
-              <option>Pump</option>
-              <option>Air Compressor</option>
-              <option>Generator</option>
-              <option>Aero Motor</option>
-              <option>DRUM</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div class="form-group full" id="equip-other-group" style="display:none">
-            <label>Other — Describe Equipment</label>
-            <input type="text" id="inc-equip-other" placeholder="Describe the equipment..." list="material-suggestions" autocomplete="off" oninput="enforceUpper(this)" style="width:200px;max-width:100%">
-          </div>
-          <div class="form-subgrid">
-            <div class="form-group">
-              <label>Manufacturer</label>
-              <input type="text" id="inc-manufacturer" placeholder="e.g. ABB, Baldor" style="width:170px;max-width:100%">
-            </div>
-            <div class="form-group">
-              <label>Model Number</label>
-              <input type="text" id="inc-model" placeholder="Model #" style="width:140px;max-width:100%">
-            </div>
-            <div class="form-group">
-              <label>Serial Number</label>
-              <input type="text" id="inc-serial" placeholder="Serial #" style="width:140px;max-width:100%">
-            </div>
-            <div class="form-group">
-              <label>Type / Size</label>
-              <input type="text" id="inc-typesize" placeholder="e.g. TEFC">
-            </div>
-            <div class="form-group">
-              <label>HP</label>
-              <input type="text" id="inc-hp" placeholder="e.g. 100">
-            </div>
-            <div class="form-group">
-              <label>RPM</label>
-              <input type="text" id="inc-rpm" placeholder="e.g. 1800">
-            </div>
-            <div class="form-group">
-              <label>KW</label>
-              <input type="text" id="inc-kw" placeholder="e.g. 75">
-            </div>
-            <div class="form-group">
-              <label>Frame</label>
-              <input type="text" id="inc-frame" placeholder="e.g. 444T">
-            </div>
-            <div class="form-group">
-              <label>Customer Stock #</label>
-              <input type="text" id="inc-custstock" placeholder="Stock #">
-            </div>
-          </div>
-          <div class="form-group full">
-            <label>Customer Asset / Component Number</label>
-            <input type="text" id="inc-custasset" placeholder="Asset / Component #" style="width:140px;max-width:100%">
-          </div>
-          <div class="form-group full">
-            <label>Other Data</label>
-            <input type="text" id="inc-otherdata" placeholder="Any other nameplate data...">
           </div>
 
-          <!-- ══ 3. ATTACHMENTS ══ -->
-          <div class="form-section-header">3. Attachments for Unit Listed Above</div>
-          <div class="form-group full">
-            <div class="inc-cb-group inc-cb-row">
-              <label class="inc-cb-item"><input type="checkbox" id="inc-attach-coupling"> Coupling</label>
-              <label class="inc-cb-item"><input type="checkbox" id="inc-attach-pulley"> Pulley</label>
-              <label class="inc-cb-item"><input type="checkbox" id="inc-attach-junctionbox"> Junction Box</label>
-              <label class="inc-cb-item"><input type="checkbox" id="inc-attach-mountingfoot"> Mounting Foot</label>
-              <label class="inc-cb-item"><input type="checkbox" id="inc-attach-impeller"> Impeller</label>
-              <label class="inc-cb-item"><input type="checkbox" id="inc-attach-volute"> Volute</label>
+          <!-- ══ BLOCK 4: DESIGNATED LOCATION ══ -->
+          <div class="form-block">
+            <div class="form-block-hdr hdr-green">📍 4. Designated Location</div>
+            <div class="form-block-body">
+              <div class="form-group full">
+                <label>Location</label>
+                <div class="inc-toggle-group">
+                  <button type="button" class="inc-toggle-btn" id="btn-loc-laydown" onclick="setIncLocation('Laydown Area')">Laydown Area</button>
+                  <button type="button" class="inc-toggle-btn" id="btn-loc-shopfloor" onclick="setIncLocation('Shop Floor')">Shop Floor</button>
+                  <button type="button" class="inc-toggle-btn" id="btn-loc-painting" onclick="setIncLocation('Painting Area')">Painting Area</button>
+                  <button type="button" class="inc-toggle-btn" id="btn-loc-bench" onclick="setIncLocation('Receiving Bench')">Receiving Bench</button>
+                  <button type="button" class="inc-toggle-btn" id="btn-loc-other" onclick="setIncLocation('Others')">Others</button>
+                </div>
+                <input type="hidden" id="inc-location">
+              </div>
+              <div id="inc-location-other-group" style="display:none" class="form-group full">
+                <label>Location — Specify</label>
+                <input type="text" id="inc-location-other" placeholder="Specify location..." style="width:200px;max-width:100%">
+              </div>
+              <input type="hidden" id="inc-bench-name">
+              <div class="form-group">
+                <label>Delivered By</label>
+                <select id="inc-delivery" onchange="toggleIncDelivery()">
+                  <option value="">— Select Carrier —</option>
+                  <option>MIDLAND TRANSPORT</option>
+                  <option>MIDLAND COURIER</option>
+                  <option>DAY &amp; ROSS</option>
+                  <option>ARMOUR</option>
+                  <option>PUROLATOR TRANSPORT</option>
+                  <option>KATE LYNNE</option>
+                  <option>CUSTOMER</option>
+                  <option>OUR TRUCK</option>
+                  <option value="OTHERS">OTHERS</option>
+                </select>
+              </div>
+              <div class="form-group" id="inc-delivery-driver-group" style="display:none">
+                <label>Our Truck — Driver Name</label>
+                <input type="text" id="inc-delivery-driver" placeholder="Driver name" style="width:180px;max-width:100%">
+              </div>
+              <div class="form-group" id="inc-delivery-other-group" style="display:none">
+                <label>Delivered By — Specify</label>
+                <input type="text" id="inc-delivery-other" placeholder="Specify carrier..." style="width:170px;max-width:100%">
+              </div>
+              <div class="form-group">
+                <label>Received By</label>
+                <select id="inc-received" onchange="toggleIncReceivedOther()">
+                  <option value="Luiz Silva">Luiz Silva</option>
+                  <option value="Dustin Howe">Dustin Howe</option>
+                  <option value="Christine Gardner">Christine Gardner</option>
+                  <option value="Outros">Outros</option>
+                </select>
+              </div>
+              <div class="form-group" id="inc-received-other-group" style="display:none">
+                <label>Received By — Name</label>
+                <input type="text" id="inc-received-other" placeholder="Enter name" style="width:180px;max-width:100%">
+              </div>
+              <div class="form-group full">
+                <label>Notes</label>
+                <textarea id="inc-notes" placeholder="Additional notes..."></textarea>
+              </div>
+              <div class="form-group full">
+                <label>Photos Link (OneDrive)</label>
+                <input type="url" id="inc-photos-link" placeholder="Paste OneDrive folder link here...">
+              </div>
             </div>
-          </div>
-          <div class="form-group full">
-            <label>Other Incoming Attachments</label>
-            <input type="text" id="inc-attach-other" placeholder="Describe other attachments..." style="width:200px;max-width:100%">
-          </div>
-
-          <!-- ══ 4. DESIGNATED LOCATION ══ -->
-          <div class="form-section-header">4. Designated Location</div>
-          <div class="form-group full">
-            <label>Location</label>
-            <div class="inc-toggle-group">
-              <button type="button" class="inc-toggle-btn" id="btn-loc-laydown" onclick="setIncLocation('Laydown Area')">Laydown Area</button>
-              <button type="button" class="inc-toggle-btn" id="btn-loc-shopfloor" onclick="setIncLocation('Shop Floor')">Shop Floor</button>
-              <button type="button" class="inc-toggle-btn" id="btn-loc-painting" onclick="setIncLocation('Painting Area')">Painting Area</button>
-              <button type="button" class="inc-toggle-btn" id="btn-loc-bench" onclick="setIncLocation('Receiving Bench')">Receiving Bench</button>
-              <button type="button" class="inc-toggle-btn" id="btn-loc-other" onclick="setIncLocation('Others')">Others</button>
-            </div>
-            <input type="hidden" id="inc-location">
-          </div>
-          <div id="inc-location-other-group" style="display:none" class="form-group full">
-            <label>Location — Specify</label>
-            <input type="text" id="inc-location-other" placeholder="Specify location..." style="width:200px;max-width:100%">
-          </div>
-          <input type="hidden" id="inc-bench-name">
-          <div class="form-group">
-            <label>Delivered By</label>
-            <select id="inc-delivery" onchange="toggleIncDelivery()">
-              <option value="">— Select Carrier —</option>
-              <option>MIDLAND TRANSPORT</option>
-              <option>MIDLAND COURIER</option>
-              <option>DAY &amp; ROSS</option>
-              <option>ARMOUR</option>
-              <option>PUROLATOR TRANSPORT</option>
-              <option>KATE LYNNE</option>
-              <option>CUSTOMER</option>
-              <option>OUR TRUCK</option>
-              <option value="OTHERS">OTHERS</option>
-            </select>
-          </div>
-          <div class="form-group" id="inc-delivery-driver-group" style="display:none">
-            <label>Our Truck — Driver Name</label>
-            <input type="text" id="inc-delivery-driver" placeholder="Driver name" style="width:180px;max-width:100%">
-          </div>
-          <div class="form-group" id="inc-delivery-other-group" style="display:none">
-            <label>Delivered By — Specify</label>
-            <input type="text" id="inc-delivery-other" placeholder="Specify carrier..." style="width:170px;max-width:100%">
-          </div>
-          <div class="form-group">
-            <label>Received By</label>
-            <select id="inc-received" onchange="toggleIncReceivedOther()">
-              <option value="Luiz Silva">Luiz Silva</option>
-              <option value="Dustin Howe">Dustin Howe</option>
-              <option value="Christine Gardner">Christine Gardner</option>
-              <option value="Outros">Outros</option>
-            </select>
-          </div>
-          <div class="form-group" id="inc-received-other-group" style="display:none">
-            <label>Received By — Name</label>
-            <input type="text" id="inc-received-other" placeholder="Enter name" style="width:180px;max-width:100%">
-          </div>
-          <div class="form-group full">
-            <label>Notes</label>
-            <textarea id="inc-notes" placeholder="Additional notes..."></textarea>
-          </div>
-          <div class="form-group full">
-            <label>Photos Link (OneDrive)</label>
-            <input type="url" id="inc-photos-link" placeholder="Paste OneDrive folder link here...">
           </div>
 
         </div>
@@ -1103,46 +1137,50 @@ document.addEventListener('keydown', function(ev){
 
         <!-- Document header -->
         <div class="form-grid">
-          <div class="form-section-header">Document Information</div>
-          <div class="form-group">
-            <label>Document # *</label>
-            <input type="text" id="itm-doc" placeholder="e.g. 1234567" data-maxdigits="7" style="width:105px;max-width:100%">
-          </div>
-          <div class="form-group">
-            <label>PO #</label>
-            <input type="text" id="itm-po" placeholder="Purchase Order #" oninput="toggleItmPoTransfer()" data-maxdigits="7" style="width:105px;max-width:100%">
-          </div>
-          <div class="form-group" id="itm-transfer-group">
-            <label>Transfer #</label>
-            <input type="text" id="itm-transfer" placeholder="Transfer #" oninput="toggleItmPoTransfer()" style="width:110px;max-width:100%">
-          </div>
-          <div class="form-group">
-            <label>Date</label>
-            <input type="date" id="itm-date">
-          </div>
-          <div class="form-group">
-            <label>Supplier</label>
-            <input type="text" id="itm-supplier" placeholder="Supplier name" list="supplier-suggestions" autocomplete="off" style="width:200px;max-width:100%">
-          </div>
-          <div class="form-group">
-            <label>Requested By</label>
-            <select id="itm-reqby" onchange="toggleItmReqbyOther()" style="width:175px;max-width:100%">
-              <option value="">— Select —</option>
-              <option>Harold Gould</option>
-              <option>Holly Renouf</option>
-              <option>Joe Koncovy</option>
-              <option>Simon Biggs</option>
-              <option>Logan Northrup</option>
-              <option>Mark Northrup</option>
-              <option>Sarah Dempsey</option>
-              <option>Sara Templeton</option>
-              <option>Kevin B</option>
-              <option value="Outro">Outro</option>
-            </select>
-          </div>
-          <div class="form-group" id="itm-reqby-other-group" style="display:none">
-            <label>Requested By — Name</label>
-            <input type="text" id="itm-reqby-other" placeholder="Type the name" style="width:180px;max-width:100%">
+          <div class="form-block">
+            <div class="form-block-hdr hdr-ref">📋 Document Information</div>
+            <div class="form-block-body">
+              <div class="form-group">
+                <label>Document # *</label>
+                <input type="text" id="itm-doc" placeholder="e.g. 1234567" data-maxdigits="7" style="width:105px;max-width:100%">
+              </div>
+              <div class="form-group">
+                <label>PO #</label>
+                <input type="text" id="itm-po" placeholder="Purchase Order #" oninput="toggleItmPoTransfer()" data-maxdigits="7" style="width:105px;max-width:100%">
+              </div>
+              <div class="form-group" id="itm-transfer-group">
+                <label>Transfer #</label>
+                <input type="text" id="itm-transfer" placeholder="Transfer #" oninput="toggleItmPoTransfer()" style="width:110px;max-width:100%">
+              </div>
+              <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="itm-date">
+              </div>
+              <div class="form-group">
+                <label>Supplier</label>
+                <input type="text" id="itm-supplier" placeholder="Supplier name" list="supplier-suggestions" autocomplete="off" style="width:200px;max-width:100%">
+              </div>
+              <div class="form-group">
+                <label>Requested By</label>
+                <select id="itm-reqby" onchange="toggleItmReqbyOther()" style="width:175px;max-width:100%">
+                  <option value="">— Select —</option>
+                  <option>Harold Gould</option>
+                  <option>Holly Renouf</option>
+                  <option>Joe Koncovy</option>
+                  <option>Simon Biggs</option>
+                  <option>Logan Northrup</option>
+                  <option>Mark Northrup</option>
+                  <option>Sarah Dempsey</option>
+                  <option>Sara Templeton</option>
+                  <option>Kevin B</option>
+                  <option value="Outro">Outro</option>
+                </select>
+              </div>
+              <div class="form-group" id="itm-reqby-other-group" style="display:none">
+                <label>Requested By — Name</label>
+                <input type="text" id="itm-reqby-other" placeholder="Type the name" style="width:180px;max-width:100%">
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1212,185 +1250,187 @@ document.addEventListener('keydown', function(ev){
         <input type="hidden" id="shp-edit-id">
         <div class="form-grid">
 
-          <!-- ── Shipment Details ── -->
-          <div class="form-section-header">Shipment Details</div>
-
-          <div class="form-group">
-            <label>Shipment Date</label>
-            <input type="date" id="shp-date">
-          </div>
-
-          <!-- ── Orders ── -->
-          <div class="form-section-header">Orders</div>
-
-          <div class="form-group full" id="shp-so-group">
-            <label>Sales Order Number(s)</label>
-            <div class="tag-input-row">
-              <input type="text" id="shp-so-input" placeholder="Add Sales Order #" onkeydown="if(event.key==='Enter'){event.preventDefault();addShpTag('so')}" oninput="updateShpOrderFields();checkInputOrderType('shp-so-input','shp-so-hint','so')" onchange="updateShpOrderFields()" data-maxdigits="7" style="width:105px;max-width:100%;flex:none">
-              <button class="btn btn-secondary btn-sm" onclick="addShpTag('so')">+ Add</button>
-            </div>
-            <div class="tags-list" id="shp-so-tags"></div>
-            <div class="order-type-warn" id="shp-so-hint"></div>
-          </div>
-
-          <!-- Customer — inline below SO so user sees it immediately after entering an order -->
-          <div class="form-group" id="shp-customer-group">
-            <label>Customer</label>
-            <input type="text" id="shp-customer" placeholder="Customer name" list="customer-suggestions" autocomplete="off" oninput="setTimeout(lookupPostalFromCustomer,0)" onchange="setTimeout(lookupPostalFromCustomer,0)" style="width:200px;max-width:100%">
-          </div>
-          <div id="shp-customer-filled" class="full" style="display:none;background:#f0f7ff;border:1.5px solid #93c5fd;border-radius:8px;padding:10px 14px;align-items:center;gap:10px;flex-wrap:wrap">
-            <div style="flex:1;min-width:0">
-              <div style="font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#1565c0;margin-bottom:2px">Customer</div>
-              <div id="shp-customer-filled-name" style="font-weight:800;font-size:.95rem;color:#0f172a"></div>
-            </div>
-            <span id="shp-customer-filled-source" style="font-size:.68rem;color:#1565c0;background:#dbeafe;padding:3px 10px;border-radius:20px;font-weight:700;white-space:nowrap"></span>
-            <button type="button" onclick="shpClearCustomerLookup()" style="border:1.5px solid #93c5fd;background:#fff;cursor:pointer;color:#1565c0;font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:6px;font-family:inherit">✎ Edit</button>
-          </div>
-          <div class="form-group">
-            <label>Customer PO #</label>
-            <input type="text" id="shp-customer-po" placeholder="e.g. PO-12345" style="width:105px;max-width:100%">
-          </div>
-
-          <div class="form-group full" id="shp-tr-group">
-            <label>Transfer Number(s)</label>
-            <div class="tag-input-row">
-              <input type="text" id="shp-tr-input" placeholder="Add Transfer #" onkeydown="if(event.key==='Enter'){event.preventDefault();addShpTag('tr')}" oninput="updateShpOrderFields()" onchange="updateShpOrderFields()" style="width:105px;max-width:100%;flex:none">
-              <button class="btn btn-secondary btn-sm" onclick="addShpTag('tr')">+ Add</button>
-            </div>
-            <div class="tags-list" id="shp-tr-tags"></div>
-          </div>
-          <div class="form-group full" id="shp-wo-group">
-            <label>Work Order Number(s)</label>
-            <div class="tag-input-row">
-              <input type="text" id="shp-wo-input" placeholder="Add Work Order #" onkeydown="if(event.key==='Enter'){event.preventDefault();addShpTag('wo')}" oninput="checkShpOutgoing();updateShpOrderFields();checkInputOrderType('shp-wo-input','shp-wo-hint','wo');shpWoRealTimeLookup()" onchange="updateShpOrderFields()" data-maxdigits="7" style="width:105px;max-width:100%;flex:none">
-              <button class="btn btn-secondary btn-sm" onclick="addShpTag('wo')">+ Add</button>
-            </div>
-            <div class="tags-list" id="shp-wo-tags"></div>
-            <div class="order-type-warn" id="shp-wo-hint"></div>
-          </div>
-          <div class="form-group full" id="shp-outgoing-group" style="display:none">
-            <label>Outgoing #</label>
-            <input type="text" id="shp-outgoing" placeholder="e.g. 12345" data-maxdigits="5" style="width:80px;max-width:100%">
-          </div>
-
-          <!-- ── Material & Quantity ── -->
-          <div class="form-section-header">Material &amp; Quantity</div>
-
-          <div class="form-group full">
-            <label>Material</label>
-            <select id="shp-material-type" onchange="toggleShpMaterialOther()">
-              <option value="">— Select Material —</option>
-              <option>Electric Motor</option>
-              <option>Pump</option>
-              <option>Submersible Pump</option>
-              <option>Air Compressor</option>
-              <option>DC Motor</option>
-              <option>Generator</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div class="form-group full" id="shp-material-other-group" style="display:none">
-            <label>Other — Describe Material</label>
-            <input type="text" id="shp-material-other" placeholder="Describe the material..." list="material-suggestions" autocomplete="off" oninput="enforceUpper(this)" style="width:200px;max-width:100%">
-          </div>
-          <div class="form-subgrid" style="grid-template-columns:auto auto auto">
-            <div class="form-group">
-              <label>Pc (Pieces)</label>
-              <input type="number" id="shp-pc" placeholder="0" min="0" style="width:65px;max-width:100%">
-            </div>
-            <div class="form-group">
-              <label>Lb (Pounds)</label>
-              <input type="number" id="shp-lb" placeholder="0" min="0" step="0.01" style="width:85px;max-width:100%">
-            </div>
-            <div class="form-group">
-              <label>Rl (Rolls)</label>
-              <input type="number" id="shp-rl" placeholder="0" min="0" style="width:65px;max-width:100%">
-            </div>
-          </div>
-          <div class="form-subgrid" style="grid-template-columns:auto auto">
-            <div class="form-group">
-              <label>Weight (lb)</label>
-              <input type="number" id="shp-weight-lb" placeholder="0.00" min="0" step="0.01" oninput="convertShpWeight('lb')" style="width:85px;max-width:100%">
-            </div>
-            <div class="form-group">
-              <label>Weight (kg)</label>
-              <input type="number" id="shp-weight-kg" placeholder="0.00" min="0" step="0.01" oninput="convertShpWeight('kg')" style="width:85px;max-width:100%">
+          <!-- ══ BLOCK: SHIPMENT DETAILS ══ -->
+          <div class="form-block">
+            <div class="form-block-hdr hdr-ref">📅 Shipment Details</div>
+            <div class="form-block-body">
+              <div class="form-group">
+                <label>Shipment Date</label>
+                <input type="date" id="shp-date">
+              </div>
             </div>
           </div>
 
-          <!-- ── Freight Type ── -->
-          <div class="form-section-header">Type of Freight</div>
-
-          <div class="form-group full">
-            <div style="display:flex;gap:24px;margin-top:4px">
-              <label style="display:flex;align-items:center;gap:8px;font-size:.875rem;font-weight:600;text-transform:none;letter-spacing:0;cursor:pointer">
-                <input type="radio" name="shp-freight" value="Collect" style="width:16px;height:16px;accent-color:#1565c0"> Collect
-              </label>
-              <label style="display:flex;align-items:center;gap:8px;font-size:.875rem;font-weight:600;text-transform:none;letter-spacing:0;cursor:pointer">
-                <input type="radio" name="shp-freight" value="Prepaid" style="width:16px;height:16px;accent-color:#1565c0"> Prepaid
-              </label>
+          <!-- ══ BLOCK 1: ORDERS ══ -->
+          <div class="form-block">
+            <div class="form-block-hdr hdr-blue">📋 1. Orders</div>
+            <div class="form-block-body">
+              <div class="form-group full" id="shp-so-group">
+                <label>Sales Order Number(s)</label>
+                <div class="tag-input-row">
+                  <input type="text" id="shp-so-input" placeholder="Add Sales Order #" onkeydown="if(event.key==='Enter'){event.preventDefault();addShpTag('so')}" oninput="updateShpOrderFields();checkInputOrderType('shp-so-input','shp-so-hint','so')" onchange="updateShpOrderFields()" data-maxdigits="7" style="width:105px;max-width:100%;flex:none">
+                  <button class="btn btn-secondary btn-sm" onclick="addShpTag('so')">+ Add</button>
+                </div>
+                <div class="tags-list" id="shp-so-tags"></div>
+                <div class="order-type-warn" id="shp-so-hint"></div>
+              </div>
+              <div class="form-group" id="shp-customer-group">
+                <label>Customer</label>
+                <input type="text" id="shp-customer" placeholder="Customer name" list="customer-suggestions" autocomplete="off" oninput="setTimeout(lookupPostalFromCustomer,0)" onchange="setTimeout(lookupPostalFromCustomer,0)" style="width:200px;max-width:100%">
+              </div>
+              <div id="shp-customer-filled" class="full" style="display:none;background:#f0f7ff;border:1.5px solid #93c5fd;border-radius:8px;padding:10px 14px;align-items:center;gap:10px;flex-wrap:wrap">
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#1565c0;margin-bottom:2px">Customer</div>
+                  <div id="shp-customer-filled-name" style="font-weight:800;font-size:.95rem;color:#0f172a"></div>
+                </div>
+                <span id="shp-customer-filled-source" style="font-size:.68rem;color:#1565c0;background:#dbeafe;padding:3px 10px;border-radius:20px;font-weight:700;white-space:nowrap"></span>
+                <button type="button" onclick="shpClearCustomerLookup()" style="border:1.5px solid #93c5fd;background:#fff;cursor:pointer;color:#1565c0;font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:6px;font-family:inherit">✎ Edit</button>
+              </div>
+              <div class="form-group">
+                <label>Customer PO #</label>
+                <input type="text" id="shp-customer-po" placeholder="e.g. PO-12345" style="width:105px;max-width:100%">
+              </div>
+              <div class="form-group full" id="shp-tr-group">
+                <label>Transfer Number(s)</label>
+                <div class="tag-input-row">
+                  <input type="text" id="shp-tr-input" placeholder="Add Transfer #" onkeydown="if(event.key==='Enter'){event.preventDefault();addShpTag('tr')}" oninput="updateShpOrderFields()" onchange="updateShpOrderFields()" style="width:105px;max-width:100%;flex:none">
+                  <button class="btn btn-secondary btn-sm" onclick="addShpTag('tr')">+ Add</button>
+                </div>
+                <div class="tags-list" id="shp-tr-tags"></div>
+              </div>
+              <div class="form-group full" id="shp-wo-group">
+                <label>Work Order Number(s)</label>
+                <div class="tag-input-row">
+                  <input type="text" id="shp-wo-input" placeholder="Add Work Order #" onkeydown="if(event.key==='Enter'){event.preventDefault();addShpTag('wo')}" oninput="checkShpOutgoing();updateShpOrderFields();checkInputOrderType('shp-wo-input','shp-wo-hint','wo');shpWoRealTimeLookup()" onchange="updateShpOrderFields()" data-maxdigits="7" style="width:105px;max-width:100%;flex:none">
+                  <button class="btn btn-secondary btn-sm" onclick="addShpTag('wo')">+ Add</button>
+                </div>
+                <div class="tags-list" id="shp-wo-tags"></div>
+                <div class="order-type-warn" id="shp-wo-hint"></div>
+              </div>
+              <div class="form-group full" id="shp-outgoing-group" style="display:none">
+                <label>Outgoing #</label>
+                <input type="text" id="shp-outgoing" placeholder="e.g. 12345" data-maxdigits="5" style="width:80px;max-width:100%">
+              </div>
             </div>
           </div>
 
-          <!-- ── Destination ── -->
-          <div class="form-section-header" id="shp-dest-header" style="display:none">Destination</div>
-
-          <div class="form-group" id="shp-city-group" style="display:none">
-            <label>City</label>
-            <input type="text" id="shp-city" placeholder="City" oninput="setTimeout(lookupCityProvince,0);setTimeout(lookupPostalFromCustomer,0)" onchange="setTimeout(lookupCityProvince,0);setTimeout(lookupPostalFromCustomer,0)" list="city-list" autocomplete="off" style="width:140px;max-width:100%">
-            <datalist id="city-list"></datalist>
-          </div>
-          <div class="form-group" id="shp-province-group" style="display:none">
-            <label>Province / State</label>
-            <input type="text" id="shp-province" placeholder="e.g. NB" list="province-list" style="width:55px;max-width:100%">
-            <datalist id="province-list">
-              <option value="AB"><option value="BC"><option value="MB"><option value="NB">
-              <option value="NL"><option value="NS"><option value="NT"><option value="NU">
-              <option value="ON"><option value="PE"><option value="QC"><option value="SK"><option value="YT">
-            </datalist>
-            <div id="shp-province-picker" style="display:none;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
-          </div>
-          <div class="form-group" id="shp-postal-group" style="display:none">
-            <label>Postal Code</label>
-            <input type="text" id="shp-postal" placeholder="e.g. E2L 4L1" oninput="detectCountryFromPostal()" style="width:90px;max-width:100%">
-          </div>
-          <div class="form-group" id="shp-country-group" style="display:none">
-            <label>Country</label>
-            <input type="text" id="shp-country" placeholder="Canada" value="Canada" style="width:85px;max-width:100%">
-          </div>
-
-          <!-- ── Transportation ── -->
-          <div class="form-section-header">Transportation</div>
-
-          <div class="form-group">
-            <label>Carrier</label>
-            <select id="shp-carrier" onchange="toggleShpCarrierOther()" style="width:185px;max-width:100%">
-              <option value="">— Select Carrier —</option>
-              <option>Midland Transport</option>
-              <option>Midland Courier</option>
-              <option>Kate Lynne</option>
-              <option>Armour</option>
-              <option>Day &amp; Ross</option>
-              <option>Our Truck</option>
-              <option>Pick Up</option>
-              <option>FedEx</option>
-              <option>Purolator</option>
-              <option>UPS</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div class="form-group" id="shp-carrier-other-group" style="display:none">
-            <label>Carrier Name</label>
-            <input type="text" id="shp-carrier-other" placeholder="Enter carrier name" style="width:170px;max-width:100%">
-          </div>
-          <div class="form-group full">
-            <label>Tracking Number</label>
-            <input type="text" id="shp-tracking" placeholder="Tracking #" style="width:220px;max-width:100%">
+          <!-- ══ BLOCK 2: MATERIAL & QUANTITY ══ -->
+          <div class="form-block">
+            <div class="form-block-hdr hdr-slate">📦 2. Material &amp; Quantity</div>
+            <div class="form-block-body">
+              <div class="form-group full">
+                <label>Material</label>
+                <select id="shp-material-type" onchange="toggleShpMaterialOther()">
+                  <option value="">— Select Material —</option>
+                  <option>Electric Motor</option>
+                  <option>Pump</option>
+                  <option>Submersible Pump</option>
+                  <option>Air Compressor</option>
+                  <option>DC Motor</option>
+                  <option>Generator</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-group full" id="shp-material-other-group" style="display:none">
+                <label>Other — Describe Material</label>
+                <input type="text" id="shp-material-other" placeholder="Describe the material..." list="material-suggestions" autocomplete="off" oninput="enforceUpper(this)" style="width:200px;max-width:100%">
+              </div>
+              <div class="form-subgrid" style="grid-template-columns:auto auto auto">
+                <div class="form-group">
+                  <label>Pc (Pieces)</label>
+                  <input type="number" id="shp-pc" placeholder="0" min="0" style="width:65px;max-width:100%">
+                </div>
+                <div class="form-group">
+                  <label>Lb (Pounds)</label>
+                  <input type="number" id="shp-lb" placeholder="0" min="0" step="0.01" style="width:85px;max-width:100%">
+                </div>
+                <div class="form-group">
+                  <label>Rl (Rolls)</label>
+                  <input type="number" id="shp-rl" placeholder="0" min="0" style="width:65px;max-width:100%">
+                </div>
+              </div>
+              <div class="form-subgrid" style="grid-template-columns:auto auto">
+                <div class="form-group">
+                  <label>Weight (lb)</label>
+                  <input type="number" id="shp-weight-lb" placeholder="0.00" min="0" step="0.01" oninput="convertShpWeight('lb')" style="width:85px;max-width:100%">
+                </div>
+                <div class="form-group">
+                  <label>Weight (kg)</label>
+                  <input type="number" id="shp-weight-kg" placeholder="0.00" min="0" step="0.01" oninput="convertShpWeight('kg')" style="width:85px;max-width:100%">
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div class="form-group full">
-            <label>Photos Link (OneDrive)</label>
-            <input type="url" id="shp-photos-link" placeholder="Paste OneDrive folder link here...">
+          <!-- ══ BLOCK 3: TRANSPORTATION ══ -->
+          <div class="form-block">
+            <div class="form-block-hdr hdr-amber">🚚 3. Type of Freight &amp; Transportation</div>
+            <div class="form-block-body">
+              <div class="form-group full">
+                <label>Type of Freight</label>
+                <div style="display:flex;gap:24px;margin-top:4px">
+                  <label style="display:flex;align-items:center;gap:8px;font-size:.875rem;font-weight:600;text-transform:none;letter-spacing:0;cursor:pointer">
+                    <input type="radio" name="shp-freight" value="Collect" style="width:16px;height:16px;accent-color:#1565c0"> Collect
+                  </label>
+                  <label style="display:flex;align-items:center;gap:8px;font-size:.875rem;font-weight:600;text-transform:none;letter-spacing:0;cursor:pointer">
+                    <input type="radio" name="shp-freight" value="Prepaid" style="width:16px;height:16px;accent-color:#1565c0"> Prepaid
+                  </label>
+                </div>
+              </div>
+              <div class="form-section-header" id="shp-dest-header" style="display:none">Destination</div>
+              <div class="form-group" id="shp-city-group" style="display:none">
+                <label>City</label>
+                <input type="text" id="shp-city" placeholder="City" oninput="setTimeout(lookupCityProvince,0);setTimeout(lookupPostalFromCustomer,0)" onchange="setTimeout(lookupCityProvince,0);setTimeout(lookupPostalFromCustomer,0)" list="city-list" autocomplete="off" style="width:140px;max-width:100%">
+                <datalist id="city-list"></datalist>
+              </div>
+              <div class="form-group" id="shp-province-group" style="display:none">
+                <label>Province / State</label>
+                <input type="text" id="shp-province" placeholder="e.g. NB" list="province-list" style="width:55px;max-width:100%">
+                <datalist id="province-list">
+                  <option value="AB"><option value="BC"><option value="MB"><option value="NB">
+                  <option value="NL"><option value="NS"><option value="NT"><option value="NU">
+                  <option value="ON"><option value="PE"><option value="QC"><option value="SK"><option value="YT">
+                </datalist>
+                <div id="shp-province-picker" style="display:none;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
+              </div>
+              <div class="form-group" id="shp-postal-group" style="display:none">
+                <label>Postal Code</label>
+                <input type="text" id="shp-postal" placeholder="e.g. E2L 4L1" oninput="detectCountryFromPostal()" style="width:90px;max-width:100%">
+              </div>
+              <div class="form-group" id="shp-country-group" style="display:none">
+                <label>Country</label>
+                <input type="text" id="shp-country" placeholder="Canada" value="Canada" style="width:85px;max-width:100%">
+              </div>
+              <div class="form-group">
+                <label>Carrier</label>
+                <select id="shp-carrier" onchange="toggleShpCarrierOther()" style="width:185px;max-width:100%">
+                  <option value="">— Select Carrier —</option>
+                  <option>Midland Transport</option>
+                  <option>Midland Courier</option>
+                  <option>Kate Lynne</option>
+                  <option>Armour</option>
+                  <option>Day &amp; Ross</option>
+                  <option>Our Truck</option>
+                  <option>Pick Up</option>
+                  <option>FedEx</option>
+                  <option>Purolator</option>
+                  <option>UPS</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-group" id="shp-carrier-other-group" style="display:none">
+                <label>Carrier Name</label>
+                <input type="text" id="shp-carrier-other" placeholder="Enter carrier name" style="width:170px;max-width:100%">
+              </div>
+              <div class="form-group full">
+                <label>Tracking Number</label>
+                <input type="text" id="shp-tracking" placeholder="Tracking #" style="width:220px;max-width:100%">
+              </div>
+              <div class="form-group full">
+                <label>Photos Link (OneDrive)</label>
+                <input type="url" id="shp-photos-link" placeholder="Paste OneDrive folder link here...">
+              </div>
+            </div>
           </div>
 
         </div>
@@ -1976,102 +2016,112 @@ document.addEventListener('keydown', function(ev){
       <input type="hidden" id="proc-edit-id">
       <div class="form-grid">
 
-        <div class="form-group" id="proc-wo-group">
-          <label>Work Order #</label>
-          <input type="text" id="proc-wo" placeholder="Work Order #" oninput="procLookupOrder();updateProcOrderFields();checkInputOrderType('proc-wo','proc-wo-hint','wo');procWoAutoFill()" data-maxdigits="7" style="width:105px;max-width:100%">
-          <div class="order-type-warn" id="proc-wo-hint"></div>
-        </div>
-        <div class="form-group" id="proc-so-group">
-          <label>Sales Order #</label>
-          <input type="text" id="proc-so" placeholder="Sales Order #" oninput="procLookupOrder();updateProcOrderFields();checkInputOrderType('proc-so','proc-so-hint','so')" data-maxdigits="7" style="width:105px;max-width:100%">
-          <div class="order-type-warn" id="proc-so-hint"></div>
-        </div>
-        <div class="form-group">
-          <label>Outgoing #</label>
-          <input type="text" id="proc-outgoing" placeholder="Outgoing form #" data-maxdigits="5" style="width:80px;max-width:100%">
-        </div>
-        <div class="form-group" id="proc-customer-group" style="display:none">
-          <label>Customer</label>
-          <input type="text" id="proc-customer" list="customer-suggestions" placeholder="Customer name" oninput="checkProcEquipex()" onchange="checkProcEquipex()" style="width:200px;max-width:100%">
-        </div>
-        <div class="form-group" id="proc-po-group" style="display:none">
-          <label>Purchase Order</label>
-          <input type="text" id="proc-po" placeholder="PO #" data-maxdigits="7" style="width:105px;max-width:100%">
-        </div>
-        <div class="form-group" id="proc-material-group" style="display:none">
-          <label>Material</label>
-          <input type="text" id="proc-material" list="material-suggestions" placeholder="Material description" style="width:200px;max-width:100%">
-        </div>
-
-        <div id="proc-wo-filled" class="full" style="display:none;background:#f0f7ff;border:1.5px solid #93c5fd;border-radius:8px;padding:10px 14px;align-items:flex-start;gap:12px;flex-wrap:wrap">
-          <div style="flex:1;min-width:0;display:flex;gap:16px;flex-wrap:wrap">
-            <div>
-              <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#1565c0;margin-bottom:1px">Customer</div>
-              <div id="proc-filled-customer" style="font-weight:800;font-size:.88rem;color:#0f172a"></div>
+        <!-- ══ BLOCK: ORDER REFERENCE ══ -->
+        <div class="form-block">
+          <div class="form-block-hdr hdr-ref">📋 Order Reference</div>
+          <div class="form-block-body">
+            <div class="form-group" id="proc-wo-group">
+              <label>Work Order #</label>
+              <input type="text" id="proc-wo" placeholder="Work Order #" oninput="procLookupOrder();updateProcOrderFields();checkInputOrderType('proc-wo','proc-wo-hint','wo');procWoAutoFill()" data-maxdigits="7" style="width:105px;max-width:100%">
+              <div class="order-type-warn" id="proc-wo-hint"></div>
             </div>
-            <div id="proc-filled-po-row" style="display:none">
-              <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#1565c0;margin-bottom:1px">Purchase Order</div>
-              <div id="proc-filled-po" style="font-weight:700;font-size:.85rem;color:#374151"></div>
+            <div class="form-group" id="proc-so-group">
+              <label>Sales Order #</label>
+              <input type="text" id="proc-so" placeholder="Sales Order #" oninput="procLookupOrder();updateProcOrderFields();checkInputOrderType('proc-so','proc-so-hint','so')" data-maxdigits="7" style="width:105px;max-width:100%">
+              <div class="order-type-warn" id="proc-so-hint"></div>
             </div>
-            <div id="proc-filled-mat-row" style="display:none">
-              <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#1565c0;margin-bottom:1px">Material</div>
-              <div id="proc-filled-material" style="font-weight:700;font-size:.85rem;color:#374151"></div>
+            <div class="form-group">
+              <label>Outgoing #</label>
+              <input type="text" id="proc-outgoing" placeholder="Outgoing form #" data-maxdigits="5" style="width:80px;max-width:100%">
             </div>
-            <div id="proc-filled-out-row" style="display:none">
-              <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#1565c0;margin-bottom:1px">Outgoing #</div>
-              <div id="proc-filled-outgoing" style="font-weight:700;font-size:.85rem;color:#374151"></div>
+            <div class="form-group" id="proc-customer-group" style="display:none">
+              <label>Customer</label>
+              <input type="text" id="proc-customer" list="customer-suggestions" placeholder="Customer name" oninput="checkProcEquipex()" onchange="checkProcEquipex()" style="width:200px;max-width:100%">
+            </div>
+            <div class="form-group" id="proc-po-group" style="display:none">
+              <label>Purchase Order</label>
+              <input type="text" id="proc-po" placeholder="PO #" data-maxdigits="7" style="width:105px;max-width:100%">
+            </div>
+            <div class="form-group" id="proc-material-group" style="display:none">
+              <label>Material</label>
+              <input type="text" id="proc-material" list="material-suggestions" placeholder="Material description" style="width:200px;max-width:100%">
+            </div>
+            <div id="proc-wo-filled" class="full" style="display:none;background:#f0f7ff;border:1.5px solid #93c5fd;border-radius:8px;padding:10px 14px;align-items:flex-start;gap:12px;flex-wrap:wrap">
+              <div style="flex:1;min-width:0;display:flex;gap:16px;flex-wrap:wrap">
+                <div>
+                  <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#1565c0;margin-bottom:1px">Customer</div>
+                  <div id="proc-filled-customer" style="font-weight:800;font-size:.88rem;color:#0f172a"></div>
+                </div>
+                <div id="proc-filled-po-row" style="display:none">
+                  <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#1565c0;margin-bottom:1px">Purchase Order</div>
+                  <div id="proc-filled-po" style="font-weight:700;font-size:.85rem;color:#374151"></div>
+                </div>
+                <div id="proc-filled-mat-row" style="display:none">
+                  <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#1565c0;margin-bottom:1px">Material</div>
+                  <div id="proc-filled-material" style="font-weight:700;font-size:.85rem;color:#374151"></div>
+                </div>
+                <div id="proc-filled-out-row" style="display:none">
+                  <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#1565c0;margin-bottom:1px">Outgoing #</div>
+                  <div id="proc-filled-outgoing" style="font-weight:700;font-size:.85rem;color:#374151"></div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+                <span id="proc-filled-source" style="font-size:.68rem;color:#1565c0;background:#dbeafe;padding:3px 10px;border-radius:20px;font-weight:700;white-space:nowrap"></span>
+                <button type="button" onclick="procClearWoLookup()" style="border:1.5px solid #93c5fd;background:#fff;cursor:pointer;color:#1565c0;font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:6px;font-family:inherit">✎ Edit</button>
+              </div>
             </div>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-            <span id="proc-filled-source" style="font-size:.68rem;color:#1565c0;background:#dbeafe;padding:3px 10px;border-radius:20px;font-weight:700;white-space:nowrap"></span>
-            <button type="button" onclick="procClearWoLookup()" style="border:1.5px solid #93c5fd;background:#fff;cursor:pointer;color:#1565c0;font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:6px;font-family:inherit">✎ Edit</button>
+        </div>
+
+        <!-- ══ BLOCK: DATES & PHOTOS ══ -->
+        <div class="form-block">
+          <div class="form-block-hdr hdr-blue">📅 Dates &amp; Photos</div>
+          <div class="form-block-body">
+            <div class="form-group">
+              <label>Shipping Area Received Date *</label>
+              <input type="date" id="proc-received-date" oninput="updateProcDays();checkProcEquipex()" onchange="updateProcDays();checkProcEquipex()">
+            </div>
+            <div class="form-group" id="proc-equipex-group" style="display:none">
+              <label style="color:#b45309;font-weight:800">Next Shipping Date (Equipex)</label>
+              <input type="date" id="proc-next-ship" readonly style="background:#fffbeb;color:#92400e;font-weight:700;cursor:default;border-color:#f59e0b">
+            </div>
+            <div class="form-group">
+              <label>Current Date</label>
+              <input type="date" id="proc-current-date" readonly style="background:#f8fbff;color:#6b7280;cursor:default">
+            </div>
+            <div class="form-group">
+              <label>Pictures Qty</label>
+              <input type="number" id="proc-pics-qty" placeholder="0" min="0">
+            </div>
+            <div class="form-group">
+              <label>Photos Time</label>
+              <input type="time" id="proc-photos-time">
+            </div>
+            <div class="form-group full">
+              <label>Photos Link (OneDrive)</label>
+              <input type="url" id="proc-photos-link" placeholder="Paste OneDrive folder link here...">
+            </div>
           </div>
         </div>
 
-        <div class="form-group">
-          <label>Shipping Area Received Date *</label>
-          <input type="date" id="proc-received-date" oninput="updateProcDays();checkProcEquipex()" onchange="updateProcDays();checkProcEquipex()">
-        </div>
-        <div class="form-group" id="proc-equipex-group" style="display:none">
-          <label style="color:#b45309;font-weight:800">Next Shipping Date (Equipex)</label>
-          <input type="date" id="proc-next-ship" readonly style="background:#fffbeb;color:#92400e;font-weight:700;cursor:default;border-color:#f59e0b">
-        </div>
-        <div class="form-group">
-          <label>Current Date</label>
-          <input type="date" id="proc-current-date" readonly style="background:#f8fbff;color:#6b7280;cursor:default">
-        </div>
-
-        <div class="form-group">
-          <label>Pictures Qty</label>
-          <input type="number" id="proc-pics-qty" placeholder="0" min="0">
-        </div>
-
-        <div class="form-group">
-          <label>Photos Time</label>
-          <input type="time" id="proc-photos-time">
-        </div>
-
-        <div class="form-group full">
-          <label>Photos Link (OneDrive)</label>
-          <input type="url" id="proc-photos-link" placeholder="Paste OneDrive folder link here...">
-        </div>
-
-        <div class="form-group full">
-          <label>Comments</label>
-          <textarea id="proc-comments" rows="3" placeholder="Additional notes or comments..." style="width:100%;box-sizing:border-box;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-md);font-size:.83rem;font-family:'Inter',inherit;resize:vertical;outline:none;transition:border-color .2s;color:var(--text-primary)" onfocus="this.style.borderColor='var(--blue-500)'" onblur="this.style.borderColor='var(--border)'"></textarea>
-        </div>
-
-        <div class="full" style="display:flex;flex-direction:column;gap:6px;padding:6px 0">
-          <div style="display:flex;align-items:center;gap:16px">
-            <div style="font-size:.75rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.4px">Days On Hold</div>
-            <div id="proc-days-badge" style="display:none"></div>
-            <div id="proc-days-pending" style="font-size:.82rem;color:#9ca3af;font-style:italic">Select received date to calculate</div>
-          </div>
-          <div id="proc-days-breakdown" style="display:none;flex-wrap:wrap;gap:6px"></div>
-        </div>
-
-        <div class="form-group full">
-          <label>Hold Reasons</label>
+        <!-- ══ BLOCK: NOTES & HOLD MANAGEMENT ══ -->
+        <div class="form-block">
+          <div class="form-block-hdr hdr-amber">⏸ Hold Management &amp; Notes</div>
+          <div class="form-block-body">
+            <div class="form-group full">
+              <label>Comments</label>
+              <textarea id="proc-comments" rows="3" placeholder="Additional notes or comments..." style="width:100%;box-sizing:border-box;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-md);font-size:.83rem;font-family:'Inter',inherit;resize:vertical;outline:none;transition:border-color .2s;color:var(--text-primary)" onfocus="this.style.borderColor='var(--blue-500)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+            </div>
+            <div class="full" style="display:flex;flex-direction:column;gap:6px;padding:6px 0">
+              <div style="display:flex;align-items:center;gap:16px">
+                <div style="font-size:.75rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.4px">Days On Hold</div>
+                <div id="proc-days-badge" style="display:none"></div>
+                <div id="proc-days-pending" style="font-size:.82rem;color:#9ca3af;font-style:italic">Select received date to calculate</div>
+              </div>
+              <div id="proc-days-breakdown" style="display:none;flex-wrap:wrap;gap:6px"></div>
+            </div>
+            <div class="form-group full">
+              <label>Hold Reasons</label>
           <div class="hold-mgmt-grid">
 
             <div class="hold-row" id="hold-row-qa">
@@ -2155,9 +2205,11 @@ document.addEventListener('keydown', function(ev){
             </div>
 
           </div>
-        </div>
+            </div><!-- /form-group.full -->
+          </div><!-- /form-block-body -->
+        </div><!-- /form-block -->
 
-      </div>
+      </div><!-- /form-grid -->
       <div class="form-actions">
         <button class="btn btn-danger" id="proc-del-btn" style="display:none;margin-right:auto" onclick="deleteProcRecord()">🗑 Delete</button>
         <button class="btn btn-secondary" onclick="closeProcModal()">Cancel</button>
