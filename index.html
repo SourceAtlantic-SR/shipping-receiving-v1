@@ -4125,7 +4125,7 @@ function lookupCityProvince(){
     document.getElementById('shp-province').value = '';
     document.getElementById('shp-country').value  = 'Canada'; markAuto('shp-country');
     picker.innerHTML =
-      '<span style="font-size:.72rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.4px;align-self:center">Escolher província:</span>' +
+      '<span style="font-size:.72rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.4px;align-self:center">Select province:</span>' +
       provs.map(function(p){
         return '<button type="button" class="btn btn-secondary btn-sm" onclick="selectProvince(\''+p+'\')" style="font-weight:800">'+p+'</button>';
       }).join('');
@@ -4556,15 +4556,15 @@ function shpCheckOrderStatus(rawVal, type, statusId){
   var latest = hits[0];
   var label  = type==='wo' ? 'WO' : 'SO';
   var lines  = [];
-  var head   = '⚠️ '+label+' <strong>'+val+'</strong> já foi expedida anteriormente';
+  var head   = '⚠️ '+label+' <strong>'+val+'</strong> was already shipped';
   lines.push(head);
   var detail = [];
-  if(latest.date)     detail.push('Data: <strong>'+latest.date+'</strong>');
-  if(latest.outgoing) detail.push('Saída #<strong>'+latest.outgoing+'</strong>');
-  if(latest.customer) detail.push('Cliente: <strong>'+latest.customer+'</strong>');
-  if(latest.carrier)  detail.push('Transportadora: '+latest.carrier);
+  if(latest.date)     detail.push('Date: <strong>'+latest.date+'</strong>');
+  if(latest.outgoing) detail.push('Outgoing #<strong>'+latest.outgoing+'</strong>');
+  if(latest.customer) detail.push('Customer: <strong>'+latest.customer+'</strong>');
+  if(latest.carrier)  detail.push('Carrier: '+latest.carrier);
   if(detail.length)   lines.push(detail.join(' &nbsp;·&nbsp; '));
-  if(hits.length > 1) lines.push('('+hits.length+' envios no total)');
+  if(hits.length > 1) lines.push('('+hits.length+' shipments total)');
 
   el.innerHTML = lines.join('<br>');
   el.classList.add('visible');
@@ -4583,12 +4583,12 @@ function shpCheckOpenWo(rawVal){
   if(!hits.length){ el.classList.remove('visible'); el.innerHTML=''; return; }
   hits.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
   var r = hits[0];
-  var lines = ['📋 WO <strong>'+val+'</strong> está aberta no sistema'];
+  var lines = ['📋 WO <strong>'+val+'</strong> is currently open in the system'];
   var detail = [];
   if(r.formNum)   detail.push('Form #<strong>'+r.formNum+'</strong>');
-  if(r.date)      detail.push('Entrada: <strong>'+r.date+'</strong>');
-  if(r.customer)  detail.push('Cliente: <strong>'+r.customer+'</strong>');
-  if(r.equipment) detail.push('Equip.: '+r.equipment);
+  if(r.date)      detail.push('Received: <strong>'+r.date+'</strong>');
+  if(r.customer)  detail.push('Customer: <strong>'+r.customer+'</strong>');
+  if(r.equipment) detail.push('Equipment: '+r.equipment);
   if(detail.length) lines.push(detail.join(' &nbsp;·&nbsp; '));
   el.innerHTML = lines.join('<br>');
   el.classList.add('visible');
@@ -7963,7 +7963,7 @@ function closeScanModal(){
 </html>
 
 <style>
-/* Actions: sempre mostrar todos os ícones */
+/* Actions: always show all icons */
 .act-cell {
   display: flex;
   gap: 6px;
@@ -7972,7 +7972,7 @@ function closeScanModal(){
 }
 
 td:has(.act-cell) {
-  overflow: visible;      /* ⬅️ Impede que a tabela corte os botões */
+  overflow: visible;      /* ⬅️ Prevents the table from clipping the buttons */
   white-space: nowrap;
 }
 input[type="text"]:not([data-nocase]),
