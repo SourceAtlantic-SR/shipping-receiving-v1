@@ -812,7 +812,8 @@ document.addEventListener('keydown', function(ev){
               </div>
               <div class="form-group">
                 <label>Work Order #</label>
-                <input type="text" id="inc-wo" placeholder="e.g. 1234567" data-maxdigits="7" style="width:105px;max-width:100%">
+                <input type="text" id="inc-wo" placeholder="e.g. 1234567" data-maxdigits="7" style="width:105px;max-width:100%" oninput="incCheckDuplicateWo(this.value)">
+                <div class="order-status-info" id="inc-wo-dup"></div>
               </div>
             </div>
           </div>
@@ -3192,6 +3193,7 @@ function openIncomingModal(key){
   var delBtn = document.getElementById('inc-del-btn');
   document.getElementById('inc-edit-id').value = key||'';
   document.getElementById('inc-date').value = today();
+  var dupEl = document.getElementById('inc-wo-dup'); if(dupEl){ dupEl.classList.remove('visible'); dupEl.innerHTML=''; }
 
   if(key && incomingData[key]){
     var r = incomingData[key];
@@ -4601,6 +4603,33 @@ function shpCheckOpenWo(rawVal){
   if(r.customer)  detail.push('Customer: <strong>'+r.customer+'</strong>');
   if(r.equipment) detail.push('Equipment: '+r.equipment);
   if(detail.length) lines.push(detail.join(' &nbsp;·&nbsp; '));
+  el.innerHTML = lines.join('<br>');
+  el.classList.add('visible');
+}
+
+function incCheckDuplicateWo(rawVal){
+  var el = document.getElementById('inc-wo-dup');
+  if(!el) return;
+  var val = (rawVal||'').trim().toUpperCase();
+  if(val.length < 4){ el.classList.remove('visible'); el.innerHTML=''; return; }
+  var editKey = document.getElementById('inc-edit-id').value;
+  var hits = [];
+  Object.entries(incomingData).forEach(function(pair){
+    var k = pair[0], r = pair[1];
+    if(!r || k === editKey) return;
+    if((r.wo||'').trim().toUpperCase() === val) hits.push(r);
+  });
+  if(!hits.length){ el.classList.remove('visible'); el.innerHTML=''; return; }
+  hits.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+  var r = hits[0];
+  var lines = ['⚠️ WO <strong>'+val+'</strong> already has an incoming form'];
+  var detail = [];
+  if(r.formNum)   detail.push('Form #<strong>'+r.formNum+'</strong>');
+  if(r.date)      detail.push('Date: <strong>'+r.date+'</strong>');
+  if(r.customer)  detail.push('Customer: <strong>'+r.customer+'</strong>');
+  if(r.equipment) detail.push('Equipment: '+r.equipment);
+  if(detail.length) lines.push(detail.join(' &nbsp;·&nbsp; '));
+  if(hits.length > 1) lines.push('('+hits.length+' forms total)');
   el.innerHTML = lines.join('<br>');
   el.classList.add('visible');
 }
