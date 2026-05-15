@@ -4432,6 +4432,7 @@ function shpLookupWo(wo){
   var result = {customer:'', city:'', province:'', postal:'', country:'', source:'', material:'', materialType:'', customerPO:''};
   // 1. Shipping history — full address available
   Object.values(shpData).some(function(r){
+    if(!r) return false;
     if(!(r.workOrders||[]).some(function(w){ return (w||'').trim().toUpperCase()===wo; })) return false;
     result.customer     = result.customer     || (r.customer||'');
     result.city         = result.city         || (r.city||'');
@@ -4444,21 +4445,23 @@ function shpLookupWo(wo){
     result.customerPO   = result.customerPO   || (r.customerPO||'');
     return !!(result.customer && result.city);
   });
-  // 2. Incoming Forms
-  if(!result.customer || !result.material || !result.customerPO){
+  // 2. Incoming Forms — fill gaps not covered by Shipping History
+  if(!result.customer || !result.material){
     Object.values(incomingData).some(function(r){
+      if(!r) return false;
       if((r.wo||'').trim().toUpperCase()!==wo) return false;
       result.customer     = result.customer     || (r.customer||'');
       result.source       = result.source       || ('Incoming Form '+(r.formNum||wo));
       result.material     = result.material     || (r.equipment||'');
       result.materialType = result.materialType || (r.equipmentType||'');
       result.customerPO   = result.customerPO   || (r.customerPO||'');
-      return !!(result.customer && result.material && result.customerPO);
+      return !!(result.customer && result.material);
     });
   }
   // 3. Shipping On Hold
   if(!result.customer || !result.material){
     Object.values(procData).some(function(r){
+      if(!r) return false;
       if((r.wo||'').trim().toUpperCase()!==wo) return false;
       result.customer     = result.customer     || (r.customer||'');
       result.source       = result.source       || 'Shipping On Hold';
@@ -4527,6 +4530,7 @@ function shpCheckOrderStatus(rawVal, type, statusId){
 
   var hits = [];
   Object.values(shpData).forEach(function(r){
+    if(!r) return;
     var match = false;
     if(type==='wo') match = (r.workOrders||[]).some(function(w){ return (w||'').trim().toUpperCase()===val; });
     if(type==='so') match = (r.salesOrders||[]).some(function(s){ return (s||'').trim().toUpperCase()===val; });
