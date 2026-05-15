@@ -2846,6 +2846,7 @@ function showSection(name){
   event.currentTarget.classList.add('active');
   if(name==='payments') renderPayCharts(Object.entries(payData).map(function(e){ return Object.assign({_key:e[0]},e[1]); }));
   if(name==='turnaround') renderTurnaround();
+  if(name==='items') openItemModal();
 }
 
 function gotoSection(name){
