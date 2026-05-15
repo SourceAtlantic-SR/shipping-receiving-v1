@@ -226,6 +226,20 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--surface-alt);colo
 .form-section-header:first-child{border-top:none;margin-top:0;padding-top:0}
 .form-section-header:first-child::before{display:none}
 
+/* ── AUTOFILLED FIELDS ── */
+input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus,
+select:-webkit-autofill,textarea:-webkit-autofill{
+  -webkit-box-shadow:0 0 0 40px #f1f5f9 inset !important;
+  -webkit-text-fill-color:#475569 !important;
+  border-color:#94a3b8 !important;
+  caret-color:#0f172a
+}
+.field-auto,.field-auto:focus{
+  background:#f1f5f9 !important;
+  color:#475569 !important;
+  border-color:#94a3b8 !important
+}
+
 /* ── FORM BLOCKS ── */
 .form-block{grid-column:1/-1;border-radius:10px;overflow:hidden;margin-top:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.07)}
 .form-block:first-child{margin-top:0}
@@ -2812,6 +2826,15 @@ function today(){
   return new Date().toISOString().split('T')[0];
 }
 
+function markAuto(id){
+  var el=typeof id==='string'?document.getElementById(id):id;
+  if(!el||!el.value)return;
+  el.classList.add('field-auto');
+  function clr(){el.classList.remove('field-auto');el.removeEventListener('input',clr);el.removeEventListener('change',clr);}
+  el.addEventListener('input',clr);
+  el.addEventListener('change',clr);
+}
+
 function getGreeting(name){
   var h = new Date().getHours();
   var salut = h < 12 ? 'Bom dia' : h < 18 ? 'Boa Tarde' : 'Boa Noite';
@@ -3728,26 +3751,26 @@ function prefillSubFromIncoming(source){
 
   // Cross-fill WO ↔ Incoming #
   if(source==='incoming' && match.wo && !document.getElementById('sub-wo').value.trim()){
-    document.getElementById('sub-wo').value = match.wo;
+    document.getElementById('sub-wo').value = match.wo; markAuto('sub-wo');
     filled.push('WO #');
   }
   if(source==='wo' && match.formNum && !document.getElementById('sub-incoming').value.trim()){
-    document.getElementById('sub-incoming').value = match.formNum;
+    document.getElementById('sub-incoming').value = match.formNum; markAuto('sub-incoming');
     filled.push('Incoming #');
   }
 
   // Customer
   if(match.customer && !document.getElementById('sub-customer').value.trim()){
-    document.getElementById('sub-customer').value = match.customer;
+    document.getElementById('sub-customer').value = match.customer; markAuto('sub-customer');
     filled.push('Customer');
   }
 
   // Material
   if(match.equipment && !document.getElementById('sub-material-type').value){
     var mType=match.equipmentType||(knownMats.includes(match.equipment)?match.equipment:'Other');
-    document.getElementById('sub-material-type').value=mType;
+    document.getElementById('sub-material-type').value=mType; markAuto('sub-material-type');
     if(mType==='Other'){
-      document.getElementById('sub-material-other').value=match.equipment||'';
+      document.getElementById('sub-material-other').value=match.equipment||''; markAuto('sub-material-other');
       document.getElementById('sub-material-other-group').style.display='flex';
     } else {
       document.getElementById('sub-material-other-group').style.display='none';
@@ -4021,11 +4044,11 @@ function detectCountryFromPostal(){
   var isUSA    = /^\d{5}(-\d{4})?$/.test(postal);
   var isCanada = /^[A-Za-z]\d[A-Za-z][\s-]?\d[A-Za-z]\d$/.test(postal);
   if(isUSA){
-    document.getElementById('shp-country').value  = 'USA';
+    document.getElementById('shp-country').value  = 'USA';  markAuto('shp-country');
     document.getElementById('shp-province').value = '';
     document.getElementById('shp-province-picker').style.display = 'none';
   } else if(isCanada){
-    document.getElementById('shp-country').value = 'Canada';
+    document.getElementById('shp-country').value = 'Canada'; markAuto('shp-country');
   }
 }
 
@@ -4087,13 +4110,13 @@ function lookupCityProvince(){
   if(!provs){ picker.style.display='none'; return; }
 
   if(provs.length === 1){
-    document.getElementById('shp-province').value = provs[0];
-    document.getElementById('shp-country').value  = 'Canada';
+    document.getElementById('shp-province').value = provs[0]; markAuto('shp-province');
+    document.getElementById('shp-country').value  = 'Canada'; markAuto('shp-country');
     picker.style.display = 'none';
   } else {
     // Multiple provinces — show picker
     document.getElementById('shp-province').value = '';
-    document.getElementById('shp-country').value  = 'Canada';
+    document.getElementById('shp-country').value  = 'Canada'; markAuto('shp-country');
     picker.innerHTML =
       '<span style="font-size:.72rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.4px;align-self:center">Escolher província:</span>' +
       provs.map(function(p){
@@ -4113,9 +4136,9 @@ function lookupPostalFromCustomer(){
   var postalEl = document.getElementById('shp-postal');
   if(addr){
     var filled = false;
-    if(cityEl   && !cityEl.value.trim()   && addr.city)       { cityEl.value   = addr.city;       filled = true; }
-    if(provEl   && !provEl.value.trim()   && addr.province)   { provEl.value   = addr.province;   filled = true; }
-    if(postalEl && !postalEl.value.trim() && addr.postalCode) { postalEl.value = addr.postalCode; filled = true; }
+    if(cityEl   && !cityEl.value.trim()   && addr.city)       { cityEl.value   = addr.city;       markAuto(cityEl);   filled = true; }
+    if(provEl   && !provEl.value.trim()   && addr.province)   { provEl.value   = addr.province;   markAuto(provEl);   filled = true; }
+    if(postalEl && !postalEl.value.trim() && addr.postalCode) { postalEl.value = addr.postalCode; markAuto(postalEl); filled = true; }
     if(filled){
       ['shp-dest-header','shp-city-group','shp-province-group','shp-postal-group'].forEach(function(id){
         var el=document.getElementById(id); if(el) el.style.display='';
@@ -4126,7 +4149,7 @@ function lookupPostalFromCustomer(){
     var city = cityEl.value.trim();
     if(city){
       var map = custCityPostal[ck], cityK = normAC(city);
-      if(map && map[cityK]) postalEl.value = map[cityK];
+      if(map && map[cityK]){ postalEl.value = map[cityK]; markAuto(postalEl); }
     }
   }
 }
@@ -4454,17 +4477,17 @@ function shpWoRealTimeLookup(){
   }
   var r = shpLookupWo(wo);
   if(r.customer){
-    document.getElementById('shp-customer').value = r.customer;
-    document.getElementById('shp-city').value     = r.city;
-    document.getElementById('shp-province').value = r.province;
-    document.getElementById('shp-postal').value   = r.postal;
-    document.getElementById('shp-country').value  = r.country||'Canada';
+    document.getElementById('shp-customer').value = r.customer; markAuto('shp-customer');
+    document.getElementById('shp-city').value     = r.city;     markAuto('shp-city');
+    document.getElementById('shp-province').value = r.province; markAuto('shp-province');
+    document.getElementById('shp-postal').value   = r.postal;   markAuto('shp-postal');
+    document.getElementById('shp-country').value  = r.country||'Canada'; markAuto('shp-country');
     document.getElementById('shp-customer-filled-name').textContent   = r.customer;
     document.getElementById('shp-customer-filled-source').textContent = '✔ '+r.source;
     if(r.material && !document.getElementById('shp-material-type').value){
-      document.getElementById('shp-material-type').value = r.materialType;
+      document.getElementById('shp-material-type').value = r.materialType; markAuto('shp-material-type');
       if(r.materialType === 'Other'){
-        document.getElementById('shp-material-other').value = r.material.toUpperCase();
+        document.getElementById('shp-material-other').value = r.material.toUpperCase(); markAuto('shp-material-other');
         document.getElementById('shp-material-other-group').style.display = 'flex';
       } else {
         document.getElementById('shp-material-other-group').style.display = 'none';
@@ -5122,12 +5145,12 @@ function autoFillFromWo(woVal, lineIdx){
   if(lineIdx !== undefined){
     var areaEl2 = document.getElementById('itm-l'+lineIdx+'-wiparea');
     if(area && areaEl2 && !areaEl2.value){
-      areaEl2.value = area;
+      areaEl2.value = area; markAuto(areaEl2);
       filled.push('Area');
     }
     var custEl = document.getElementById('itm-l'+lineIdx+'-wipcustomer');
     if(customer && custEl && !custEl.value){
-      custEl.value = customer;
+      custEl.value = customer; markAuto(custEl);
       filled.push('Customer');
     }
   }
@@ -5462,15 +5485,18 @@ function procWoAutoFill(){
     }, 800);
   }
   if(r.customer){
-    document.getElementById('proc-customer').value    = r.customer;
-    document.getElementById('proc-po').value          = r.po;
-    document.getElementById('proc-material').value    = r.material;
-    if(r.outgoing && !document.getElementById('proc-outgoing').value)
-      document.getElementById('proc-outgoing').value  = r.outgoing;
-    if(r.photosLink && !document.getElementById('proc-photos-link').value)
-      document.getElementById('proc-photos-link').value = r.photosLink;
-    if(r.picsQty && !document.getElementById('proc-pics-qty').value)
-      document.getElementById('proc-pics-qty').value  = r.picsQty;
+    document.getElementById('proc-customer').value    = r.customer; markAuto('proc-customer');
+    document.getElementById('proc-po').value          = r.po;       markAuto('proc-po');
+    document.getElementById('proc-material').value    = r.material; markAuto('proc-material');
+    if(r.outgoing && !document.getElementById('proc-outgoing').value){
+      document.getElementById('proc-outgoing').value  = r.outgoing; markAuto('proc-outgoing');
+    }
+    if(r.photosLink && !document.getElementById('proc-photos-link').value){
+      document.getElementById('proc-photos-link').value = r.photosLink; markAuto('proc-photos-link');
+    }
+    if(r.picsQty && !document.getElementById('proc-pics-qty').value){
+      document.getElementById('proc-pics-qty').value  = r.picsQty; markAuto('proc-pics-qty');
+    }
     document.getElementById('proc-filled-customer').textContent  = r.customer;
     document.getElementById('proc-filled-po').textContent        = r.po;
     document.getElementById('proc-filled-material').textContent  = r.material;
@@ -5520,8 +5546,8 @@ function procLookupOrder(){
     Object.values(itemsData).forEach(function(r){
       (r.lineItems||[r]).forEach(function(li){
         if((li.salesOrderNum||'').trim().toUpperCase()===so){
-          if(!custEl.value && li.customer) custEl.value = li.customer;
-          if(!matEl.value  && li.material) matEl.value  = li.material;
+          if(!custEl.value && li.customer){ custEl.value = li.customer; markAuto(custEl); }
+          if(!matEl.value  && li.material){ matEl.value  = li.material; markAuto(matEl); }
         }
       });
     });
@@ -5532,7 +5558,7 @@ function procLookupOrder(){
       var hit = false;
       if(wo) hit=hit||(r.workOrders||[]).some(function(w){ return (w||'').trim().toUpperCase()===wo; });
       if(so) hit=hit||(r.salesOrders||[]).some(function(s){ return (s||'').trim().toUpperCase()===so; });
-      if(hit && !outEl.value) outEl.value = r.outgoing||'';
+      if(hit && !outEl.value){ outEl.value = r.outgoing||''; markAuto(outEl); }
     });
   }
   checkProcEquipex();
@@ -7481,7 +7507,7 @@ function autoFillShipToId(){
   var name = (document.getElementById('inc-customer')||{value:''}).value.trim().toUpperCase();
   if(!name) return;
   var match = getShipToList().find(function(e){ return e.name.toUpperCase()===name; });
-  if(match) document.getElementById('inc-ship-to-id').value = match.id;
+  if(match){ document.getElementById('inc-ship-to-id').value = match.id; markAuto('inc-ship-to-id'); }
 }
 
 var _shipToSelectMode = false;
