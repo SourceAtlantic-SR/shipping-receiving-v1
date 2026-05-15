@@ -616,7 +616,7 @@ auth.onAuthStateChanged(function(user){
     // Redirect admins to the main app
     if(ADMIN_EMAILS.indexOf(_ctUserEmail) !== -1){
       sessionStorage.setItem('ct-session','1');
-      window.location.replace('index.html');
+      window.location.replace('index.html' + window.location.search);
       return;
     }
     document.getElementById('auth-overlay').style.display = 'none';
@@ -1251,17 +1251,12 @@ function applyUrlParams(){
     if(section) omsSetSection(section);
     return;
   }
-  if(params.get('open') === 'incoming' && params.get('key')){
-    var rec = allData.incoming[params.get('key')];
-    if(rec){
-      var term = rec.formNum || rec.wo || '';
-      var type = rec.formNum ? 'inc' : 'wo';
-      if(term){
-        setType(type);
-        document.getElementById('search-input').value = term;
-        doSearch();
-      }
-    }
+  if(params.get('wo') || params.get('form')){
+    var term = params.get('form') || params.get('wo');
+    var type = params.get('form') ? 'inc' : 'wo';
+    setType(type);
+    document.getElementById('search-input').value = term;
+    doSearch();
   }
 }
 

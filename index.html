@@ -2665,18 +2665,17 @@ function initDataListeners(){
     if(!_deepLinkDone){
       _deepLinkDone = true;
       try{
-        var _dl = JSON.parse(localStorage.getItem('sr_deeplink')||'null');
-        if(_dl && _dl.open === 'incoming' && _dl.key){
-          localStorage.removeItem('sr_deeplink');
-          var _dlKey = _dl.key;
-          var doOpen = function(){ showSection('incoming'); openIncomingModal(_dlKey); };
-          if(incomingData[_dlKey]){
-            doOpen();
-          } else if(db){
-            db.ref(SR_PATH+'/incoming/'+_dlKey).once('value').then(function(snap){
-              if(snap.val()){ incomingData[_dlKey] = snap.val(); doOpen(); }
-            }).catch(function(){});
-          }
+        var _p  = new URLSearchParams(window.location.search);
+        var _wo = (_p.get('wo')||'').trim().toUpperCase();
+        var _fn = (_p.get('form')||'').trim();
+        if(_wo || _fn){
+          var _hit = Object.entries(incomingData).find(function(e){
+            var r = e[1]; if(!r) return false;
+            if(_fn && (r.formNum||'').trim() === _fn) return true;
+            if(_wo && (r.wo||'').trim().toUpperCase() === _wo) return true;
+            return false;
+          });
+          if(_hit){ showSection('incoming'); openIncomingModal(_hit[0]); }
         }
       }catch(e){}
     }
@@ -3503,10 +3502,11 @@ function printIncomingLabel(){
     return (h%12||12)+':'+m+(h<12?'AM':'PM');
   })() : '—';
 
-  // Build QR data: deep-link URL if record is saved, else structured text
-  var qrData = editKey
-    ? (window.location.origin + window.location.pathname + '?open=incoming&key=' + encodeURIComponent(editKey))
-    : ('WO:' + (wo||'') + (formNum?'|FORM:'+formNum:'') + (customer?'|CUST:'+customer:'') + (equip?'|EQUIP:'+equip:''));
+  // QR links to control-tower lookup — works for any user (viewer or admin)
+  var _ctBase = window.location.origin + window.location.pathname.replace('index.html','') + 'control-tower.html';
+  var qrData  = wo
+    ? (_ctBase + '?wo=' + encodeURIComponent(wo) + (formNum ? '&form=' + encodeURIComponent(formNum) : ''))
+    : ('WO:' + (wo||'') + (formNum?'|FORM:'+formNum:'') + (customer?'|CUST:'+customer:''));
 
   function buildLabel(qrImgTag){
     return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Equipment Label</title><style>'+
