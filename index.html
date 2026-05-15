@@ -3831,13 +3831,14 @@ function calcSubWorkingDays(){
   var ret    = document.getElementById('sub-return-date').value;
   var box    = document.getElementById('sub-working-days-box');
   var numEl  = document.getElementById('sub-working-days-num');
+  var lbl    = box ? box.querySelector('.working-days-lbl') : null;
   var pend   = document.getElementById('sub-working-days-pending');
-  if(ship && !ret){
-    box.style.display='none'; pend.style.display='block'; return;
-  }
-  var days = calcWorkingDays(ship, ret);
+  if(!ret){ box.style.display='none'; pend.style.display = ship ? 'block' : 'none'; return; }
+  var startDate = ship || _isoDate(new Date());
+  var days = calcWorkingDays(startDate, ret);
   if(days === null){ box.style.display='none'; pend.style.display='none'; return; }
   numEl.textContent = days;
+  if(lbl) lbl.textContent = ship ? 'Working Days' : 'Days Until Return';
   box.style.display  = 'flex';
   pend.style.display = 'none';
   box.style.background = days > 30 ? 'linear-gradient(135deg,#c62828,#e53935)'

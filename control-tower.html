@@ -569,15 +569,17 @@ var firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 var db   = firebase.database();
 var auth = firebase.auth();
-// Require login on first visit; skip if already logged in this browser session
-if(!sessionStorage.getItem('ct-session')){ auth.signOut(); }
+// Stay logged in across sessions — only force sign-out if user explicitly signed out
+var _ctHasSession = false;
+try{ _ctHasSession = !!localStorage.getItem('ct-session'); }catch(e){}
+if(!_ctHasSession){ auth.signOut(); }
 
 var allData = {incoming:{}, items:{}, shipping:{}, process:{}, packing:{}};
 var loadedCount = 0;
 var TOTAL = 5;
 
 function ctSignOut(){
-  sessionStorage.removeItem('ct-session');
+  try{ localStorage.removeItem('ct-session'); }catch(e){}
   auth.signOut().then(function(){
     document.getElementById('auth-overlay').style.display = 'flex';
     var emailEl = document.getElementById('ct-user-email');
@@ -616,9 +618,11 @@ auth.onAuthStateChanged(function(user){
     // Redirect admins to the main app
     if(ADMIN_EMAILS.indexOf(_ctUserEmail) !== -1){
       sessionStorage.setItem('ct-session','1');
+      try{ localStorage.setItem('ct-session','1'); }catch(e){}
       window.location.replace('index.html' + window.location.search);
       return;
     }
+    try{ localStorage.setItem('ct-session','1'); }catch(e){}
     document.getElementById('auth-overlay').style.display = 'none';
     var emailEl = document.getElementById('ct-user-email');
     if(emailEl){ emailEl.textContent = user.email; emailEl.style.display = 'inline'; }
@@ -660,7 +664,7 @@ function doLogin(){
   if(!email||!pass){ authSetError('auth-login-err','Please enter email and password.'); return; }
   var btn = document.getElementById('auth-login-btn');
   btn.disabled = true; btn.textContent = 'Please wait…';
-  auth.signInWithEmailAndPassword(email, pass).then(function(){ sessionStorage.setItem('ct-session','1'); }).catch(function(err){
+  auth.signInWithEmailAndPassword(email, pass).then(function(){ try{ localStorage.setItem('ct-session','1'); }catch(e){} }).catch(function(err){
     btn.disabled = false; btn.textContent = 'Sign In';
     authSetError('auth-login-err',
       err.code==='auth/user-not-found'||err.code==='auth/wrong-password'||err.code==='auth/invalid-credential'
