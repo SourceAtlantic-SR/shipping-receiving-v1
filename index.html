@@ -2046,6 +2046,11 @@ document.addEventListener('keydown', function(ev){
           <input type="number" id="proc-pics-qty" placeholder="0" min="0">
         </div>
 
+        <div class="form-group">
+          <label>Photos Time</label>
+          <input type="time" id="proc-photos-time">
+        </div>
+
         <div class="form-group full">
           <label>Photos Link (OneDrive)</label>
           <input type="url" id="proc-photos-link" placeholder="Paste OneDrive folder link here...">
@@ -5725,6 +5730,7 @@ function openProcModal(key){
     document.getElementById('proc-po').value            = r.po||'';
     document.getElementById('proc-material').value      = r.material||'';
     document.getElementById('proc-pics-qty').value      = r.picsQty||'';
+    document.getElementById('proc-photos-time').value   = r.photosTime||'';
     document.getElementById('proc-photos-link').value   = r.photosLink||'';
     document.getElementById('proc-comments').value      = r.comments||'';
     document.getElementById('proc-received-date').value = r.receivedDate||'';
@@ -5735,6 +5741,7 @@ function openProcModal(key){
   } else {
     document.getElementById('proc-modal-title').textContent = 'New Shipping On Hold';
     document.getElementById('proc-pics-qty').value = '';
+    document.getElementById('proc-photos-time').value = '';
     ['proc-outgoing','proc-wo','proc-so','proc-customer','proc-po','proc-material','proc-received-date','proc-photos-link','proc-comments'].forEach(function(id){
       document.getElementById(id).value='';
     });
@@ -6073,6 +6080,7 @@ function saveProcRecord(){
     po:         document.getElementById('proc-po').value.trim(),
     material:   document.getElementById('proc-material').value.trim(),
     picsQty:    document.getElementById('proc-pics-qty').value,
+    photosTime: document.getElementById('proc-photos-time').value,
     photosLink: document.getElementById('proc-photos-link').value.trim(),
     comments:   document.getElementById('proc-comments').value.trim(),
     holds:      holds,
