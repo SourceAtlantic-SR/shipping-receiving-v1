@@ -627,10 +627,13 @@ auth.onAuthStateChanged(function(user){
     var payCard = document.getElementById('home-card-payments');
     if(payCard) payCard.style.display = PAYMENTS_ALLOWED.indexOf(_ctUserEmail) !== -1 ? 'flex' : 'none';
     startDataLoad();
+    var _qp = new URLSearchParams(window.location.search);
+    var _hasQr = !!(_qp.get('wo') || _qp.get('form'));
     var hash = window.location.hash.replace('#','');
     if(hash === 'overview') showPage('overview');
     else if(hash === 'oms') showPage('oms');
-    else showPage('home');
+    else if(!_hasQr) showPage('home');
+    // if QR params present, applyUrlParams() will call showPage('overview')
   } else {
     document.getElementById('auth-overlay').style.display = 'flex';
   }
