@@ -1114,7 +1114,7 @@ document.addEventListener('keydown', function(ev){
           </div>
           <div class="form-group" id="itm-transfer-group">
             <label>Transfer #</label>
-            <input type="text" id="itm-transfer" placeholder="Transfer #" oninput="toggleItmPoTransfer()">
+            <input type="text" id="itm-transfer" placeholder="Transfer #" oninput="toggleItmPoTransfer()" style="width:110px;max-width:100%">
           </div>
           <div class="form-group">
             <label>Date</label>
@@ -1126,7 +1126,7 @@ document.addEventListener('keydown', function(ev){
           </div>
           <div class="form-group">
             <label>Requested By</label>
-            <select id="itm-reqby" onchange="toggleItmReqbyOther()">
+            <select id="itm-reqby" onchange="toggleItmReqbyOther()" style="width:175px;max-width:100%">
               <option value="">— Select —</option>
               <option>Harold Gould</option>
               <option>Holly Renouf</option>
@@ -1293,28 +1293,28 @@ document.addEventListener('keydown', function(ev){
             <label>Other — Describe Material</label>
             <input type="text" id="shp-material-other" placeholder="Describe the material..." list="material-suggestions" autocomplete="off" oninput="enforceUpper(this)">
           </div>
-          <div class="form-subgrid" style="grid-template-columns:1fr 1fr 1fr">
+          <div class="form-subgrid" style="grid-template-columns:auto auto auto">
             <div class="form-group">
               <label>Pc (Pieces)</label>
-              <input type="number" id="shp-pc" placeholder="0" min="0">
+              <input type="number" id="shp-pc" placeholder="0" min="0" style="width:65px;max-width:100%">
             </div>
             <div class="form-group">
               <label>Lb (Pounds)</label>
-              <input type="number" id="shp-lb" placeholder="0" min="0" step="0.01">
+              <input type="number" id="shp-lb" placeholder="0" min="0" step="0.01" style="width:85px;max-width:100%">
             </div>
             <div class="form-group">
               <label>Rl (Rolls)</label>
-              <input type="number" id="shp-rl" placeholder="0" min="0">
+              <input type="number" id="shp-rl" placeholder="0" min="0" style="width:65px;max-width:100%">
             </div>
           </div>
-          <div class="form-subgrid" style="grid-template-columns:1fr 1fr">
+          <div class="form-subgrid" style="grid-template-columns:auto auto">
             <div class="form-group">
               <label>Weight (lb)</label>
-              <input type="number" id="shp-weight-lb" placeholder="0.00" min="0" step="0.01" oninput="convertShpWeight('lb')">
+              <input type="number" id="shp-weight-lb" placeholder="0.00" min="0" step="0.01" oninput="convertShpWeight('lb')" style="width:85px;max-width:100%">
             </div>
             <div class="form-group">
               <label>Weight (kg)</label>
-              <input type="number" id="shp-weight-kg" placeholder="0.00" min="0" step="0.01" oninput="convertShpWeight('kg')">
+              <input type="number" id="shp-weight-kg" placeholder="0.00" min="0" step="0.01" oninput="convertShpWeight('kg')" style="width:85px;max-width:100%">
             </div>
           </div>
 
@@ -1364,7 +1364,7 @@ document.addEventListener('keydown', function(ev){
 
           <div class="form-group">
             <label>Carrier</label>
-            <select id="shp-carrier" onchange="toggleShpCarrierOther()">
+            <select id="shp-carrier" onchange="toggleShpCarrierOther()" style="width:185px;max-width:100%">
               <option value="">— Select Carrier —</option>
               <option>Midland Transport</option>
               <option>Midland Courier</option>
@@ -1385,7 +1385,7 @@ document.addEventListener('keydown', function(ev){
           </div>
           <div class="form-group full">
             <label>Tracking Number</label>
-            <input type="text" id="shp-tracking" placeholder="Tracking #">
+            <input type="text" id="shp-tracking" placeholder="Tracking #" style="width:220px;max-width:100%">
           </div>
 
           <div class="form-group full">
@@ -1764,7 +1764,7 @@ document.addEventListener('keydown', function(ev){
         </div>
         <div class="form-group">
           <label>Shipping By</label>
-          <select id="sub-carrier" onchange="toggleSubCarrierOther()">
+          <select id="sub-carrier" onchange="toggleSubCarrierOther()" style="width:185px;max-width:100%">
             <option value="">— Select Carrier —</option>
             <option>Midland Transport</option>
             <option>Midland Courier</option>
@@ -1784,7 +1784,7 @@ document.addEventListener('keydown', function(ev){
         </div>
         <div class="form-group">
           <label>Tracking Number</label>
-          <input type="text" id="sub-tracking" placeholder="Tracking #">
+          <input type="text" id="sub-tracking" placeholder="Tracking #" style="width:220px;max-width:100%">
         </div>
         <div class="form-group">
           <label>Return Date</label>
