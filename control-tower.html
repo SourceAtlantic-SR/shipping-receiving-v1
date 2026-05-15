@@ -1256,6 +1256,7 @@ function applyUrlParams(){
     var type = params.get('form') ? 'inc' : 'wo';
     setType(type);
     document.getElementById('search-input').value = term;
+    showPage('overview');
     doSearch();
   }
 }
