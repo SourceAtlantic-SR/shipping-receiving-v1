@@ -2750,6 +2750,7 @@ function normAC(s){ return (s||'').trim().toUpperCase(); }
 function normCustKey(s){ return normAC(s).replace(/[.\-,&']/g,'').replace(/\s+/g,' ').trim(); }
 
 var custCityPostal = {}; // normCustKey(customer) → { normCity → postalCode }
+var custAddr = {};       // normCustKey(customer) → { city, province, postalCode } from most recent shipment
 
 function buildAutocomplete(){
   var customers = {}, materials = {}, suppliers = {}, cities = {};
@@ -2796,6 +2797,13 @@ function buildAutocomplete(){
       var ck=normCustKey(r.customer), cityK=normAC(r.city);
       if(!custCityPostal[ck]) custCityPostal[ck]={};
       custCityPostal[ck][cityK]=r.postalCode.trim();
+    }
+    // Build customer → latest full address
+    if(r.customer && (r.city || r.province || r.postalCode)){
+      var ck2=normCustKey(r.customer);
+      if(!custAddr[ck2] || (r.date||'') > (custAddr[ck2].date||'')){
+        custAddr[ck2]={ city:r.city||'', province:r.province||'', postalCode:r.postalCode||'', date:r.date||'' };
+      }
     }
   });
   Object.values(pkgData).forEach(function(r){ addC(r.customer, r.pickDate||r.createdAt||''); });
@@ -3994,14 +4002,31 @@ function lookupCityProvince(){
 }
 
 function lookupPostalFromCustomer(){
+  var cust = ((document.getElementById('shp-customer')||{}).value||'').trim();
+  if(!cust) return;
+  var ck = normCustKey(cust);
+  var addr = custAddr[ck];
+  var cityEl   = document.getElementById('shp-city');
+  var provEl   = document.getElementById('shp-province');
   var postalEl = document.getElementById('shp-postal');
-  if(!postalEl || postalEl.value.trim()) return; // don't overwrite existing
-  var cust = (document.getElementById('shp-customer')||{}).value||'';
-  var city = (document.getElementById('shp-city')||{}).value||'';
-  if(!cust || !city) return;
-  var ck = normCustKey(cust), cityK = normAC(city);
-  var map = custCityPostal[ck];
-  if(map && map[cityK]){ postalEl.value = map[cityK]; }
+  if(addr){
+    var filled = false;
+    if(cityEl   && !cityEl.value.trim()   && addr.city)       { cityEl.value   = addr.city;       filled = true; }
+    if(provEl   && !provEl.value.trim()   && addr.province)   { provEl.value   = addr.province;   filled = true; }
+    if(postalEl && !postalEl.value.trim() && addr.postalCode) { postalEl.value = addr.postalCode; filled = true; }
+    if(filled){
+      ['shp-dest-header','shp-city-group','shp-province-group','shp-postal-group'].forEach(function(id){
+        var el=document.getElementById(id); if(el) el.style.display='';
+      });
+    }
+  } else if(cityEl && postalEl && !postalEl.value.trim()){
+    // fallback: city already typed → look up postal only
+    var city = cityEl.value.trim();
+    if(city){
+      var map = custCityPostal[ck], cityK = normAC(city);
+      if(map && map[cityK]) postalEl.value = map[cityK];
+    }
+  }
 }
 
 function checkShpOutgoing(){
