@@ -856,7 +856,9 @@ document.addEventListener('keydown', function(ev){
           </div>
 
           <!-- ══ 2. UNIT DESCRIPTION & IDENTIFICATION ══ -->
-          <div class="form-section-header">2. Unit Description &amp; Identification</div>
+          <div class="form-section-header">2. Unit Description &amp; Identification
+            <button type="button" onclick="openScanModal()" style="margin-left:auto;background:#0ea5e9;color:#fff;border:none;border-radius:6px;padding:4px 11px;font-size:.72rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap">📷 Scan Nameplate</button>
+          </div>
 
           <div class="form-group full">
             <label>Department</label>
@@ -7498,7 +7500,187 @@ function printLabelPreview(){
   frame.contentWindow.print();
   frame.contentWindow.onafterprint = function(){ closeLabelPreview(); };
 }
+
+// ── NAMEPLATE SCAN (Tesseract OCR) ──────────────────────────────
+var _tesseractReady = false;
+var _tesseractWorker = null;
+
+function openScanModal(){
+  document.getElementById('scan-img-input').value='';
+  document.getElementById('scan-img-input').click();
+}
+
+function handleScanImage(input){
+  var file = input.files[0]; if(!file) return;
+  var url  = URL.createObjectURL(file);
+  // show modal immediately with image preview
+  document.getElementById('scan-preview').src = url;
+  document.getElementById('scan-modal').style.display = 'flex';
+  document.getElementById('scan-status').textContent = 'Initializing OCR engine…';
+  document.getElementById('scan-progress-bar').style.width = '0%';
+  document.getElementById('scan-results').style.display = 'none';
+  document.getElementById('scan-apply-btn').style.display = 'none';
+  _runOCR(file);
+}
+
+function _runOCR(imageFile){
+  if(typeof Tesseract === 'undefined'){
+    document.getElementById('scan-status').textContent = '⚠️ OCR library not loaded. Check internet connection.';
+    return;
+  }
+  Tesseract.recognize(imageFile, 'eng', {
+    logger: function(m){
+      if(m.status === 'recognizing text'){
+        var pct = Math.round((m.progress||0)*100);
+        document.getElementById('scan-progress-bar').style.width = pct+'%';
+        document.getElementById('scan-status').textContent = 'Analyzing… '+pct+'%';
+      } else if(m.status){
+        document.getElementById('scan-status').textContent = m.status.charAt(0).toUpperCase()+m.status.slice(1)+'…';
+      }
+    }
+  }).then(function(result){
+    var text = result.data.text || '';
+    document.getElementById('scan-progress-bar').style.width = '100%';
+    document.getElementById('scan-status').textContent = '✅ Done — review and apply';
+    var parsed = _parseNameplate(text);
+    _fillScanResults(parsed, text);
+    document.getElementById('scan-results').style.display = 'block';
+    document.getElementById('scan-apply-btn').style.display = 'inline-flex';
+  }).catch(function(err){
+    document.getElementById('scan-status').textContent = '❌ Error: '+err.message;
+  });
+}
+
+function _parseNameplate(raw){
+  var t = raw.toUpperCase().replace(/[|{}[\]\\]/g,' ');
+  function find(patterns){
+    for(var i=0;i<patterns.length;i++){
+      var m=t.match(patterns[i]);
+      if(m) return (m[2]||m[1]||'').trim().replace(/\s+/g,' ');
+    }
+    return '';
+  }
+  // Manufacturer — well-known brands first
+  var brands=['BALDOR','WEG','ABB','LEESON','TECO','MARATHON','SIEMENS','GE ','EMERSON','REGAL','CENTURY',
+               'MAGNETEK','BROOK','CROMPTON','NIDEC','LINCOLN','US MOTOR','BROOK CROMPTON','STERLING',
+               'IMPERIAL','CANADIAN GENERAL ELECTRIC','CGE','LENZE','SEW','NORD','BONFIGLIOLI'];
+  var mfr='';
+  for(var b=0;b<brands.length;b++){ if(t.indexOf(brands[b])>=0){mfr=brands[b].trim();break;} }
+
+  var hp   = find([/H\.?P\.?\s*:?\s*([0-9]+\.?[0-9]*)/,/([0-9]+\.?[0-9]*)\s*H\.?P\.?(?!\s*[A-Z])/,/HORSE\s*POWER\s*:?\s*([0-9]+\.?[0-9]*)/]);
+  var kw   = find([/K\.?W\.?\s*:?\s*([0-9]+\.?[0-9]*)/,/([0-9]+\.?[0-9]*)\s*K\.?W\.?(?!\s*[A-Z])/]);
+  var rpm  = find([/(\d{3,5})\s*R\.?P\.?M\.?/,/R\.?P\.?M\.?\s*:?\s*(\d{3,5})/,/(\d{3,5})\s*\/\s*MIN/]);
+  var frame= find([/FRAME\s*:?\s*([0-9]{2,3}[A-Z]{0,3}[0-9]*)/,/FR\.?\s*:?\s*([0-9]{2,3}[A-Z]{0,3})/]);
+  var ser  = find([/SER(?:IAL)?\s*(?:NO\.?)?\s*:?\s*([A-Z0-9][A-Z0-9\-]{3,20})/,/S\/?N\s*:?\s*([A-Z0-9][A-Z0-9\-]{3,20})/]);
+  var model= find([/MODEL\s*(?:NO\.?)?\s*:?\s*([A-Z0-9][A-Z0-9\-\/\.]{2,25})/,/MOD\.?\s*:?\s*([A-Z0-9][A-Z0-9\-\/\.]{2,25})/,/CAT(?:ALOG)?\s*(?:NO\.?)?\s*:?\s*([A-Z0-9][A-Z0-9\-\/\.]{2,25})/]);
+  var encl = find([/(TEFC|TENV|ODP|DRIP.?PROOF|OPEN|EXPLOSION.?PROOF|WEATHERPROOF|WASHDOWN)/]);
+  var volt = find([/(\d{2,4})\s*\/\s*(\d{2,4})\s*V(?:OLTS?)?/,/(\d{2,4})\s*VOLTS?/,/VOLT\s*:?\s*(\d{2,4})/]);
+  var amps = find([/([0-9]+\.?[0-9]*)\s*\/\s*([0-9]+\.?[0-9]*)\s*A(?:MPS?)?/,/([0-9]+\.?[0-9]*)\s*AMPS?/,/AMP\s*:?\s*([0-9]+\.?[0-9]*)/]);
+  // Volt: grab both sides if dual voltage
+  var vm = t.match(/(\d{2,4})\s*\/\s*(\d{2,4})\s*V(?:OLTS?)?/);
+  if(vm) volt = vm[1]+'/'+vm[2];
+  var am = t.match(/([0-9]+\.?[0-9]*)\s*\/\s*([0-9]+\.?[0-9]*)\s*A(?:MPS?)?/);
+  if(am) amps = am[1]+'/'+am[2];
+  // Enclosure → typesize
+  return {mfr:mfr, model:model, serial:ser, hp:hp, kw:kw, rpm:rpm, frame:frame, typesize:encl, volt:volt, amps:amps, raw:raw};
+}
+
+function _fillScanResults(p, rawText){
+  function set(id,val){ var el=document.getElementById(id); if(el) el.value=val; }
+  set('scan-mfr',   p.mfr);
+  set('scan-model', p.model);
+  set('scan-serial',p.serial);
+  set('scan-hp',    p.hp);
+  set('scan-kw',    p.kw);
+  set('scan-rpm',   p.rpm);
+  set('scan-frame', p.frame);
+  set('scan-type',  p.typesize);
+  set('scan-volt',  p.volt);
+  set('scan-amps',  p.amps);
+  document.getElementById('scan-raw-text').textContent = rawText.trim();
+}
+
+function applyScanToForm(){
+  function get(id){ return (document.getElementById(id).value||'').trim(); }
+  function setField(id,val){ if(val){ var el=document.getElementById(id); if(el) el.value=val; } }
+  setField('inc-manufacturer', get('scan-mfr'));
+  setField('inc-model',        get('scan-model'));
+  setField('inc-serial',       get('scan-serial'));
+  setField('inc-hp',           get('scan-hp'));
+  setField('inc-kw',           get('scan-kw'));
+  setField('inc-rpm',          get('scan-rpm'));
+  setField('inc-frame',        get('scan-frame'));
+  setField('inc-typesize',     get('scan-type'));
+  // Build other data from volt + amps if present
+  var extras = [];
+  if(get('scan-volt')) extras.push('V: '+get('scan-volt'));
+  if(get('scan-amps')) extras.push('A: '+get('scan-amps'));
+  if(extras.length){
+    var cur = document.getElementById('inc-otherdata').value.trim();
+    document.getElementById('inc-otherdata').value = cur ? cur+' | '+extras.join(' | ') : extras.join(' | ');
+  }
+  closeScanModal();
+  showToast('✅ Nameplate data applied to form — review and adjust as needed.');
+}
+
+function closeScanModal(){
+  document.getElementById('scan-modal').style.display = 'none';
+  var prev = document.getElementById('scan-preview');
+  if(prev.src.startsWith('blob:')) URL.revokeObjectURL(prev.src);
+  prev.src='';
+}
 </script>
+
+<!-- Scan Nameplate Modal -->
+<input type="file" id="scan-img-input" accept="image/*" capture="environment" style="position:fixed;top:-300%;left:-300%;opacity:0;width:1px;height:1px">
+<div id="scan-modal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,20,.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);display:flex;flex-direction:column">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #e2e8f0;flex-shrink:0">
+      <div style="font-weight:800;font-size:1rem;color:#0f172a">📷 Nameplate Scan — OCR</div>
+      <button onclick="closeScanModal()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:#94a3b8;line-height:1;padding:4px">✕</button>
+    </div>
+    <!-- Body -->
+    <div style="padding:16px 20px;flex:1">
+      <!-- Image + progress -->
+      <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:14px">
+        <img id="scan-preview" src="" style="width:120px;height:90px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0;flex-shrink:0">
+        <div style="flex:1">
+          <div id="scan-status" style="font-size:.82rem;font-weight:600;color:#475569;margin-bottom:6px">Ready</div>
+          <div style="background:#f1f5f9;border-radius:999px;height:6px;overflow:hidden">
+            <div id="scan-progress-bar" style="height:100%;background:linear-gradient(90deg,#0ea5e9,#6366f1);border-radius:999px;width:0%;transition:width .3s"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Extracted fields -->
+      <div id="scan-results" style="display:none">
+        <div style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#0ea5e9;margin-bottom:8px">Extracted Data — Edit Before Applying</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+          <div><label style="font-size:.7rem;font-weight:700;color:#64748b;display:block;margin-bottom:2px">Manufacturer</label><input id="scan-mfr"    class="fi" style="width:100%;padding:6px 8px;font-size:.82rem;border:1px solid #e2e8f0;border-radius:6px"></div>
+          <div><label style="font-size:.7rem;font-weight:700;color:#64748b;display:block;margin-bottom:2px">Model Number</label><input id="scan-model"  class="fi" style="width:100%;padding:6px 8px;font-size:.82rem;border:1px solid #e2e8f0;border-radius:6px"></div>
+          <div><label style="font-size:.7rem;font-weight:700;color:#64748b;display:block;margin-bottom:2px">Serial Number</label><input id="scan-serial" class="fi" style="width:100%;padding:6px 8px;font-size:.82rem;border:1px solid #e2e8f0;border-radius:6px"></div>
+          <div><label style="font-size:.7rem;font-weight:700;color:#64748b;display:block;margin-bottom:2px">Frame</label><input id="scan-frame"  class="fi" style="width:100%;padding:6px 8px;font-size:.82rem;border:1px solid #e2e8f0;border-radius:6px"></div>
+          <div><label style="font-size:.7rem;font-weight:700;color:#64748b;display:block;margin-bottom:2px">HP</label><input id="scan-hp"     class="fi" style="width:100%;padding:6px 8px;font-size:.82rem;border:1px solid #e2e8f0;border-radius:6px"></div>
+          <div><label style="font-size:.7rem;font-weight:700;color:#64748b;display:block;margin-bottom:2px">RPM</label><input id="scan-rpm"    class="fi" style="width:100%;padding:6px 8px;font-size:.82rem;border:1px solid #e2e8f0;border-radius:6px"></div>
+          <div><label style="font-size:.7rem;font-weight:700;color:#64748b;display:block;margin-bottom:2px">kW</label><input id="scan-kw"     class="fi" style="width:100%;padding:6px 8px;font-size:.82rem;border:1px solid #e2e8f0;border-radius:6px"></div>
+          <div><label style="font-size:.7rem;font-weight:700;color:#64748b;display:block;margin-bottom:2px">Type / Enclosure</label><input id="scan-type"   class="fi" style="width:100%;padding:6px 8px;font-size:.82rem;border:1px solid #e2e8f0;border-radius:6px"></div>
+          <div><label style="font-size:.7rem;font-weight:700;color:#64748b;display:block;margin-bottom:2px">Voltage</label><input id="scan-volt"   class="fi" style="width:100%;padding:6px 8px;font-size:.82rem;border:1px solid #e2e8f0;border-radius:6px"></div>
+          <div><label style="font-size:.7rem;font-weight:700;color:#64748b;display:block;margin-bottom:2px">Amps</label><input id="scan-amps"   class="fi" style="width:100%;padding:6px 8px;font-size:.82rem;border:1px solid #e2e8f0;border-radius:6px"></div>
+        </div>
+        <details style="margin-bottom:4px">
+          <summary style="font-size:.7rem;font-weight:700;color:#94a3b8;cursor:pointer;user-select:none">Show raw OCR text</summary>
+          <pre id="scan-raw-text" style="font-size:.68rem;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px;margin-top:6px;white-space:pre-wrap;max-height:120px;overflow-y:auto"></pre>
+        </details>
+      </div>
+    </div>
+    <!-- Footer -->
+    <div style="padding:12px 20px;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end;gap:8px;flex-shrink:0">
+      <button onclick="closeScanModal()" style="padding:8px 18px;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:8px;font-weight:700;cursor:pointer;font-size:.85rem">Cancel</button>
+      <button id="scan-apply-btn" onclick="applyScanToForm()" style="display:none;padding:8px 20px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.85rem;align-items:center;gap:6px">✅ Apply to Form</button>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 </body>
 </html>
 
