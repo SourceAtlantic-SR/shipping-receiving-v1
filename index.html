@@ -1284,7 +1284,7 @@ document.addEventListener('keydown', function(ev){
               <div class="form-group full" id="shp-so-group">
                 <label>Sales Order Number(s)</label>
                 <div class="tag-input-row">
-                  <input type="text" id="shp-so-input" placeholder="Add Sales Order #" onkeydown="if(event.key==='Enter'){event.preventDefault();addShpTag('so')}" oninput="updateShpOrderFields();checkInputOrderType('shp-so-input','shp-so-hint','so');shpCheckOrderStatus(this.value,'so','shp-so-status')" onchange="updateShpOrderFields()" data-maxdigits="7" style="width:105px;max-width:100%;flex:none">
+                  <input type="text" id="shp-so-input" placeholder="Add Sales Order #" onkeydown="if(event.key==='Enter'){event.preventDefault();addShpTag('so')}" oninput="updateShpOrderFields();checkInputOrderType('shp-so-input','shp-so-hint','so');try{shpCheckOrderStatus(this.value,'so','shp-so-status')}catch(e){}" onchange="updateShpOrderFields()" data-maxdigits="7" style="width:105px;max-width:100%;flex:none">
                   <button class="btn btn-secondary btn-sm" onclick="addShpTag('so')">+ Add</button>
                 </div>
                 <div class="tags-list" id="shp-so-tags"></div>
@@ -1318,7 +1318,7 @@ document.addEventListener('keydown', function(ev){
               <div class="form-group full" id="shp-wo-group">
                 <label>Work Order Number(s)</label>
                 <div class="tag-input-row">
-                  <input type="text" id="shp-wo-input" placeholder="Add Work Order #" onkeydown="if(event.key==='Enter'){event.preventDefault();addShpTag('wo')}" oninput="checkShpOutgoing();updateShpOrderFields();checkInputOrderType('shp-wo-input','shp-wo-hint','wo');shpWoRealTimeLookup();shpCheckOrderStatus(this.value,'wo','shp-wo-status')" onchange="updateShpOrderFields()" data-maxdigits="7" style="width:105px;max-width:100%;flex:none">
+                  <input type="text" id="shp-wo-input" placeholder="Add Work Order #" onkeydown="if(event.key==='Enter'){event.preventDefault();addShpTag('wo')}" oninput="checkShpOutgoing();updateShpOrderFields();checkInputOrderType('shp-wo-input','shp-wo-hint','wo');shpWoRealTimeLookup();try{shpCheckOrderStatus(this.value,'wo','shp-wo-status')}catch(e){}" onchange="updateShpOrderFields()" data-maxdigits="7" style="width:105px;max-width:100%;flex:none">
                   <button class="btn btn-secondary btn-sm" onclick="addShpTag('wo')">+ Add</button>
                 </div>
                 <div class="tags-list" id="shp-wo-tags"></div>
@@ -4433,7 +4433,7 @@ function shpLookupWo(wo){
   // 1. Shipping history — full address available
   Object.values(shpData).some(function(r){
     if(!r) return false;
-    if(!(r.workOrders||[]).some(function(w){ return (w||'').trim().toUpperCase()===wo; })) return false;
+    if(!(r.workOrders||[]).some(function(w){ return w!=null && String(w).trim().toUpperCase()===wo; })) return false;
     result.customer     = result.customer     || (r.customer||'');
     result.city         = result.city         || (r.city||'');
     result.province     = result.province     || (r.province||'');
@@ -4495,7 +4495,8 @@ function shpWoRealTimeLookup(){
     shpSetNewMode('blank');
     return;
   }
-  var r = shpLookupWo(wo);
+  var r;
+  try { r = shpLookupWo(wo); } catch(e){ showToast('Lookup error: '+e.message); r = {customer:''}; }
   if(r.customer){
     document.getElementById('shp-customer').value = r.customer; markAuto('shp-customer');
     if(r.city)    { document.getElementById('shp-city').value     = r.city;           markAuto('shp-city'); }
@@ -4532,8 +4533,8 @@ function shpCheckOrderStatus(rawVal, type, statusId){
   Object.values(shpData).forEach(function(r){
     if(!r) return;
     var match = false;
-    if(type==='wo') match = (r.workOrders||[]).some(function(w){ return (w||'').trim().toUpperCase()===val; });
-    if(type==='so') match = (r.salesOrders||[]).some(function(s){ return (s||'').trim().toUpperCase()===val; });
+    if(type==='wo') match = (r.workOrders||[]).some(function(w){ return w!=null && String(w).trim().toUpperCase()===val; });
+    if(type==='so') match = (r.salesOrders||[]).some(function(s){ return s!=null && String(s).trim().toUpperCase()===val; });
     if(match) hits.push(r);
   });
 
