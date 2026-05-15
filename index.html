@@ -2437,6 +2437,8 @@ document.addEventListener('keydown', function(ev){
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<!-- QR Code generator -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
 <script>
 // ── FIREBASE CONFIG ──
@@ -2460,6 +2462,7 @@ var PAYMENTS_EMAILS = ['gardner.christine@sourceatlantic.ca','renouf.holly@sourc
 var ALLOWED_EMAILS = ['dasilva.luiz.c@outlook.com'];
 var SR_PATH = 'shipping_receiving';
 var incomingData = {};
+var _deepLinkDone = false;
 var incomingFiltered = null;
 var itemsData = {};
 var itemsFiltered = null;
@@ -2649,6 +2652,14 @@ function initDataListeners(){
     populateYearSelect('trn-year', incomingData, 'date');
     renderIncoming();
     buildAutocomplete();
+    if(!_deepLinkDone){
+      _deepLinkDone = true;
+      var params = new URLSearchParams(window.location.search);
+      if(params.get('open') === 'incoming' && params.get('key') && incomingData[params.get('key')]){
+        showSection('incoming');
+        openIncomingModal(params.get('key'));
+      }
+    }
   });
   db.ref(SR_PATH+'/items').on('value', function(snap){
     itemsData = snap.val() || {};
@@ -3451,67 +3462,90 @@ function saveIncoming(){
 }
 
 function printIncomingLabel(){
-  var formNum  = document.getElementById('inc-form-num').value.trim();
-  var wo       = document.getElementById('inc-wo').value.trim();
-  var date     = document.getElementById('inc-date').value;
-  var area     = document.getElementById('inc-area').value;
-  var location = document.getElementById('inc-location').value;
+  var formNum   = document.getElementById('inc-form-num').value.trim();
+  var wo        = document.getElementById('inc-wo').value.trim();
+  var date      = document.getElementById('inc-date').value;
+  var area      = document.getElementById('inc-area').value;
+  var location  = document.getElementById('inc-location').value;
   var _locOther = document.getElementById('inc-location-other').value.trim();
   if(location === 'Others' && _locOther) location = _locOther;
-  var picsQty  = document.getElementById('inc-pics-qty').value;
-  var picsTime = document.getElementById('inc-pics-time').value;
-  var customer = document.getElementById('inc-customer').value.trim();
-  var priority = document.getElementById('inc-priority').value;
-  var equip    = document.getElementById('inc-equip-type').value === 'Other'
-                   ? document.getElementById('inc-equip-other').value.trim()
-                   : document.getElementById('inc-equip-type').value;
+  var picsQty   = document.getElementById('inc-pics-qty').value;
+  var picsTime  = document.getElementById('inc-pics-time').value;
+  var customer  = document.getElementById('inc-customer').value.trim();
+  var priority  = document.getElementById('inc-priority').value;
+  var equip     = document.getElementById('inc-equip-type').value === 'Other'
+                    ? document.getElementById('inc-equip-other').value.trim()
+                    : document.getElementById('inc-equip-type').value;
+  var editKey   = document.getElementById('inc-edit-id').value;
 
   var fmtPicsTime = picsTime ? (function(){
     var p=picsTime.split(':'); var h=parseInt(p[0]); var m=p[1];
     return (h%12||12)+':'+m+(h<12?'AM':'PM');
   })() : '—';
 
-  var html = ('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Equipment Label</title><style>'+
-    '*{margin:0;padding:0;box-sizing:border-box}'+
-    'body{font-family:Arial,sans-serif;background:#fff;margin:0;padding:0 0 0 15mm}'+
-    '.label{width:10cm;min-height:4.9cm;border:3px solid #000;padding:4px;page-break-inside:avoid}'+
-    '.label-header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #000;padding-bottom:5px;margin-bottom:5px}'+
-    '.inc-num{font-size:9pt;font-weight:700;color:#333}'+
-    '.company{font-size:8pt;font-weight:700;color:#333}'+
-    '.wo-block{text-align:center;background:#000;color:#fff;padding:6px 0;margin-bottom:6px;border-radius:4px}'+
-    '.wo-label{font-size:7pt;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.7}'+
-    '.wo-value{font-size:26pt;font-weight:900;letter-spacing:1px;line-height:1}'+
-    '.rush-banner{background:#dc2626;color:#fff;text-align:center;font-size:16pt;font-weight:900;letter-spacing:4px;padding:4px 0;border-radius:4px;margin-bottom:6px}'+
-    '.grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}'+
-    '.field{display:flex;flex-direction:column}'+
-    '.f-label{font-size:6pt;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#666}'+
-    '.f-value{font-size:9pt;font-weight:700;color:#000}'+
-    '.f-value.big{font-size:11pt}'+
-    '@media print{body{margin:0;padding:0 0 0 15mm}button{display:none}@page{margin:0;size:28cm 5.5cm}}'+
-  '</style></head><body>'+
-  '<div class="label">'+
-    '<div class="label-header">'+
-      '<div><div class="inc-num">Incoming # '+(formNum||'—')+'</div>'+
-      (customer?'<div style="font-size:10pt;color:#555;margin-top:2px">'+customer+'</div>':'')+
+  // Build QR data: deep-link URL if record is saved, else structured text
+  var qrData = editKey
+    ? (window.location.origin + window.location.pathname + '?open=incoming&key=' + encodeURIComponent(editKey))
+    : ('WO:' + (wo||'') + (formNum?'|FORM:'+formNum:'') + (customer?'|CUST:'+customer:'') + (equip?'|EQUIP:'+equip:''));
+
+  function buildLabel(qrImgTag){
+    return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Equipment Label</title><style>'+
+      '*{margin:0;padding:0;box-sizing:border-box}'+
+      'body{font-family:Arial,sans-serif;background:#fff;margin:0;padding:0 0 0 15mm}'+
+      '.label{width:10cm;min-height:4.9cm;border:3px solid #000;padding:4px;page-break-inside:avoid}'+
+      '.label-header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #000;padding-bottom:5px;margin-bottom:5px}'+
+      '.hdr-left{flex:1;min-width:0}'+
+      '.hdr-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:6px}'+
+      '.inc-num{font-size:9pt;font-weight:700;color:#333}'+
+      '.company{font-size:7pt;font-weight:700;color:#333;text-align:right}'+
+      '.qr-wrap{border:1px solid #ccc;border-radius:3px;padding:2px;background:#fff}'+
+      '.qr-wrap img{display:block;width:70px;height:70px}'+
+      '.qr-hint{font-size:5pt;color:#888;text-align:center;margin-top:1px;letter-spacing:.3px}'+
+      '.wo-block{text-align:center;background:#000;color:#fff;padding:6px 0;margin-bottom:6px;border-radius:4px}'+
+      '.wo-label{font-size:7pt;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.7}'+
+      '.wo-value{font-size:26pt;font-weight:900;letter-spacing:1px;line-height:1}'+
+      '.rush-banner{background:#dc2626;color:#fff;text-align:center;font-size:16pt;font-weight:900;letter-spacing:4px;padding:4px 0;border-radius:4px;margin-bottom:6px}'+
+      '.grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}'+
+      '.field{display:flex;flex-direction:column}'+
+      '.f-label{font-size:6pt;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#666}'+
+      '.f-value{font-size:9pt;font-weight:700;color:#000}'+
+      '@media print{body{margin:0;padding:0 0 0 15mm}@page{margin:0;size:28cm 5.5cm}}'+
+    '</style></head><body>'+
+    '<div class="label">'+
+      '<div class="label-header">'+
+        '<div class="hdr-left">'+
+          '<div class="inc-num">Incoming # '+(formNum||'—')+'</div>'+
+          (customer?'<div style="font-size:10pt;color:#555;margin-top:2px">'+customer+'</div>':'')+
+        '</div>'+
+        '<div class="hdr-right">'+
+          '<div class="company">SOURCE ATLANTIC<br>Saint John, NB</div>'+
+          (qrImgTag ? '<div class="qr-wrap">'+qrImgTag+'</div><div class="qr-hint">SCAN TO OPEN RECORD</div>' : '')+
+        '</div>'+
       '</div>'+
-      '<div class="company" style="text-align:right">SOURCE ATLANTIC<br><span style="font-size:8pt;font-weight:400">Saint John, NB</span></div>'+
+      '<div class="wo-block">'+
+        '<div class="wo-label">Work Order #</div>'+
+        '<div class="wo-value">'+(wo||'—')+'</div>'+
+      '</div>'+
+      (priority==='Rush'?'<div class="rush-banner">⚡ RUSH</div>':'')+
+      '<div class="grid">'+
+        '<div class="field"><span class="f-label">Date</span><span class="f-value">'+(date?fmtDate(date):'—')+'</span></div>'+
+        '<div class="field"><span class="f-label">Area</span><span class="f-value">'+(area||'—')+'</span></div>'+
+        '<div class="field"><span class="f-label">Location</span><span class="f-value">'+(location||'—')+'</span></div>'+
+        '<div class="field"><span class="f-label">Equipment</span><span class="f-value">'+(equip||'—')+'</span></div>'+
+        '<div class="field"><span class="f-label">Pictures</span><span class="f-value">'+(picsQty?picsQty+' photo'+(picsQty!='1'?'s':''):'—')+'</span></div>'+
+        '<div class="field"><span class="f-label">Pics Time</span><span class="f-value">'+fmtPicsTime+'</span></div>'+
+      '</div>'+
     '</div>'+
-    '<div class="wo-block">'+
-      '<div class="wo-label">Work Order #</div>'+
-      '<div class="wo-value">'+(wo||'—')+'</div>'+
-    '</div>'+
-    (priority==='Rush'?'<div class="rush-banner">⚡ RUSH</div>':'')+
-    '<div class="grid">'+
-      '<div class="field"><span class="f-label">Date</span><span class="f-value">'+(date?fmtDate(date):'—')+'</span></div>'+
-      '<div class="field"><span class="f-label">Area</span><span class="f-value">'+(area||'—')+'</span></div>'+
-      '<div class="field"><span class="f-label">Location</span><span class="f-value">'+(location||'—')+'</span></div>'+
-      '<div class="field"><span class="f-label">Equipment</span><span class="f-value">'+(equip||'—')+'</span></div>'+
-      '<div class="field"><span class="f-label">Pictures</span><span class="f-value">'+(picsQty?picsQty+' photo'+(picsQty!='1'?'s':''):'—')+'</span></div>'+
-      '<div class="field"><span class="f-label">Pics Time</span><span class="f-value">'+fmtPicsTime+'</span></div>'+
-    '</div>'+
-  '</div>'+
-  '</body></html>');
-  showLabelPreview(html);
+    '</body></html>';
+  }
+
+  if(typeof QRCode !== 'undefined'){
+    QRCode.toDataURL(qrData, {width:100, margin:1, color:{dark:'#000000',light:'#ffffff'}}, function(err, url){
+      showLabelPreview(buildLabel(err ? '' : '<img src="'+url+'">'));
+    });
+  } else {
+    showLabelPreview(buildLabel(''));
+  }
 }
 
 function printItemWipLabel(i){
