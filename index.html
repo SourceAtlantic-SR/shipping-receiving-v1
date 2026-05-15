@@ -3764,12 +3764,65 @@ function deleteIncoming(){
 
 // ══ SUBCONTRACTOR ══
 
+function _isoDate(d){
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function _nbHolidays(year){
+  var h = {};
+  function addFixed(m, day){
+    var d = new Date(year, m-1, day);
+    h[_isoDate(d)] = true;
+    if(d.getDay()===0){ var o=new Date(d); o.setDate(o.getDate()+1); h[_isoDate(o)]=true; }
+    else if(d.getDay()===6){ var o=new Date(d); o.setDate(o.getDate()-1); h[_isoDate(o)]=true; }
+  }
+  function addFloat(d){ h[_isoDate(d)]=true; }
+
+  addFixed(1,1);   // New Year's Day
+  addFixed(7,1);   // Canada Day
+  addFixed(11,11); // Remembrance Day
+  addFixed(12,25); // Christmas
+  addFixed(12,26); // Boxing Day
+
+  // Easter (Meeus/Jones/Butcher)
+  var a=year%19,b=Math.floor(year/100),c=year%100,d2=Math.floor(b/4),e2=b%4,
+      f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),
+      hh=(19*a+b-d2-g+15)%30,ii=Math.floor(c/4),k=c%4,
+      l=(32+2*e2+2*ii-hh-k)%7,m=Math.floor((a+11*hh+22*l)/451),
+      mo=Math.floor((hh+l-7*m+114)/31), dy=((hh+l-7*m+114)%31)+1;
+  var easter=new Date(year,mo-1,dy);
+  var gf=new Date(easter); gf.setDate(gf.getDate()-2); addFloat(gf); // Good Friday
+
+  // Victoria Day: last Monday on or before May 25
+  var vd=new Date(year,4,25); while(vd.getDay()!==1) vd.setDate(vd.getDate()-1); addFloat(vd);
+
+  // New Brunswick Day: first Monday in August
+  var nb=new Date(year,7,1); while(nb.getDay()!==1) nb.setDate(nb.getDate()+1); addFloat(nb);
+
+  // Labour Day: first Monday in September
+  var ld=new Date(year,8,1); while(ld.getDay()!==1) ld.setDate(ld.getDate()+1); addFloat(ld);
+
+  // Thanksgiving: second Monday in October
+  var td=new Date(year,9,1),mon=0;
+  while(mon<2){ if(td.getDay()===1) mon++; if(mon<2) td.setDate(td.getDate()+1); } addFloat(td);
+
+  return h;
+}
+var _holidayCache = {};
+function _isHoliday(dateStr){
+  var yr = parseInt(dateStr.slice(0,4),10);
+  if(!_holidayCache[yr]) _holidayCache[yr] = _nbHolidays(yr);
+  return !!_holidayCache[yr][dateStr];
+}
 function calcWorkingDays(start, end){
   if(!start || !end) return null;
   var s = new Date(start+'T00:00:00'), e = new Date(end+'T00:00:00');
   if(e < s) return null;
   var count = 0, cur = new Date(s);
-  while(cur <= e){ var d=cur.getDay(); if(d!==0&&d!==6) count++; cur.setDate(cur.getDate()+1); }
+  while(cur <= e){
+    var d=cur.getDay(), ds=_isoDate(cur);
+    if(d!==0 && d!==6 && !_isHoliday(ds)) count++;
+    cur.setDate(cur.getDate()+1);
+  }
   return count;
 }
 
