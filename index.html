@@ -7632,7 +7632,7 @@ function closeScanModal(){
 </script>
 
 <!-- Scan Nameplate Modal -->
-<input type="file" id="scan-img-input" accept="image/*" capture="environment" style="position:fixed;top:-300%;left:-300%;opacity:0;width:1px;height:1px">
+<input type="file" id="scan-img-input" accept="image/*" capture="environment" style="position:fixed;top:-300%;left:-300%;opacity:0;width:1px;height:1px" onchange="handleScanImage(this)">
 <div id="scan-modal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,20,.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:16px">
   <div style="background:#fff;border-radius:16px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);display:flex;flex-direction:column">
     <!-- Header -->
