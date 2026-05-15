@@ -538,7 +538,7 @@ body.readonly-mode #viewer-portal{display:none!important}
 /* ── Inline Entry screen ── */
 .entry-screen{display:block}
 .entry-screen-hidden{display:none}
-.entry-action-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;flex-wrap:wrap}
+.entry-action-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:var(--topbar-h,0px);z-index:10;flex-wrap:wrap;box-shadow:0 2px 8px rgba(0,0,0,.08)}
 .entry-action-title{font-size:1rem;font-weight:800;color:var(--text-primary)}
 .entry-action-btns{display:flex;gap:8px;align-items:center}
 .entry-form-body{padding:20px;overflow-y:auto}
@@ -794,7 +794,7 @@ document.addEventListener('keydown', function(ev){
           <button class="btn btn-secondary" onclick="printIncomingLabel()">🏷️ Print Label</button>
           <button class="btn btn-secondary" onclick="openEpsForm()" style="background:#e3f2fd;color:#1565c0;border-color:#90caf9;font-weight:700">📄 EPS Form</button>
           <button class="btn btn-primary admin-only" onclick="saveIncoming()">💾 Save</button>
-          <button class="btn btn-secondary" onclick="showIncScreen('reports')">✕ Cancel</button>
+          <button class="btn btn-secondary" onclick="openIncomingModal()">✕ Cancel</button>
         </div>
       </div>
       <div class="entry-form-body">
@@ -1147,7 +1147,7 @@ document.addEventListener('keydown', function(ev){
         <div class="entry-action-btns">
           <button class="btn btn-danger" id="itm-del-btn" style="display:none" onclick="deleteItem()">🗑 Delete</button>
           <button class="btn btn-primary admin-only" onclick="saveItem()">💾 Save</button>
-          <button class="btn btn-secondary" onclick="showItmScreen('reports')">✕ Cancel</button>
+          <button class="btn btn-secondary" onclick="openItemModal()">✕ Cancel</button>
         </div>
       </div>
       <div class="entry-form-body">
@@ -1261,7 +1261,7 @@ document.addEventListener('keydown', function(ev){
         <div class="entry-action-btns">
           <button class="btn btn-danger" id="shp-del-btn" style="display:none" onclick="deleteShipment()">🗑 Delete</button>
           <button class="btn btn-primary admin-only" onclick="saveShipment()">💾 Save</button>
-          <button class="btn btn-secondary" onclick="showShpScreen('reports')">✕ Cancel</button>
+          <button class="btn btn-secondary" onclick="openShipModal()">✕ Cancel</button>
         </div>
       </div>
       <div class="entry-form-body">
@@ -2486,7 +2486,15 @@ var shpPage   = 0;
 var itmPage   = 0;
 
 // ── INIT ──
+function updateTopbarHeight(){
+  var tb = document.querySelector('.topbar');
+  if(tb) document.documentElement.style.setProperty('--topbar-h', tb.offsetHeight+'px');
+}
+window.addEventListener('load', updateTopbarHeight);
+window.addEventListener('resize', updateTopbarHeight);
+
 window.addEventListener('DOMContentLoaded', function(){
+  updateTopbarHeight();
   buildMonthSelects();
   try{
     if(!firebase.apps.length) firebase.initializeApp(FB_CFG);
@@ -4575,6 +4583,9 @@ function shpCheckOpenWo(rawVal){
   if(!el) return;
   var val = (rawVal||'').trim().toUpperCase();
   if(val.length < 4){ el.classList.remove('visible'); el.innerHTML=''; return; }
+  // Don't show "open" notice if "already shipped" warning is already visible
+  var statusEl = document.getElementById('shp-wo-status');
+  if(statusEl && statusEl.classList.contains('visible')){ el.classList.remove('visible'); el.innerHTML=''; return; }
   var hits = [];
   Object.values(incomingData).forEach(function(r){
     if(!r) return;
