@@ -145,15 +145,17 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--surface-alt);colo
 #section-process .table-wrap th:nth-child(7),#section-process .table-wrap td:nth-child(7){width:78px}
 #section-process .table-wrap th:nth-child(8),#section-process .table-wrap td:nth-child(8){width:90px}
 #section-process .table-wrap th:nth-child(9),#section-process .table-wrap td:nth-child(9){width:auto}
-#section-process .table-wrap th:nth-child(10),#section-process .table-wrap td:nth-child(10){width:75px}
+#section-process .table-wrap th:nth-child(10),#section-process .table-wrap td:nth-child(10){width:80px}
 #section-process .table-wrap td:nth-child(4):hover,#section-process .table-wrap td:nth-child(5):hover,#section-process .table-wrap td:nth-child(6):hover{overflow:visible;white-space:normal;background:#fff;position:relative;z-index:1}
+/* Sticky: Actions (last) */
 #section-process .table-wrap td:last-child,
-#section-process .table-wrap th:last-child{position:sticky;right:0;z-index:2;background:#fff;overflow:visible!important;white-space:normal;vertical-align:middle;padding:6px 8px}
+#section-process .table-wrap th:last-child{position:sticky;right:0;z-index:2;width:76px;min-width:76px;background:#fff;overflow:visible!important;white-space:normal;vertical-align:middle;padding:6px 6px}
 #section-process .table-wrap tr:nth-child(even) td:last-child{background:#fafcff}
 #section-process .table-wrap tr:hover td:last-child{background:#f0f7ff}
 #section-process .table-wrap th:last-child{background:linear-gradient(180deg,var(--blue-600),var(--blue-500));z-index:5}
+/* Sticky: Days On Hold (2nd from right) */
 #section-process .table-wrap td:nth-child(10),
-#section-process .table-wrap th:nth-child(10){position:sticky;right:80px;z-index:2;background:#fff;box-shadow:-3px 0 6px rgba(0,0,0,.06);white-space:nowrap;text-align:center}
+#section-process .table-wrap th:nth-child(10){position:sticky;right:76px;z-index:2;background:#fff;box-shadow:-3px 0 6px rgba(0,0,0,.06);white-space:nowrap;text-align:center}
 #section-process .table-wrap tr:nth-child(even) td:nth-child(10){background:#fafcff}
 #section-process .table-wrap tr:hover td:nth-child(10){background:#f0f7ff}
 #section-process .table-wrap th:nth-child(10){background:linear-gradient(180deg,var(--blue-600),var(--blue-500));z-index:5;box-shadow:-3px 0 6px rgba(0,0,0,.12)}
@@ -1531,7 +1533,7 @@ document.addEventListener('keydown', function(ev){
             <th>Current</th>
             <th>Hold Reason</th>
             <th>Days On Hold</th>
-            <th style="width:80px">Actions</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody id="proc-tbody"></tbody>
