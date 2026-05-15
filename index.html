@@ -2497,6 +2497,13 @@ function updateTopbarHeight(){
 window.addEventListener('load', updateTopbarHeight);
 window.addEventListener('resize', updateTopbarHeight);
 
+// Capture deep-link params immediately before any auth redirect can lose them
+(function(){
+  var p = new URLSearchParams(window.location.search);
+  var open = p.get('open'), key = p.get('key');
+  if(open && key) localStorage.setItem('sr_deeplink', JSON.stringify({open:open, key:key}));
+})();
+
 window.addEventListener('DOMContentLoaded', function(){
   updateTopbarHeight();
   buildMonthSelects();
@@ -2574,7 +2581,8 @@ function processAuthUser(user){
   if(!isAdmin){
     var _params       = new URLSearchParams(window.location.search);
     var wantsPayments = _params.get('payments') === '1';
-    var hasDeepLink   = !!(_params.get('open') && _params.get('key'));
+    var _stored       = localStorage.getItem('sr_deeplink');
+    var hasDeepLink   = !!_stored;
     if(wantsPayments && canAccessPayments(user.email)){
       document.getElementById('app-loading').style.display = 'flex';
       initDataListeners();
@@ -2661,11 +2669,21 @@ function initDataListeners(){
     buildAutocomplete();
     if(!_deepLinkDone){
       _deepLinkDone = true;
-      var params = new URLSearchParams(window.location.search);
-      if(params.get('open') === 'incoming' && params.get('key') && incomingData[params.get('key')]){
-        showSection('incoming');
-        openIncomingModal(params.get('key'));
-      }
+      try{
+        var _dl = JSON.parse(localStorage.getItem('sr_deeplink')||'null');
+        if(_dl && _dl.open === 'incoming' && _dl.key){
+          localStorage.removeItem('sr_deeplink');
+          var _dlKey = _dl.key;
+          var doOpen = function(){ showSection('incoming'); openIncomingModal(_dlKey); };
+          if(incomingData[_dlKey]){
+            doOpen();
+          } else if(db){
+            db.ref(SR_PATH+'/incoming/'+_dlKey).once('value').then(function(snap){
+              if(snap.val()){ incomingData[_dlKey] = snap.val(); doOpen(); }
+            }).catch(function(){});
+          }
+        }
+      }catch(e){}
     }
   });
   db.ref(SR_PATH+'/items').on('value', function(snap){
