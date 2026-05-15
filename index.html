@@ -3403,7 +3403,8 @@ function printIncomingLabel(){
 function printItemWipLabel(i){
   var wo       = document.getElementById('itm-l'+i+'-wipwo').value.trim().toUpperCase();
   var area     = document.getElementById('itm-l'+i+'-wiparea') ? document.getElementById('itm-l'+i+'-wiparea').value : '';
-  var customer = (document.getElementById('inc-customer')||{value:''}).value.trim();
+  var custLineEl = document.getElementById('itm-l'+i+'-wipcustomer');
+  var customer = (custLineEl && custLineEl.value.trim()) || (document.getElementById('inc-customer')||{value:''}).value.trim();
   var priority = (document.getElementById('inc-priority')||{value:''}).value;
   var date     = document.getElementById('itm-date').value;
   // Count how many line items share the same WIP WO
