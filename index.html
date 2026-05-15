@@ -5460,7 +5460,9 @@ function renderProcess(){
       '<td>'+holdReasonBadges(r)+'</td>'+
       '<td>'+daysOnHoldBadge(days, frozen)+'</td>'+
       '<td onclick="event.stopPropagation()"><div class="act-cell">'+
-        (r.photosLink?'<a href="'+escAttr(r.photosLink)+'" target="_blank" class="act-btn" title="Photos" onclick="event.stopPropagation()">📷</a>':'')+
+        (r.photosLink
+          ? '<a href="'+escAttr(r.photosLink)+'" target="_blank" class="act-btn" title="Open Photos" onclick="event.stopPropagation()" style="color:#2563eb">📷</a>'
+          : '<button class="act-btn" title="No photos link — click to add" onclick="event.stopPropagation();openProcModal(\''+r._key+'\')" style="opacity:.35;cursor:pointer">📷</button>')+
         '<button class="act-btn" title="Edit" onclick="openProcModal(\''+r._key+'\')">✏️</button>'+
       '</div></td>'+
     '</tr>';
