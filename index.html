@@ -1318,7 +1318,7 @@ document.addEventListener('keydown', function(ev){
               <div class="form-group full" id="shp-wo-group">
                 <label>Work Order Number(s)</label>
                 <div class="tag-input-row">
-                  <input type="text" id="shp-wo-input" placeholder="Add Work Order #" onkeydown="if(event.key==='Enter'){event.preventDefault();addShpTag('wo')}" oninput="checkShpOutgoing();updateShpOrderFields();checkInputOrderType('shp-wo-input','shp-wo-hint','wo');shpWoRealTimeLookup();try{shpCheckOrderStatus(this.value,'wo','shp-wo-status')}catch(e){}" onchange="updateShpOrderFields()" data-maxdigits="7" style="width:105px;max-width:100%;flex:none">
+                  <input type="text" id="shp-wo-input" placeholder="Add Work Order #" onkeydown="if(event.key==='Enter'){event.preventDefault();addShpTag('wo')}" oninput="shpWoInputHandler(this.value)" onchange="updateShpOrderFields()" data-maxdigits="7" style="width:105px;max-width:100%;flex:none">
                   <button class="btn btn-secondary btn-sm" onclick="addShpTag('wo')">+ Add</button>
                 </div>
                 <div class="tags-list" id="shp-wo-tags"></div>
@@ -4425,6 +4425,14 @@ function showToast(msg){
   t.style.opacity = '1';
   clearTimeout(t._timer);
   t._timer = setTimeout(function(){ t.style.opacity='0'; }, 3000);
+}
+
+function shpWoInputHandler(val){
+  try{ checkShpOutgoing(); }catch(e){ showToast('E1:'+e.message); }
+  try{ updateShpOrderFields(); }catch(e){ showToast('E2:'+e.message); }
+  try{ checkInputOrderType('shp-wo-input','shp-wo-hint','wo'); }catch(e){ showToast('E3:'+e.message); }
+  try{ shpWoRealTimeLookup(); }catch(e){ showToast('E4:'+e.message); }
+  try{ shpCheckOrderStatus(val,'wo','shp-wo-status'); }catch(e){}
 }
 
 function shpLookupWo(wo){
