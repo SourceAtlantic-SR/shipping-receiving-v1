@@ -291,6 +291,8 @@ select:-webkit-autofill,textarea:-webkit-autofill{
 .tag-chip button:hover{opacity:1}
 .order-type-warn{display:none;color:#b91c1c;font-size:.76rem;font-weight:700;margin-top:5px;padding:4px 10px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px}
 .order-type-warn.visible{display:block}
+.order-status-info{display:none;font-size:.76rem;font-weight:700;margin-top:5px;padding:6px 10px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;color:#92400e;line-height:1.5}
+.order-status-info.visible{display:block}
 
 /* ── WORKING DAYS BADGE ── */
 .working-days-box{display:flex;align-items:center;justify-content:center;flex-direction:column;background:linear-gradient(135deg,var(--blue-700),var(--blue-500));color:#fff;border-radius:var(--radius-lg);padding:12px 18px;min-width:110px;text-align:center;box-shadow:0 4px 12px rgba(21,101,192,.3)}
@@ -1282,11 +1284,12 @@ document.addEventListener('keydown', function(ev){
               <div class="form-group full" id="shp-so-group">
                 <label>Sales Order Number(s)</label>
                 <div class="tag-input-row">
-                  <input type="text" id="shp-so-input" placeholder="Add Sales Order #" onkeydown="if(event.key==='Enter'){event.preventDefault();addShpTag('so')}" oninput="updateShpOrderFields();checkInputOrderType('shp-so-input','shp-so-hint','so')" onchange="updateShpOrderFields()" data-maxdigits="7" style="width:105px;max-width:100%;flex:none">
+                  <input type="text" id="shp-so-input" placeholder="Add Sales Order #" onkeydown="if(event.key==='Enter'){event.preventDefault();addShpTag('so')}" oninput="updateShpOrderFields();checkInputOrderType('shp-so-input','shp-so-hint','so');shpCheckOrderStatus(this.value,'so','shp-so-status')" onchange="updateShpOrderFields()" data-maxdigits="7" style="width:105px;max-width:100%;flex:none">
                   <button class="btn btn-secondary btn-sm" onclick="addShpTag('so')">+ Add</button>
                 </div>
                 <div class="tags-list" id="shp-so-tags"></div>
                 <div class="order-type-warn" id="shp-so-hint"></div>
+                <div class="order-status-info" id="shp-so-status"></div>
               </div>
               <div class="form-group" id="shp-customer-group">
                 <label>Customer</label>
@@ -1315,11 +1318,12 @@ document.addEventListener('keydown', function(ev){
               <div class="form-group full" id="shp-wo-group">
                 <label>Work Order Number(s)</label>
                 <div class="tag-input-row">
-                  <input type="text" id="shp-wo-input" placeholder="Add Work Order #" onkeydown="if(event.key==='Enter'){event.preventDefault();addShpTag('wo')}" oninput="checkShpOutgoing();updateShpOrderFields();checkInputOrderType('shp-wo-input','shp-wo-hint','wo');shpWoRealTimeLookup()" onchange="updateShpOrderFields()" data-maxdigits="7" style="width:105px;max-width:100%;flex:none">
+                  <input type="text" id="shp-wo-input" placeholder="Add Work Order #" onkeydown="if(event.key==='Enter'){event.preventDefault();addShpTag('wo')}" oninput="checkShpOutgoing();updateShpOrderFields();checkInputOrderType('shp-wo-input','shp-wo-hint','wo');shpWoRealTimeLookup();shpCheckOrderStatus(this.value,'wo','shp-wo-status')" onchange="updateShpOrderFields()" data-maxdigits="7" style="width:105px;max-width:100%;flex:none">
                   <button class="btn btn-secondary btn-sm" onclick="addShpTag('wo')">+ Add</button>
                 </div>
                 <div class="tags-list" id="shp-wo-tags"></div>
                 <div class="order-type-warn" id="shp-wo-hint"></div>
+                <div class="order-status-info" id="shp-wo-status"></div>
               </div>
               <div class="form-group full" id="shp-outgoing-group" style="display:none">
                 <label>Outgoing #</label>
@@ -4425,7 +4429,7 @@ function showToast(msg){
 
 function shpLookupWo(wo){
   var knownMats = ['Electric Motor','Pump','Submersible Pump','Air Compressor','DC Motor','Generator'];
-  var result = {customer:'', city:'', province:'', postal:'', country:'', source:'', material:'', materialType:''};
+  var result = {customer:'', city:'', province:'', postal:'', country:'', source:'', material:'', materialType:'', customerPO:''};
   // 1. Shipping history — full address available
   Object.values(shpData).some(function(r){
     if(!(r.workOrders||[]).some(function(w){ return (w||'').trim().toUpperCase()===wo; })) return false;
@@ -4437,17 +4441,19 @@ function shpLookupWo(wo){
     result.source       = result.source       || 'Shipping History';
     result.material     = result.material     || (r.material||'');
     result.materialType = result.materialType || (r.materialType||'');
+    result.customerPO   = result.customerPO   || (r.customerPO||'');
     return !!(result.customer && result.city);
   });
   // 2. Incoming Forms
-  if(!result.customer || !result.material){
+  if(!result.customer || !result.material || !result.customerPO){
     Object.values(incomingData).some(function(r){
       if((r.wo||'').trim().toUpperCase()!==wo) return false;
       result.customer     = result.customer     || (r.customer||'');
       result.source       = result.source       || ('Incoming Form '+(r.formNum||wo));
       result.material     = result.material     || (r.equipment||'');
       result.materialType = result.materialType || (r.equipmentType||'');
-      return !!(result.customer && result.material);
+      result.customerPO   = result.customerPO   || (r.customerPO||'');
+      return !!(result.customer && result.material && result.customerPO);
     });
   }
   // 3. Shipping On Hold
@@ -4457,11 +4463,22 @@ function shpLookupWo(wo){
       result.customer     = result.customer     || (r.customer||'');
       result.source       = result.source       || 'Shipping On Hold';
       result.material     = result.material     || (r.material||'');
+      result.customerPO   = result.customerPO   || (r.po||'');
       return !!(result.customer && result.material);
     });
   }
   if(result.material && !result.materialType){
     result.materialType = knownMats.includes(result.material) ? result.material : 'Other';
+  }
+  // Fallback: resolve city/province/postal from custAddr if not found in shipping history
+  if(result.customer && !result.city){
+    var addr = custAddr[normCustKey(result.customer)];
+    if(addr){
+      result.city     = result.city     || addr.city     || '';
+      result.province = result.province || addr.province || '';
+      result.postal   = result.postal   || addr.postalCode || '';
+      result.country  = result.country  || 'Canada';
+    }
   }
   return result;
 }
@@ -4478,10 +4495,13 @@ function shpWoRealTimeLookup(){
   var r = shpLookupWo(wo);
   if(r.customer){
     document.getElementById('shp-customer').value = r.customer; markAuto('shp-customer');
-    document.getElementById('shp-city').value     = r.city;     markAuto('shp-city');
-    document.getElementById('shp-province').value = r.province; markAuto('shp-province');
-    document.getElementById('shp-postal').value   = r.postal;   markAuto('shp-postal');
-    document.getElementById('shp-country').value  = r.country||'Canada'; markAuto('shp-country');
+    if(r.city)    { document.getElementById('shp-city').value     = r.city;           markAuto('shp-city'); }
+    if(r.province){ document.getElementById('shp-province').value = r.province;       markAuto('shp-province'); }
+    if(r.postal)  { document.getElementById('shp-postal').value   = r.postal;         markAuto('shp-postal'); }
+    document.getElementById('shp-country').value = r.country||'Canada'; markAuto('shp-country');
+    if(r.customerPO && !document.getElementById('shp-customer-po').value){
+      document.getElementById('shp-customer-po').value = r.customerPO; markAuto('shp-customer-po');
+    }
     document.getElementById('shp-customer-filled-name').textContent   = r.customer;
     document.getElementById('shp-customer-filled-source').textContent = '✔ '+r.source;
     if(r.material && !document.getElementById('shp-material-type').value){
@@ -4497,6 +4517,40 @@ function shpWoRealTimeLookup(){
   } else {
     shpSetNewMode('notfound');
   }
+}
+
+function shpCheckOrderStatus(rawVal, type, statusId){
+  var el = document.getElementById(statusId);
+  if(!el) return;
+  var val = (rawVal||'').trim().toUpperCase();
+  if(val.length < 4){ el.classList.remove('visible'); el.innerHTML=''; return; }
+
+  var hits = [];
+  Object.values(shpData).forEach(function(r){
+    var match = false;
+    if(type==='wo') match = (r.workOrders||[]).some(function(w){ return (w||'').trim().toUpperCase()===val; });
+    if(type==='so') match = (r.salesOrders||[]).some(function(s){ return (s||'').trim().toUpperCase()===val; });
+    if(match) hits.push(r);
+  });
+
+  if(!hits.length){ el.classList.remove('visible'); el.innerHTML=''; return; }
+
+  hits.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+  var latest = hits[0];
+  var label  = type==='wo' ? 'WO' : 'SO';
+  var lines  = [];
+  var head   = '⚠️ '+label+' <strong>'+val+'</strong> já foi expedida anteriormente';
+  lines.push(head);
+  var detail = [];
+  if(latest.date)     detail.push('Data: <strong>'+latest.date+'</strong>');
+  if(latest.outgoing) detail.push('Saída #<strong>'+latest.outgoing+'</strong>');
+  if(latest.customer) detail.push('Cliente: <strong>'+latest.customer+'</strong>');
+  if(latest.carrier)  detail.push('Transportadora: '+latest.carrier);
+  if(detail.length)   lines.push(detail.join(' &nbsp;·&nbsp; '));
+  if(hits.length > 1) lines.push('('+hits.length+' envios no total)');
+
+  el.innerHTML = lines.join('<br>');
+  el.classList.add('visible');
 }
 
 function shpSetNewMode(mode){
@@ -4777,6 +4831,7 @@ function openShipModal(key){
   ['so','tr','wo'].forEach(renderShpTags);
   document.getElementById('shp-outgoing-group').style.display = (shpTags.wo.length || shpTags.so.length) ? 'flex' : 'none';
   ['shp-so-input','shp-tr-input','shp-wo-input'].forEach(function(id){ document.getElementById(id).value=''; });
+  ['shp-wo-status','shp-so-status'].forEach(function(id){ var el=document.getElementById(id); if(el){el.classList.remove('visible');el.innerHTML='';} });
   updateShpOrderFields();
   if(!key) lookupProcPhotos();
   showShpScreen('entry');
