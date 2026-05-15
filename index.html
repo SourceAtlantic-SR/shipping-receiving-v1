@@ -2498,11 +2498,11 @@ window.addEventListener('load', updateTopbarHeight);
 window.addEventListener('resize', updateTopbarHeight);
 
 // Capture deep-link params immediately before any auth redirect can lose them
-(function(){
+try{(function(){
   var p = new URLSearchParams(window.location.search);
   var open = p.get('open'), key = p.get('key');
   if(open && key) localStorage.setItem('sr_deeplink', JSON.stringify({open:open, key:key}));
-})();
+})();}catch(e){}
 
 window.addEventListener('DOMContentLoaded', function(){
   updateTopbarHeight();
@@ -2581,7 +2581,7 @@ function processAuthUser(user){
   if(!isAdmin){
     var _params       = new URLSearchParams(window.location.search);
     var wantsPayments = _params.get('payments') === '1';
-    var _stored       = localStorage.getItem('sr_deeplink');
+    var _stored       = (function(){ try{ return localStorage.getItem('sr_deeplink'); }catch(e){ return null; } })();
     var hasDeepLink   = !!_stored;
     if(wantsPayments && canAccessPayments(user.email)){
       document.getElementById('app-loading').style.display = 'flex';
