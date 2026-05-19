@@ -3502,8 +3502,10 @@ function printIncomingLabel(){
     return (h%12||12)+':'+m+(h<12?'AM':'PM');
   })() : '—';
 
-  // QR links to control-tower lookup — works for any user (viewer or admin)
-  var _ctBase = window.location.href.replace(/[^\/]*$/, '') + 'control-tower.html';
+  // QR links to control-tower lookup — always use https so phone can open it
+  var _ctBase = (window.location.protocol === 'https:')
+    ? (window.location.origin + window.location.pathname.replace('index.html','') + 'control-tower.html')
+    : 'https://sourceatlantic-sr.github.io/shipping-receiving-v1/control-tower.html';
   var qrData  = wo
     ? (_ctBase + '?wo=' + encodeURIComponent(wo) + (formNum ? '&form=' + encodeURIComponent(formNum) : ''))
     : ('WO:' + (wo||'') + (formNum?'|FORM:'+formNum:'') + (customer?'|CUST:'+customer:''));
@@ -6345,7 +6347,10 @@ function printProcLabel(){
   var mainLabel = wo ? 'Work Order #' : 'Sales Order #';
   var mainValue = wo || so || '—';
 
-  var _ctBase = window.location.href.replace(/[^\/]*$/, '') + 'control-tower.html';
+  // QR links to control-tower lookup — always use https so phone can open it
+  var _ctBase = (window.location.protocol === 'https:')
+    ? (window.location.origin + window.location.pathname.replace('index.html','') + 'control-tower.html')
+    : 'https://sourceatlantic-sr.github.io/shipping-receiving-v1/control-tower.html';
   var qrData = wo
     ? (_ctBase + '?wo=' + encodeURIComponent(wo))
     : so
