@@ -3502,12 +3502,11 @@ function printIncomingLabel(){
     return (h%12||12)+':'+m+(h<12?'AM':'PM');
   })() : '—';
 
-  // QR: use full URL when on https, plain text when opened via file:// (file:// URLs are not scannable by phone)
-  var _isFile = window.location.protocol === 'file:';
-  var _ctBase = _isFile ? '' : (window.location.origin + window.location.pathname.replace('index.html','') + 'control-tower.html');
-  var qrData  = (!_isFile && wo)
+  // QR links to control-tower lookup — works for any user (viewer or admin)
+  var _ctBase = window.location.origin + window.location.pathname.replace('index.html','') + 'control-tower.html';
+  var qrData  = wo
     ? (_ctBase + '?wo=' + encodeURIComponent(wo) + (formNum ? '&form=' + encodeURIComponent(formNum) : ''))
-    : (wo || formNum || customer || '—');
+    : ('WO:' + (wo||'') + (formNum?'|FORM:'+formNum:'') + (customer?'|CUST:'+customer:''));
 
   function buildLabel(qrImgTag){
     return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Equipment Label</title><style>'+
@@ -6346,12 +6345,12 @@ function printProcLabel(){
   var mainLabel = wo ? 'Work Order #' : 'Sales Order #';
   var mainValue = wo || so || '—';
 
-  // QR: use full URL when on https, plain text when opened via file:// (file:// URLs are not scannable by phone)
-  var _isFile2 = window.location.protocol === 'file:';
-  var _ctBase2 = _isFile2 ? '' : (window.location.origin + window.location.pathname.replace('index.html','') + 'control-tower.html');
-  var qrData = (!_isFile2 && (wo || so))
-    ? (_ctBase2 + '?' + (wo ? 'wo=' + encodeURIComponent(wo) : 'so=' + encodeURIComponent(so)))
-    : (wo || so || mainValue);
+  var _ctBase = window.location.origin + window.location.pathname.replace('index.html','') + 'control-tower.html';
+  var qrData = wo
+    ? (_ctBase + '?wo=' + encodeURIComponent(wo))
+    : so
+    ? (_ctBase + '?so=' + encodeURIComponent(so))
+    : ('SO:' + (so||'') + (customer?'|CUST:'+customer:''));
 
   function buildProcLabel(qrImgTag){
     return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Shipping On Hold Label</title><style>'+
