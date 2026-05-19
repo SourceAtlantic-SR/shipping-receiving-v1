@@ -632,7 +632,7 @@ auth.onAuthStateChanged(function(user){
     if(payCard) payCard.style.display = PAYMENTS_ALLOWED.indexOf(_ctUserEmail) !== -1 ? 'flex' : 'none';
     startDataLoad();
     var _qp = new URLSearchParams(window.location.search);
-    var _hasQr = !!(_qp.get('wo') || _qp.get('form'));
+    var _hasQr = !!(_qp.get('wo') || _qp.get('form') || _qp.get('so'));
     var hash = window.location.hash.replace('#','');
     if(hash === 'overview') showPage('overview');
     else if(hash === 'oms') showPage('oms');
@@ -1258,9 +1258,9 @@ function applyUrlParams(){
     if(section) omsSetSection(section);
     return;
   }
-  if(params.get('wo') || params.get('form')){
-    var term = params.get('form') || params.get('wo');
-    var type = params.get('form') ? 'inc' : 'wo';
+  if(params.get('wo') || params.get('form') || params.get('so')){
+    var term = params.get('form') || params.get('wo') || params.get('so');
+    var type = params.get('form') ? 'inc' : params.get('so') ? 'so' : 'wo';
     setType(type);
     document.getElementById('search-input').value = term;
     showPage('overview');
