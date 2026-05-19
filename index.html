@@ -3511,27 +3511,28 @@ function printIncomingLabel(){
   function buildLabel(qrImgTag){
     return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Equipment Label</title><style>'+
       '*{margin:0;padding:0;box-sizing:border-box}'+
-      'body{font-family:Arial,sans-serif;background:#fff;margin:0;padding:0 0 0 15mm}'+
-      '.label{width:10cm;min-height:4.9cm;border:3px solid #000;padding:4px;page-break-inside:avoid}'+
-      '.label-header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #000;padding-bottom:5px;margin-bottom:5px}'+
+      'html,body{font-family:Arial,sans-serif;background:#fff;margin:0}'+
+      'body{padding:0 0 0 15mm}'+
+      '.label{width:10cm;border:3px solid #000;padding:3px}'+
+      '.label-header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #000;padding-bottom:3px;margin-bottom:3px}'+
       '.hdr-left{flex:1;min-width:0}'+
-      '.hdr-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:6px}'+
+      '.hdr-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;margin-left:4px}'+
       '.inc-num{font-size:9pt;font-weight:700;color:#333}'+
       '.company{font-size:7pt;font-weight:700;color:#333;text-align:right}'+
-      '.qr-wrap{border:1px solid #ccc;border-radius:3px;padding:2px;background:#fff}'+
-      '.qr-wrap img{display:block;width:70px;height:70px}'+
-      '.qr-hint{font-size:5pt;color:#888;text-align:center;margin-top:1px;letter-spacing:.3px}'+
-      '.wo-block{text-align:center;background:#000;color:#fff;padding:6px 0;margin-bottom:6px;border-radius:4px}'+
+      '.qr-wrap{border:1px solid #ccc;border-radius:3px;padding:1px;background:#fff}'+
+      '.qr-wrap img{display:block;width:44px;height:44px}'+
+      '.qr-hint{font-size:5pt;color:#888;text-align:center;letter-spacing:.3px}'+
+      '.wo-block{text-align:center;background:#000;color:#fff;padding:3px 0;margin-bottom:3px;border-radius:3px}'+
       '.wo-label{font-size:7pt;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.7}'+
-      '.wo-value{font-size:26pt;font-weight:900;letter-spacing:1px;line-height:1}'+
-      '.rush-banner{background:#dc2626;color:#fff;text-align:center;font-size:16pt;font-weight:900;letter-spacing:4px;padding:4px 0;border-radius:4px;margin-bottom:6px}'+
-      '.grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}'+
+      '.wo-value{font-size:20pt;font-weight:900;letter-spacing:1px;line-height:1}'+
+      '.rush-banner{background:#dc2626;color:#fff;text-align:center;font-size:12pt;font-weight:900;letter-spacing:4px;padding:3px 0;border-radius:3px;margin-bottom:3px}'+
+      '.grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}'+
       '.field{display:flex;flex-direction:column}'+
       '.f-label{font-size:6pt;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#666}'+
-      '.f-value{font-size:9pt;font-weight:700;color:#000}'+
-      '@media print{body{margin:0;padding:0 0 0 15mm}@page{margin:0;size:28cm 5.5cm}}'+
+      '.f-value{font-size:8pt;font-weight:700;color:#000}'+
+      '@media print{body{margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}button{display:none}@page{size:10cm 6cm;margin:0}}'+
     '</style></head><body>'+
-    '<div class="label">'+
+    '<div class="label" data-h="6">'+
       '<div class="label-header">'+
         '<div class="hdr-left">'+
           '<div class="inc-num">Incoming # '+(formNum||'—')+'</div>'+
@@ -6344,43 +6345,70 @@ function printProcLabel(){
   var mainLabel = wo ? 'Work Order #' : 'Sales Order #';
   var mainValue = wo || so || '—';
 
-  var html = ('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Shipping On Hold Label</title><style>'+
-    '*{margin:0;padding:0;box-sizing:border-box}'+
-    'body{font-family:Arial,sans-serif;background:#fff;margin:0;padding:0 0 0 15mm}'+
-    '.label{width:12cm;min-height:4.9cm;border:3px solid #000;padding:4px;page-break-inside:avoid}'+
-    '.label-header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #000;padding-bottom:5px;margin-bottom:5px}'+
-    '.company{font-size:8pt;font-weight:700}'+
-    '.hold-badge{background:#dc2626;color:#fff;font-size:8pt;font-weight:900;padding:2px 8px;border-radius:4px;letter-spacing:1px}'+
-    '.wo-block{text-align:center;background:#000;color:#fff;padding:6px 0;margin-bottom:6px;border-radius:4px}'+
-    '.wo-label{font-size:7pt;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.7}'+
-    '.wo-value{font-size:28pt;font-weight:900;line-height:1}'+
-    '.grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}'+
-    '.field{display:flex;flex-direction:column}'+
-    '.f-label{font-size:6pt;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#666}'+
-    '.f-value{font-size:9pt;font-weight:700;color:#000}'+
-    '@media print{body{margin:0;padding:0 0 0 15mm}button{display:none}@page{margin:0;size:28cm 5.5cm}}'+
-  '</style></head><body>'+
-  '<div class="label">'+
-    '<div class="label-header">'+
-      '<div class="company">SOURCE ATLANTIC<br><span style="font-size:8pt;font-weight:400">Saint John, NB</span></div>'+
-      '<div class="hold-badge">PROCESS ON HOLD</div>'+
+  var _ctBase = window.location.origin + window.location.pathname.replace('index.html','') + 'control-tower.html';
+  var qrData = wo
+    ? (_ctBase + '?wo=' + encodeURIComponent(wo))
+    : so
+    ? (_ctBase + '?so=' + encodeURIComponent(so))
+    : mainValue;
+
+  function buildProcLabel(qrImgTag){
+    return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Shipping On Hold Label</title><style>'+
+      '*{margin:0;padding:0;box-sizing:border-box}'+
+      'html,body{font-family:Arial,sans-serif;background:#fff;margin:0}'+
+      'body{padding:0 0 0 15mm}'+
+      '.label{width:10cm;border:3px solid #000;padding:3px}'+
+      '.label-header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #000;padding-bottom:3px;margin-bottom:3px}'+
+      '.hdr-left{flex:1;min-width:0}'+
+      '.hdr-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;margin-left:4px}'+
+      '.company{font-size:7pt;font-weight:700;color:#333;text-align:right}'+
+      '.hold-badge{display:inline-block;background:#dc2626;color:#fff;font-size:7pt;font-weight:900;padding:2px 6px;border-radius:4px;letter-spacing:.5px;white-space:nowrap;margin-top:2px}'+
+      '.qr-wrap{border:1px solid #ccc;border-radius:3px;padding:1px;background:#fff}'+
+      '.qr-wrap img{display:block;width:44px;height:44px}'+
+      '.qr-hint{font-size:5pt;color:#888;text-align:center;letter-spacing:.3px}'+
+      '.wo-block{text-align:center;background:#000;color:#fff;padding:3px 0;margin-bottom:3px;border-radius:3px}'+
+      '.wo-label{font-size:7pt;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.7}'+
+      '.wo-value{font-size:20pt;font-weight:900;letter-spacing:1px;line-height:1}'+
+      '.grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}'+
+      '.field{display:flex;flex-direction:column}'+
+      '.f-label{font-size:6pt;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#666}'+
+      '.f-value{font-size:8pt;font-weight:700;color:#000}'+
+      '@media print{body{margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}button{display:none}@page{size:10cm 6cm;margin:0}}'+
+    '</style></head><body>'+
+    '<div class="label" data-h="6">'+
+      '<div class="label-header">'+
+        '<div class="hdr-left">'+
+          (customer?'<div style="font-size:9pt;font-weight:700;color:#333">'+customer+'</div>':'')+
+          '<div class="hold-badge">SHIPPING ON HOLD</div>'+
+        '</div>'+
+        '<div class="hdr-right">'+
+          '<div class="company">SOURCE ATLANTIC<br>Saint John, NB</div>'+
+          (qrImgTag?'<div class="qr-wrap">'+qrImgTag+'</div><div class="qr-hint">SCAN TO OPEN RECORD</div>':'')+
+        '</div>'+
+      '</div>'+
+      '<div class="wo-block">'+
+        '<div class="wo-label">'+mainLabel+'</div>'+
+        '<div class="wo-value">'+mainValue+'</div>'+
+      '</div>'+
+      '<div class="grid">'+
+        '<div class="field"><span class="f-label">Material</span><span class="f-value">'+(material||'—')+'</span></div>'+
+        '<div class="field"><span class="f-label">Outgoing #</span><span class="f-value">'+(outgoing||'—')+'</span></div>'+
+        '<div class="field"><span class="f-label">Customer PO #</span><span class="f-value">'+(po||'—')+'</span></div>'+
+        '<div class="field"><span class="f-label">Received Date</span><span class="f-value">'+(recDate?fmtDate(recDate):'—')+'</span></div>'+
+        '<div class="field"><span class="f-label">Pictures</span><span class="f-value">'+(picsQty?picsQty+' photo'+(picsQty!='1'?'s':''):'—')+'</span></div>'+
+        (isEquipex?'<div class="field" style="grid-column:1/-1;margin-top:3px;background:#fffbeb;border:2px solid #f59e0b;border-radius:3px;padding:3px 6px"><span class="f-label" style="color:#92400e;font-size:6pt">Next Shipping Date (Equipex)</span><span class="f-value" style="color:#92400e;font-size:10pt">'+fmtDate(nextShip)+'</span></div>':'')+
+      '</div>'+
     '</div>'+
-    '<div class="wo-block">'+
-      '<div class="wo-label">'+mainLabel+'</div>'+
-      '<div class="wo-value">'+mainValue+'</div>'+
-    '</div>'+
-    '<div class="grid">'+
-      '<div class="field"><span class="f-label">Customer</span><span class="f-value">'+(customer||'—')+'</span></div>'+
-      '<div class="field"><span class="f-label">Material</span><span class="f-value">'+(material||'—')+'</span></div>'+
-      '<div class="field"><span class="f-label">Outgoing #</span><span class="f-value">'+(outgoing||'—')+'</span></div>'+
-      '<div class="field"><span class="f-label">Customer PO #</span><span class="f-value">'+(po||'—')+'</span></div>'+
-      '<div class="field"><span class="f-label">Received Date</span><span class="f-value">'+(recDate?fmtDate(recDate):'—')+'</span></div>'+
-      '<div class="field"><span class="f-label">Pictures</span><span class="f-value">'+(picsQty?picsQty+' photo'+(picsQty!='1'?'s':''):'—')+'</span></div>'+
-      (isEquipex?'<div class="field" style="grid-column:1/-1;margin-top:5px;background:#fffbeb;border:2px solid #f59e0b;border-radius:4px;padding:4px 8px"><span class="f-label" style="color:#92400e;font-size:6.5pt">Next Shipping Date (Equipex)</span><span class="f-value" style="color:#92400e;font-size:12pt">'+fmtDate(nextShip)+'</span></div>':'')+
-    '</div>'+
-  '</div>'+
-  '</body></html>');
-  showLabelPreview(html);
+    '</body></html>';
+  }
+
+  if(typeof QRCode !== 'undefined'){
+    QRCode.toDataURL(qrData, {width:100, margin:1, color:{dark:'#000000',light:'#ffffff'}}, function(err, url){
+      showLabelPreview(buildProcLabel(err ? '' : '<img src="'+url+'">'));
+    });
+  } else {
+    showLabelPreview(buildProcLabel(''));
+  }
 }
 
 function printPackLabel(){
@@ -7176,9 +7204,8 @@ function showNextWipEmail(record){
 
 function closeWipEmailModal(){
   document.getElementById('wip-email-modal').style.display = 'none';
-  var rec = pendingWipEmailRec ? pendingWipEmailRec.record : null;
   pendingWipEmailRec = null;
-  if(wipEmailQueue.length && rec) setTimeout(function(){ showNextWipEmail(rec); }, 80);
+  wipEmailQueue = [];
 }
 
 function sendWipEmail(){
@@ -7219,14 +7246,13 @@ function sendWipEmail(){
     + '&subject=' + encodeURIComponent(subject)
     + '&body='    + encodeURIComponent(body);
 
-  var rec = pendingWipEmailRec.record;
   pendingWipEmailRec = null;
+  wipEmailQueue = [];
   var a = document.createElement('a');
   a.href = mailto;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  if(wipEmailQueue.length) setTimeout(function(){ showNextWipEmail(rec); }, 400);
 }
 
 // ── DAILY CASH SALES FORM ──
@@ -7903,12 +7929,22 @@ document.addEventListener('input', function(e){
 function showLabelPreview(html){
   var frame = document.getElementById('lbl-preview-frame');
   var overlay = document.getElementById('lbl-preview-overlay');
-  frame.style.width = '1px';
-  frame.style.height = '1px';
+  frame.style.width = '420px';
+  frame.style.height = '500px';
   frame.srcdoc = html;
   frame.onload = function(){
     try{
-      var body = frame.contentDocument.body;
+      var doc = frame.contentDocument;
+      var label = doc.querySelector('.label[data-h]');
+      if(label){
+        var targetPx = parseFloat(label.getAttribute('data-h')) / 2.54 * 96;
+        void label.offsetHeight;
+        var natH = label.scrollHeight;
+        if(natH > 0 && natH > targetPx){
+          label.style.zoom = (targetPx / natH).toFixed(4);
+        }
+      }
+      var body = doc.body;
       var w = Math.min(body.scrollWidth + 4, window.innerWidth - 72);
       var h = Math.min(body.scrollHeight + 4, window.innerHeight - 160);
       frame.style.width  = w + 'px';
