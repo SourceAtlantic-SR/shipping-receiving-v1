@@ -3539,7 +3539,7 @@ function printIncomingLabel(){
       '.inc-num{font-size:9pt;font-weight:700;color:#333}'+
       '.company{font-size:7pt;font-weight:700;color:#333;text-align:right}'+
       '.qr-wrap{border:1px solid #ccc;border-radius:3px;padding:1px;background:#fff}'+
-      '.qr-wrap img{display:block;width:44px;height:44px}'+
+      '.qr-wrap img{display:block;width:70px;height:70px}'+
       '.qr-hint{font-size:5pt;color:#888;text-align:center;letter-spacing:.3px}'+
       '.wo-block{text-align:center;background:#000;color:#fff;padding:3px 0;margin-bottom:3px;border-radius:3px}'+
       '.wo-label{font-size:7pt;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.7}'+
@@ -3580,7 +3580,7 @@ function printIncomingLabel(){
   }
 
   if(typeof QRCode !== 'undefined'){
-    QRCode.toDataURL(qrData, {width:120, margin:4, color:{dark:'#000000',light:'#ffffff'}}, function(err, url){
+    QRCode.toDataURL(qrData, {width:200, margin:4, color:{dark:'#000000',light:'#ffffff'}}, function(err, url){
       showLabelPreview(buildLabel(err ? '' : '<img src="'+url+'">'));
     });
   } else {
@@ -6413,7 +6413,7 @@ function printProcLabel(){
       '.company{font-size:7pt;font-weight:700;color:#333;text-align:right}'+
       '.hold-badge{display:inline-block;background:#dc2626;color:#fff;font-size:7pt;font-weight:900;padding:2px 6px;border-radius:4px;letter-spacing:.5px;white-space:nowrap;margin-top:2px}'+
       '.qr-wrap{border:1px solid #ccc;border-radius:3px;padding:1px;background:#fff}'+
-      '.qr-wrap img{display:block;width:44px;height:44px}'+
+      '.qr-wrap img{display:block;width:70px;height:70px}'+
       '.qr-hint{font-size:5pt;color:#888;text-align:center;letter-spacing:.3px}'+
       '.wo-block{text-align:center;background:#000;color:#fff;padding:3px 0;margin-bottom:3px;border-radius:3px}'+
       '.wo-label{font-size:7pt;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.7}'+
@@ -6452,7 +6452,7 @@ function printProcLabel(){
   }
 
   if(typeof QRCode !== 'undefined'){
-    QRCode.toDataURL(qrData, {width:120, margin:4, color:{dark:'#000000',light:'#ffffff'}}, function(err, url){
+    QRCode.toDataURL(qrData, {width:200, margin:4, color:{dark:'#000000',light:'#ffffff'}}, function(err, url){
       showLabelPreview(buildProcLabel(err ? '' : '<img src="'+url+'">'));
     });
   } else {
@@ -6491,7 +6491,7 @@ function printPackLabel(){
       '.company{font-size:7pt;font-weight:700;color:#333;text-align:right}'+
       '.hold-badge{display:inline-block;background:#ea580c;color:#fff;font-size:7pt;font-weight:900;padding:2px 6px;border-radius:4px;letter-spacing:.5px;white-space:nowrap;margin-top:2px}'+
       '.qr-wrap{border:1px solid #ccc;border-radius:3px;padding:1px;background:#fff}'+
-      '.qr-wrap img{display:block;width:44px;height:44px}'+
+      '.qr-wrap img{display:block;width:70px;height:70px}'+
       '.qr-hint{font-size:5pt;color:#888;text-align:center;letter-spacing:.3px}'+
       '.order-block{text-align:center;background:#000;color:#fff;padding:3px 0;margin-bottom:3px;border-radius:3px}'+
       '.order-label{font-size:7pt;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.7}'+
@@ -6528,7 +6528,7 @@ function printPackLabel(){
   }
 
   if(typeof QRCode !== 'undefined'){
-    QRCode.toDataURL(qrData, {width:120, margin:4, color:{dark:'#000000',light:'#ffffff'}}, function(err, url){
+    QRCode.toDataURL(qrData, {width:200, margin:4, color:{dark:'#000000',light:'#ffffff'}}, function(err, url){
       showLabelPreview(buildPackLabel(err ? '' : '<img src="'+url+'">'));
     });
   } else {
