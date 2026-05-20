@@ -6528,13 +6528,10 @@ function printPackLabel(){
   }
 
   if(typeof QRCode !== 'undefined'){
-    QRCode.toString(qrData, {type:'svg', margin:1, color:{dark:'#000000',light:'#ffffff'}}, function(err, svg){
-      if(err){ console.error('QR pack error:', err); showLabelPreview(buildPackLabel('')); return; }
-      var svgTag = svg.replace('<svg ', '<svg width="44" height="44" ');
-      showLabelPreview(buildPackLabel(svgTag));
+    QRCode.toDataURL(qrData, {width:100, margin:1, color:{dark:'#000000',light:'#ffffff'}}, function(err, url){
+      showLabelPreview(buildPackLabel(err ? '' : '<img src="'+url+'">'));
     });
   } else {
-    console.warn('QRCode library not loaded for printPackLabel');
     showLabelPreview(buildPackLabel(''));
   }
 }
