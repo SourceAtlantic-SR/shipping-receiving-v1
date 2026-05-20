@@ -3549,7 +3549,7 @@ function printIncomingLabel(){
       '.field{display:flex;flex-direction:column}'+
       '.f-label{font-size:6pt;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#666}'+
       '.f-value{font-size:8pt;font-weight:700;color:#000}'+
-      '@media print{body{margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}button{display:none}@page{size:10cm 6cm;margin:0}}'+
+      '@media print{html,body{width:100mm;height:60mm;margin:0;padding:0;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact}button{display:none}@page{size:100mm 60mm;margin:0}}'+
     '</style></head><body>'+
     '<div class="label" data-h="6">'+
       '<div class="label-header">'+
@@ -6422,7 +6422,7 @@ function printProcLabel(){
       '.field{display:flex;flex-direction:column}'+
       '.f-label{font-size:6pt;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#666}'+
       '.f-value{font-size:8pt;font-weight:700;color:#000}'+
-      '@media print{body{margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}button{display:none}@page{size:10cm 6cm;margin:0}}'+
+      '@media print{html,body{width:100mm;height:60mm;margin:0;padding:0;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact}button{display:none}@page{size:100mm 60mm;margin:0}}'+
     '</style></head><body>'+
     '<div class="label" data-h="6">'+
       '<div class="label-header">'+
@@ -6501,7 +6501,7 @@ function printPackLabel(){
       '.f-label{font-size:6pt;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#666}'+
       '.f-value{font-size:9pt;font-weight:700;color:#000}'+
       '.days-val{display:inline-block;padding:1px 8px;border-radius:10px;color:#fff;font-weight:900;background:'+daysBg+'}'+
-      '@media print{body{margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}button{display:none}@page{size:10cm 6cm;margin:0}}'+
+      '@media print{html,body{width:100mm;height:60mm;margin:0;padding:0;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact}button{display:none}@page{size:100mm 60mm;margin:0}}'+
     '</style></head><body>'+
     '<div class="label" data-h="6">'+
       '<div class="label-header">'+
@@ -8036,7 +8036,6 @@ function printLabelPreview(){
   var html = '<!DOCTYPE html>' + doc.documentElement.outerHTML;
   var win = window.open('', '_blank');
   if(!win){
-    // popup blocked — fall back to iframe print
     frame.contentWindow.focus();
     frame.contentWindow.print();
     frame.contentWindow.onafterprint = function(){ closeLabelPreview(); };
@@ -8046,10 +8045,23 @@ function printLabelPreview(){
   win.document.write(html);
   win.document.close();
   setTimeout(function(){
+    try{
+      // Re-measure and re-apply zoom in this window's rendering context
+      var label = win.document.querySelector('.label[data-h]');
+      if(label){
+        label.style.zoom = '1';
+        void label.offsetHeight;
+        var targetPx = parseFloat(label.getAttribute('data-h')) / 2.54 * 96;
+        var natH = label.scrollHeight;
+        if(natH > 0 && natH > targetPx){
+          label.style.zoom = (targetPx / natH).toFixed(4);
+        }
+      }
+    }catch(e){}
     win.focus();
     win.print();
     win.onafterprint = function(){ win.close(); };
-  }, 600);
+  }, 800);
 }
 
 // ── NAMEPLATE SCAN (Tesseract OCR) ──────────────────────────────
