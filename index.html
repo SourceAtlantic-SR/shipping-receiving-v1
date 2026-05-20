@@ -3549,7 +3549,7 @@ function printIncomingLabel(){
       '.field{display:flex;flex-direction:column}'+
       '.f-label{font-size:6pt;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#666}'+
       '.f-value{font-size:8pt;font-weight:700;color:#000}'+
-      '@media print{html,body{width:100mm;height:60mm;margin:0;padding:0;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact}button{display:none}@page{size:100mm 60mm;margin:0}}'+
+      '@media print{html,body{width:100mm;height:60mm;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}button{display:none}@page{size:100mm 60mm;margin:0}}'+
     '</style></head><body>'+
     '<div class="label" data-h="6">'+
       '<div class="label-header">'+
@@ -6422,7 +6422,7 @@ function printProcLabel(){
       '.field{display:flex;flex-direction:column}'+
       '.f-label{font-size:6pt;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#666}'+
       '.f-value{font-size:8pt;font-weight:700;color:#000}'+
-      '@media print{html,body{width:100mm;height:60mm;margin:0;padding:0;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact}button{display:none}@page{size:100mm 60mm;margin:0}}'+
+      '@media print{html,body{width:100mm;height:60mm;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}button{display:none}@page{size:100mm 60mm;margin:0}}'+
     '</style></head><body>'+
     '<div class="label" data-h="6">'+
       '<div class="label-header">'+
@@ -6501,7 +6501,7 @@ function printPackLabel(){
       '.f-label{font-size:6pt;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#666}'+
       '.f-value{font-size:9pt;font-weight:700;color:#000}'+
       '.days-val{display:inline-block;padding:1px 8px;border-radius:10px;color:#fff;font-weight:900;background:'+daysBg+'}'+
-      '@media print{html,body{width:100mm;height:60mm;margin:0;padding:0;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact}button{display:none}@page{size:100mm 60mm;margin:0}}'+
+      '@media print{html,body{width:100mm;height:60mm;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}button{display:none}@page{size:100mm 60mm;margin:0}}'+
     '</style></head><body>'+
     '<div class="label" data-h="6">'+
       '<div class="label-header">'+
@@ -8013,7 +8013,7 @@ function showLabelPreview(html){
       if(label){
         var targetPx = parseFloat(label.getAttribute('data-h')) / 2.54 * 96;
         void label.offsetHeight;
-        var natH = label.scrollHeight;
+        var natH = label.offsetHeight; // includes border
         if(natH > 0 && natH > targetPx){
           label.style.zoom = (targetPx / natH).toFixed(4);
         }
@@ -8052,7 +8052,7 @@ function printLabelPreview(){
         label.style.zoom = '1';
         void label.offsetHeight;
         var targetPx = parseFloat(label.getAttribute('data-h')) / 2.54 * 96;
-        var natH = label.scrollHeight;
+        var natH = label.offsetHeight; // includes border
         if(natH > 0 && natH > targetPx){
           label.style.zoom = (targetPx / natH).toFixed(4);
         }
