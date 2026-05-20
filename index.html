@@ -5779,7 +5779,7 @@ function procWoAutoFill(){
   if(r.customer){
     document.getElementById('proc-customer').value    = r.customer; markAuto('proc-customer');
     document.getElementById('proc-po').value          = r.po;       markAuto('proc-po');
-    setProcMaterials(r.material||''); var _mInp=document.getElementById('proc-material-rows').querySelector('input'); if(_mInp&&_mInp.value) markAuto(_mInp);
+    setProcMaterials(r.material||''); var _mInp=document.getElementById('proc-material-rows').querySelector('.proc-mat-inp'); if(_mInp&&_mInp.value) markAuto(_mInp);
     if(r.outgoing && !document.getElementById('proc-outgoing').value){
       document.getElementById('proc-outgoing').value  = r.outgoing; markAuto('proc-outgoing');
     }
@@ -5827,15 +5827,33 @@ function procClearWoLookup(){
   setTimeout(function(){ document.getElementById('proc-customer').focus(); }, 50);
 }
 
-function addProcMaterialRow(val){
+function addProcMaterialRow(mat, qty, unit){
   var rows = document.getElementById('proc-material-rows');
   var row = document.createElement('div');
+  row.className = 'proc-mat-row';
   row.style.cssText = 'display:flex;gap:4px;margin-bottom:4px;align-items:center';
   var inp = document.createElement('input');
   inp.type = 'text';
   inp.placeholder = 'Material';
+  inp.className = 'proc-mat-inp';
   inp.style.cssText = 'flex:1;min-width:0';
-  if(val) inp.value = val;
+  if(mat) inp.value = mat;
+  var qtyInp = document.createElement('input');
+  qtyInp.type = 'number';
+  qtyInp.placeholder = 'Qty';
+  qtyInp.className = 'proc-mat-qty';
+  qtyInp.min = '0';
+  qtyInp.style.cssText = 'width:52px;flex-shrink:0';
+  if(qty) qtyInp.value = qty;
+  var sel = document.createElement('select');
+  sel.className = 'proc-mat-unit';
+  sel.style.cssText = 'flex-shrink:0';
+  ['pc','rl','lb'].forEach(function(u){
+    var o = document.createElement('option');
+    o.value = u; o.textContent = u;
+    if(u === (unit||'pc')) o.selected = true;
+    sel.appendChild(o);
+  });
   var btn = document.createElement('button');
   btn.type = 'button';
   btn.textContent = '✕';
@@ -5843,6 +5861,8 @@ function addProcMaterialRow(val){
   btn.style.cssText = 'border:none;background:#fee2e2;color:#dc2626;border-radius:6px;padding:2px 7px;cursor:pointer;font-size:.85rem;font-weight:700;flex-shrink:0';
   btn.onclick = function(){ removeProcMaterialRow(btn); };
   row.appendChild(inp);
+  row.appendChild(qtyInp);
+  row.appendChild(sel);
   row.appendChild(btn);
   rows.appendChild(row);
   _updateProcMatBtns();
@@ -5862,8 +5882,11 @@ function _updateProcMatBtns(){
 }
 function getProcMaterials(){
   var vals = [];
-  document.getElementById('proc-material-rows').querySelectorAll('input').forEach(function(i){
-    var v = i.value.trim(); if(v) vals.push(v);
+  document.getElementById('proc-material-rows').querySelectorAll('.proc-mat-row').forEach(function(row){
+    var mat  = row.querySelector('.proc-mat-inp').value.trim();
+    var qty  = row.querySelector('.proc-mat-qty').value.trim();
+    var unit = row.querySelector('.proc-mat-unit').value;
+    if(mat) vals.push(qty ? mat + ' ' + qty + unit : mat);
   });
   return vals.join(' / ');
 }
@@ -5872,14 +5895,20 @@ function setProcMaterials(str){
   rows.innerHTML = '';
   var parts = str ? str.split(' / ').filter(function(s){ return s.trim(); }) : [];
   if(!parts.length) parts = [''];
-  parts.forEach(function(p){ addProcMaterialRow(p); });
+  parts.forEach(function(p){
+    p = p.trim();
+    // parse "MATERIAL 5pc" or "MATERIAL 5 pc" or just "MATERIAL"
+    var m = p.match(/^(.+?)\s+(\d+(?:\.\d+)?)\s*(pc|rl|lb)$/i);
+    if(m){ addProcMaterialRow(m[1].trim(), m[2], m[3].toLowerCase()); }
+    else  { addProcMaterialRow(p); }
+  });
 }
 
 function procLookupOrder(){
   var wo  = document.getElementById('proc-wo').value.trim().toUpperCase();
   var so  = document.getElementById('proc-so').value.trim().toUpperCase();
   var custEl = document.getElementById('proc-customer');
-  var matEl  = document.getElementById('proc-material-rows').querySelector('input');
+  var matEl  = document.getElementById('proc-material-rows').querySelector('.proc-mat-inp');
   var outEl  = document.getElementById('proc-outgoing');
   // SO lookup → Incoming Items lineItems for customer + material
   if(so){
