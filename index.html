@@ -2079,11 +2079,12 @@ document.addEventListener('keydown', function(ev){
             </div>
             <div class="form-group" id="proc-po-group" style="display:none">
               <label>Purchase Order</label>
-              <input type="text" id="proc-po" placeholder="PO #" data-maxdigits="7" style="width:105px;max-width:100%">
+              <input type="text" id="proc-po" placeholder="e.g. PO-ABC123" style="width:160px;max-width:100%">
             </div>
-            <div class="form-group" id="proc-material-group" style="display:none">
+            <div class="form-group full" id="proc-material-group" style="display:none">
               <label>Material</label>
-              <input type="text" id="proc-material" list="material-suggestions" placeholder="Material description" style="width:200px;max-width:100%">
+              <div id="proc-material-rows"></div>
+              <button type="button" onclick="addProcMaterialRow()" style="margin-top:4px;border:1.5px dashed #6366f1;background:#f5f3ff;color:#4f46e5;border-radius:8px;padding:4px 12px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit">+ Add Material</button>
             </div>
             <div id="proc-wo-filled" class="full" style="display:none;background:#f0f7ff;border:1.5px solid #93c5fd;border-radius:8px;padding:10px 14px;align-items:flex-start;gap:12px;flex-wrap:wrap">
               <div style="flex:1;min-width:0;display:flex;gap:16px;flex-wrap:wrap">
@@ -5778,7 +5779,7 @@ function procWoAutoFill(){
   if(r.customer){
     document.getElementById('proc-customer').value    = r.customer; markAuto('proc-customer');
     document.getElementById('proc-po').value          = r.po;       markAuto('proc-po');
-    document.getElementById('proc-material').value    = r.material; markAuto('proc-material');
+    setProcMaterials(r.material||''); var _mInp=document.getElementById('proc-material-rows').querySelector('input'); if(_mInp&&_mInp.value) markAuto(_mInp);
     if(r.outgoing && !document.getElementById('proc-outgoing').value){
       document.getElementById('proc-outgoing').value  = r.outgoing; markAuto('proc-outgoing');
     }
@@ -5818,7 +5819,7 @@ function procSetNewMode(mode){
 function procClearWoLookup(){
   document.getElementById('proc-customer').value    = '';
   document.getElementById('proc-po').value          = '';
-  document.getElementById('proc-material').value    = '';
+  setProcMaterials('');
   document.getElementById('proc-outgoing').value    = '';
   document.getElementById('proc-photos-link').value = '';
   document.getElementById('proc-pics-qty').value    = '';
@@ -5826,11 +5827,59 @@ function procClearWoLookup(){
   setTimeout(function(){ document.getElementById('proc-customer').focus(); }, 50);
 }
 
+function addProcMaterialRow(val){
+  var rows = document.getElementById('proc-material-rows');
+  var row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:4px;margin-bottom:4px;align-items:center';
+  var inp = document.createElement('input');
+  inp.type = 'text';
+  inp.placeholder = 'Material';
+  inp.style.cssText = 'flex:1;min-width:0';
+  if(val) inp.value = val;
+  var btn = document.createElement('button');
+  btn.type = 'button';
+  btn.textContent = '✕';
+  btn.title = 'Remove';
+  btn.style.cssText = 'border:none;background:#fee2e2;color:#dc2626;border-radius:6px;padding:2px 7px;cursor:pointer;font-size:.85rem;font-weight:700;flex-shrink:0';
+  btn.onclick = function(){ removeProcMaterialRow(btn); };
+  row.appendChild(inp);
+  row.appendChild(btn);
+  rows.appendChild(row);
+  _updateProcMatBtns();
+  return inp;
+}
+function removeProcMaterialRow(btn){
+  var rows = document.getElementById('proc-material-rows');
+  if(rows.children.length <= 1) return;
+  btn.parentNode.remove();
+  _updateProcMatBtns();
+}
+function _updateProcMatBtns(){
+  var rows = document.getElementById('proc-material-rows');
+  var btns = rows.querySelectorAll('button');
+  var multi = rows.children.length > 1;
+  btns.forEach(function(b){ b.style.visibility = multi ? 'visible' : 'hidden'; });
+}
+function getProcMaterials(){
+  var vals = [];
+  document.getElementById('proc-material-rows').querySelectorAll('input').forEach(function(i){
+    var v = i.value.trim(); if(v) vals.push(v);
+  });
+  return vals.join(' / ');
+}
+function setProcMaterials(str){
+  var rows = document.getElementById('proc-material-rows');
+  rows.innerHTML = '';
+  var parts = str ? str.split(' / ').filter(function(s){ return s.trim(); }) : [];
+  if(!parts.length) parts = [''];
+  parts.forEach(function(p){ addProcMaterialRow(p); });
+}
+
 function procLookupOrder(){
   var wo  = document.getElementById('proc-wo').value.trim().toUpperCase();
   var so  = document.getElementById('proc-so').value.trim().toUpperCase();
   var custEl = document.getElementById('proc-customer');
-  var matEl  = document.getElementById('proc-material');
+  var matEl  = document.getElementById('proc-material-rows').querySelector('input');
   var outEl  = document.getElementById('proc-outgoing');
   // SO lookup → Incoming Items lineItems for customer + material
   if(so){
@@ -5838,7 +5887,7 @@ function procLookupOrder(){
       (r.lineItems||[r]).forEach(function(li){
         if((li.salesOrderNum||'').trim().toUpperCase()===so){
           if(!custEl.value && li.customer){ custEl.value = li.customer; markAuto(custEl); }
-          if(!matEl.value  && li.material){ matEl.value  = li.material; markAuto(matEl); }
+          if(matEl && !matEl.value && li.material){ matEl.value = li.material; markAuto(matEl); }
         }
       });
     });
@@ -6142,7 +6191,7 @@ function openProcModal(key){
     document.getElementById('proc-so').value            = r.so||'';
     document.getElementById('proc-customer').value      = r.customer||'';
     document.getElementById('proc-po').value            = r.po||'';
-    document.getElementById('proc-material').value      = r.material||'';
+    setProcMaterials(r.material||'');
     document.getElementById('proc-pics-qty').value      = r.picsQty||'';
     document.getElementById('proc-photos-time').value   = r.photosTime||'';
     document.getElementById('proc-photos-link').value   = r.photosLink||'';
@@ -6156,9 +6205,10 @@ function openProcModal(key){
     document.getElementById('proc-modal-title').textContent = 'New Shipping On Hold';
     document.getElementById('proc-pics-qty').value = '';
     document.getElementById('proc-photos-time').value = '';
-    ['proc-outgoing','proc-wo','proc-so','proc-customer','proc-po','proc-material','proc-received-date','proc-photos-link','proc-comments'].forEach(function(id){
+    ['proc-outgoing','proc-wo','proc-so','proc-customer','proc-po','proc-received-date','proc-photos-link','proc-comments'].forEach(function(id){
       document.getElementById(id).value='';
     });
+    setProcMaterials('');
     setHoldsToModal({}, '');
     document.getElementById('proc-del-btn').style.display='none';
     procSetNewMode('blank');
@@ -6380,7 +6430,7 @@ function printProcLabel(){
   var customer  = document.getElementById('proc-customer').value.trim();
   var outgoing  = document.getElementById('proc-outgoing').value.trim();
   var po        = document.getElementById('proc-po').value.trim();
-  var material  = document.getElementById('proc-material').value.trim();
+  var material  = getProcMaterials();
   var recDate   = document.getElementById('proc-received-date').value;
   var picsQty   = document.getElementById('proc-pics-qty').value;
   var nextShip  = document.getElementById('proc-next-ship').value;
@@ -6547,7 +6597,7 @@ function saveProcRecord(){
     so:         document.getElementById('proc-so').value.trim(),
     customer:   document.getElementById('proc-customer').value.trim(),
     po:         document.getElementById('proc-po').value.trim(),
-    material:   document.getElementById('proc-material').value.trim(),
+    material:   getProcMaterials(),
     picsQty:    document.getElementById('proc-pics-qty').value,
     photosTime: document.getElementById('proc-photos-time').value,
     photosLink: document.getElementById('proc-photos-link').value.trim(),
