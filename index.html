@@ -3580,7 +3580,7 @@ function printIncomingLabel(){
   }
 
   if(typeof QRCode !== 'undefined'){
-    QRCode.toDataURL(qrData, {width:100, margin:1, color:{dark:'#000000',light:'#ffffff'}}, function(err, url){
+    QRCode.toDataURL(qrData, {width:120, margin:4, color:{dark:'#000000',light:'#ffffff'}}, function(err, url){
       showLabelPreview(buildLabel(err ? '' : '<img src="'+url+'">'));
     });
   } else {
@@ -6452,7 +6452,7 @@ function printProcLabel(){
   }
 
   if(typeof QRCode !== 'undefined'){
-    QRCode.toDataURL(qrData, {width:100, margin:1, color:{dark:'#000000',light:'#ffffff'}}, function(err, url){
+    QRCode.toDataURL(qrData, {width:120, margin:4, color:{dark:'#000000',light:'#ffffff'}}, function(err, url){
       showLabelPreview(buildProcLabel(err ? '' : '<img src="'+url+'">'));
     });
   } else {
@@ -6528,7 +6528,7 @@ function printPackLabel(){
   }
 
   if(typeof QRCode !== 'undefined'){
-    QRCode.toDataURL(qrData, {width:100, margin:1, color:{dark:'#000000',light:'#ffffff'}}, function(err, url){
+    QRCode.toDataURL(qrData, {width:120, margin:4, color:{dark:'#000000',light:'#ffffff'}}, function(err, url){
       showLabelPreview(buildPackLabel(err ? '' : '<img src="'+url+'">'));
     });
   } else {
