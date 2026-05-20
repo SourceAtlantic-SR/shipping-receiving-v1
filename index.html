@@ -8032,9 +8032,24 @@ function closeLabelPreview(){
 }
 function printLabelPreview(){
   var frame = document.getElementById('lbl-preview-frame');
-  frame.contentWindow.focus();
-  frame.contentWindow.print();
-  frame.contentWindow.onafterprint = function(){ closeLabelPreview(); };
+  var doc = frame.contentDocument || frame.contentWindow.document;
+  var html = '<!DOCTYPE html>' + doc.documentElement.outerHTML;
+  var win = window.open('', '_blank');
+  if(!win){
+    // popup blocked — fall back to iframe print
+    frame.contentWindow.focus();
+    frame.contentWindow.print();
+    frame.contentWindow.onafterprint = function(){ closeLabelPreview(); };
+    return;
+  }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+  setTimeout(function(){
+    win.focus();
+    win.print();
+    win.onafterprint = function(){ win.close(); };
+  }, 600);
 }
 
 // ── NAMEPLATE SCAN (Tesseract OCR) ──────────────────────────────
