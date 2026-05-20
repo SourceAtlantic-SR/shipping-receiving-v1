@@ -1452,6 +1452,23 @@ document.addEventListener('keydown', function(ev){
                 <label>Photos Link (OneDrive)</label>
                 <input type="url" id="shp-photos-link" placeholder="Paste OneDrive folder link here...">
               </div>
+              <div class="form-group full">
+                <label>Release Authorization</label>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:2px">
+                  <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:.85rem;cursor:pointer;background:#fff7ed;border:1.5px solid #fed7aa;border-radius:8px;padding:6px 12px">
+                    <input type="checkbox" id="shp-auth-noqa" style="width:15px;height:15px;cursor:pointer">
+                    Liberado sem QA
+                  </label>
+                  <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:.85rem;cursor:pointer;background:#fff7ed;border:1.5px solid #fed7aa;border-radius:8px;padding:6px 12px">
+                    <input type="checkbox" id="shp-auth-nopo" style="width:15px;height:15px;cursor:pointer">
+                    Liberado sem PO do Cliente
+                  </label>
+                </div>
+              </div>
+              <div class="form-group full">
+                <label>Comments</label>
+                <textarea id="shp-comments" placeholder="Additional comments..." rows="2" style="width:100%;resize:vertical;font-family:inherit;font-size:.85rem;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;box-sizing:border-box"></textarea>
+              </div>
             </div>
           </div>
 
@@ -2438,7 +2455,7 @@ document.addEventListener('keydown', function(ev){
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <!-- QR Code generator -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script src="qrcode.min.js"></script>
 
 <script>
 // ── FIREBASE CONFIG ──
@@ -5008,11 +5025,16 @@ function openShipModal(key){
     document.getElementById('shp-carrier-other-group').style.display = r.carrier==='Other' ? 'flex' : 'none';
     document.getElementById('shp-tracking').value = r.trackingNum||'';
     document.getElementById('shp-photos-link').value = r.photosLink||'';
+    document.getElementById('shp-auth-noqa').checked = (r.releaseAuth||'').includes('Liberado sem QA');
+    document.getElementById('shp-auth-nopo').checked = (r.releaseAuth||'').includes('Liberado sem PO do Cliente');
+    document.getElementById('shp-comments').value = r.shpComments||'';
     document.getElementById('shp-del-btn').style.display = 'inline-flex';
   } else {
     shpSetNewMode('notfound');
     document.getElementById('shp-modal-title').textContent = 'New Shipment';
-    ['shp-customer','shp-customer-po','shp-outgoing','shp-city','shp-province','shp-postal','shp-material-other','shp-carrier-other','shp-tracking','shp-photos-link'].forEach(function(id){ document.getElementById(id).value=''; });
+    ['shp-customer','shp-customer-po','shp-outgoing','shp-city','shp-province','shp-postal','shp-material-other','shp-carrier-other','shp-tracking','shp-photos-link','shp-comments'].forEach(function(id){ document.getElementById(id).value=''; });
+    document.getElementById('shp-auth-noqa').checked = false;
+    document.getElementById('shp-auth-nopo').checked = false;
     document.getElementById('shp-material-type').value = '';
     document.getElementById('shp-material-other-group').style.display = 'none';
     ['shp-pc','shp-lb','shp-rl','shp-weight-lb','shp-weight-kg'].forEach(function(id){ document.getElementById(id).value=''; });
@@ -5099,6 +5121,8 @@ function saveShipment(){
     carrierOther: carrier==='Other' ? document.getElementById('shp-carrier-other').value.trim() : '',
     trackingNum:   document.getElementById('shp-tracking').value.trim(),
     photosLink:    document.getElementById('shp-photos-link').value.trim(),
+    releaseAuth:   (function(){ var a=[]; if(document.getElementById('shp-auth-noqa').checked) a.push('Liberado sem QA'); if(document.getElementById('shp-auth-nopo').checked) a.push('Liberado sem PO do Cliente'); return a.join(', '); })(),
+    shpComments:   document.getElementById('shp-comments').value.trim(),
     updatedAt: new Date().toISOString()
   };
   var key = document.getElementById('shp-edit-id').value;
@@ -5111,6 +5135,26 @@ function saveShipment(){
     if(!key) record.createdAt = new Date().toISOString();
     shpData[k] = record; renderShipping();
   }
+
+  // Auto-close QA / PO holds for shipped WOs when release auth is set
+  var relNoQA = record.releaseAuth.includes('Liberado sem QA');
+  var relNoPO = record.releaseAuth.includes('Liberado sem PO do Cliente');
+  if((relNoQA || relNoPO) && record.workOrders.length && db && typeof procData !== 'undefined'){
+    var shipDate = record.date || today();
+    var woSet = record.workOrders.map(function(w){ return w.trim().toUpperCase(); });
+    Object.keys(procData).forEach(function(procKey){
+      var pr = procData[procKey];
+      if(woSet.indexOf((pr.wo||'').trim().toUpperCase()) === -1) return;
+      var updates = {};
+      if(relNoQA && _holdActive(pr,'qa'))  updates['holds/qa/closeDate']  = shipDate;
+      if(relNoPO && _holdActive(pr,'po'))  updates['holds/po/closeDate']  = shipDate;
+      if(Object.keys(updates).length){
+        db.ref(SR_PATH+'/process/'+procKey).update(updates)
+          .catch(function(e){ console.warn('Hold auto-close error:', e); });
+      }
+    });
+  }
+
   openShipModal();
 }
 
@@ -6430,41 +6474,66 @@ function printPackLabel(){
              : '#1565c0';
   var daysText = days !== null ? days+' day'+(days!==1?'s':'') : '—';
 
-  var html = ('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Packing &amp; Hold Label</title><style>'+
-    '*{margin:0;padding:0;box-sizing:border-box}'+
-    'body{font-family:Arial,sans-serif;background:#fff;margin:0;padding:0 0 0 15mm}'+
-    '.label{width:12cm;min-height:4.9cm;border:3px solid #000;padding:4px;page-break-inside:avoid}'+
-    '.label-header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #000;padding-bottom:5px;margin-bottom:5px}'+
-    '.company{font-size:8pt;font-weight:700}'+
-    '.hold-badge{background:#ea580c;color:#fff;font-size:7.5pt;font-weight:900;padding:2px 8px;border-radius:4px;letter-spacing:.5px;white-space:nowrap}'+
-    '.order-block{text-align:center;background:#000;color:#fff;padding:6px 0;margin-bottom:6px;border-radius:4px}'+
-    '.order-label{font-size:7pt;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.7}'+
-    '.order-value{font-size:26pt;font-weight:900;letter-spacing:1px;line-height:1}'+
-    '.grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}'+
-    '.field{display:flex;flex-direction:column}'+
-    '.f-label{font-size:6pt;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#666}'+
-    '.f-value{font-size:9pt;font-weight:700;color:#000}'+
-    '.days-val{display:inline-block;padding:1px 8px;border-radius:10px;color:#fff;font-weight:900;background:'+daysBg+'}'+
-    '@media print{body{margin:0;padding:0 0 0 15mm}button{display:none}@page{margin:0;size:28cm 5.5cm}}'+
-  '</style></head><body>'+
-  '<div class="label">'+
-    '<div class="label-header">'+
-      '<div class="company">SOURCE ATLANTIC<br><span style="font-size:8pt;font-weight:400">Saint John, NB</span></div>'+
-      '<div class="hold-badge">PACKING &amp; HOLD</div>'+
+  var _ctBase = (window.location.protocol === 'https:')
+    ? (window.location.origin + window.location.pathname.replace('index.html','') + 'control-tower.html')
+    : 'https://sourceatlantic-sr.github.io/shipping-receiving-v1/control-tower.html';
+  var qrData = _ctBase + (orderNum ? '?so=' + encodeURIComponent(orderNum) : '');
+
+  function buildPackLabel(qrImgTag){
+    return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Packing &amp; Hold Label</title><style>'+
+      '*{margin:0;padding:0;box-sizing:border-box}'+
+      'html,body{font-family:Arial,sans-serif;background:#fff;margin:0}'+
+      'body{padding:0 0 0 15mm}'+
+      '.label{width:10cm;border:3px solid #000;padding:3px}'+
+      '.label-header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #000;padding-bottom:3px;margin-bottom:3px}'+
+      '.hdr-left{flex:1;min-width:0}'+
+      '.hdr-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;margin-left:4px}'+
+      '.company{font-size:7pt;font-weight:700;color:#333;text-align:right}'+
+      '.hold-badge{display:inline-block;background:#ea580c;color:#fff;font-size:7pt;font-weight:900;padding:2px 6px;border-radius:4px;letter-spacing:.5px;white-space:nowrap;margin-top:2px}'+
+      '.qr-wrap{border:1px solid #ccc;border-radius:3px;padding:1px;background:#fff}'+
+      '.qr-wrap img{display:block;width:44px;height:44px}'+
+      '.qr-hint{font-size:5pt;color:#888;text-align:center;letter-spacing:.3px}'+
+      '.order-block{text-align:center;background:#000;color:#fff;padding:3px 0;margin-bottom:3px;border-radius:3px}'+
+      '.order-label{font-size:7pt;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.7}'+
+      '.order-value{font-size:26pt;font-weight:900;letter-spacing:1px;line-height:1}'+
+      '.grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}'+
+      '.field{display:flex;flex-direction:column}'+
+      '.f-label{font-size:6pt;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#666}'+
+      '.f-value{font-size:9pt;font-weight:700;color:#000}'+
+      '.days-val{display:inline-block;padding:1px 8px;border-radius:10px;color:#fff;font-weight:900;background:'+daysBg+'}'+
+      '@media print{body{margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}button{display:none}@page{size:10cm 6cm;margin:0}}'+
+    '</style></head><body>'+
+    '<div class="label" data-h="6">'+
+      '<div class="label-header">'+
+        '<div class="hdr-left">'+
+          (customer?'<div style="font-size:9pt;font-weight:700;color:#333">'+customer+'</div>':'')+
+          '<div class="hold-badge">PACKING &amp; HOLD</div>'+
+        '</div>'+
+        '<div class="hdr-right">'+
+          '<div class="company">SOURCE ATLANTIC<br>Saint John, NB</div>'+
+          (qrImgTag?'<div class="qr-wrap">'+qrImgTag+'</div><div class="qr-hint">SCAN TO OPEN RECORD</div>':'')+
+        '</div>'+
+      '</div>'+
+      '<div class="order-block">'+
+        '<div class="order-label">Order #</div>'+
+        '<div class="order-value">'+(orderNum||'—')+'</div>'+
+      '</div>'+
+      '<div class="grid">'+
+        '<div class="field"><span class="f-label">Pick Date</span><span class="f-value">'+(pickDate?fmtDate(pickDate):'—')+'</span></div>'+
+        '<div class="field"><span class="f-label">Days on Hold</span><span class="f-value"><span class="days-val">'+daysText+'</span></span></div>'+
+        '<div class="field"><span class="f-label">Printed</span><span class="f-value">'+fmtDate(currDate)+'</span></div>'+
+      '</div>'+
     '</div>'+
-    '<div class="order-block">'+
-      '<div class="order-label">Order #</div>'+
-      '<div class="order-value">'+(orderNum||'—')+'</div>'+
-    '</div>'+
-    '<div class="grid">'+
-      '<div class="field"><span class="f-label">Customer</span><span class="f-value">'+(customer||'—')+'</span></div>'+
-      '<div class="field"><span class="f-label">Pick Date</span><span class="f-value">'+(pickDate?fmtDate(pickDate):'—')+'</span></div>'+
-      '<div class="field"><span class="f-label">Days on Hold</span><span class="f-value"><span class="days-val">'+daysText+'</span></span></div>'+
-      '<div class="field"><span class="f-label">Printed</span><span class="f-value">'+(fmtDate(currDate))+'</span></div>'+
-    '</div>'+
-  '</div>'+
-  '</body></html>');
-  showLabelPreview(html);
+    '</body></html>';
+  }
+
+  if(typeof QRCode !== 'undefined'){
+    QRCode.toDataURL(qrData, {width:100, margin:1, color:{dark:'#000000',light:'#ffffff'}}, function(err, url){
+      showLabelPreview(buildPackLabel(err ? '' : '<img src="'+url+'">'));
+    });
+  } else {
+    showLabelPreview(buildPackLabel(''));
+  }
 }
 
 function saveProcRecord(){
