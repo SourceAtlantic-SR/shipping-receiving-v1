@@ -4812,10 +4812,20 @@ function updateShpOrderFields(){
   document.getElementById('shp-tr-group').style.display = (!active || active === 'tr') ? 'flex' : 'none';
   document.getElementById('shp-wo-group').style.display = (!active || active === 'wo') ? 'flex' : 'none';
   var authGrp = document.getElementById('shp-auth-group');
-  if(authGrp) authGrp.style.display = hasWO ? 'flex' : 'none';
-  if(!hasWO){
-    document.getElementById('shp-auth-noqa').checked = false;
-    document.getElementById('shp-auth-nopo').checked = false;
+  if(authGrp){
+    var woSet = shpTags.wo.map(function(w){ return w.trim().toUpperCase(); });
+    var inputWo = document.getElementById('shp-wo-input').value.trim().toUpperCase();
+    if(inputWo) woSet.push(inputWo);
+    var hasOpenHold = hasWO && typeof procData !== 'undefined' && woSet.length > 0 &&
+      Object.values(procData).some(function(pr){
+        return woSet.indexOf((pr.wo||'').trim().toUpperCase()) !== -1 &&
+               (_holdActive(pr,'qa') || _holdActive(pr,'po'));
+      });
+    authGrp.style.display = hasOpenHold ? 'flex' : 'none';
+    if(!hasOpenHold){
+      document.getElementById('shp-auth-noqa').checked = false;
+      document.getElementById('shp-auth-nopo').checked = false;
+    }
   }
 }
 
