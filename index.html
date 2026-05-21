@@ -6459,14 +6459,27 @@ function _holdBadge(label, bg, clr){
 function holdReasonBadges(r){
   var h = r.holds || (r.holdReason ? _migrateHoldReason(r) : null);
   if(!h) return '<span style="color:#9ca3af;font-size:.75rem">—</span>';
+  var isEquipex = (r.customer||'').toUpperCase().includes('EQUIPEX');
   var badges = [];
-  if(h.qa && h.qa.active)     badges.push(h.qa.closeDate     ? _holdBadge('QA ✓','#dcfce7','#15803d')     : _holdBadge('Waiting QA','#fef3c7','#d97706'));
-  if(h.po && h.po.active)     badges.push(h.po.closeDate     ? _holdBadge('PO ✓','#dcfce7','#15803d')     : _holdBadge('Missing PO','#fee2e2','#dc2626'));
-  if(h.pickup && h.pickup.active) badges.push(h.pickup.closeDate ? _holdBadge('Pick Up ✓','#dcfce7','#15803d') : _holdBadge('Cust. Pick Up','#dbeafe','#1565c0'));
+  var hasPending = false;
+  if(h.qa && h.qa.active){
+    if(h.qa.closeDate)   badges.push(_holdBadge('QA ✓','#dcfce7','#15803d'));
+    else { hasPending = true; if(!isEquipex) badges.push(_holdBadge('Waiting QA','#fef3c7','#d97706')); }
+  }
+  if(h.po && h.po.active){
+    if(h.po.closeDate)   badges.push(_holdBadge('PO ✓','#dcfce7','#15803d'));
+    else { hasPending = true; if(!isEquipex) badges.push(_holdBadge('Missing PO','#fee2e2','#dc2626')); }
+  }
+  if(h.pickup && h.pickup.active){
+    if(h.pickup.closeDate) badges.push(_holdBadge('Pick Up ✓','#dcfce7','#15803d'));
+    else { hasPending = true; if(!isEquipex) badges.push(_holdBadge('Cust. Pick Up','#dbeafe','#1565c0')); }
+  }
   if(h.others && h.others.active){
     var lbl = h.others.closeDate ? 'Others ✓' : (h.others.description ? 'Others: '+h.others.description : 'Others');
-    badges.push(h.others.closeDate ? _holdBadge(lbl,'#dcfce7','#15803d') : _holdBadge(lbl,'#f1f5f9','#475569'));
+    if(h.others.closeDate) badges.push(_holdBadge(lbl,'#dcfce7','#15803d'));
+    else { hasPending = true; if(!isEquipex) badges.push(_holdBadge(lbl,'#f1f5f9','#475569')); }
   }
+  if(isEquipex && hasPending) badges.push(_holdBadge('Waiting next delivery date','#fff7ed','#b45309'));
   if(!badges.length) return '<span style="color:#9ca3af;font-size:.75rem">—</span>';
   return '<div style="display:flex;flex-wrap:wrap;gap:3px">'+badges.join('')+'</div>';
 }
