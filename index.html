@@ -6005,14 +6005,18 @@ function renderProcess(){
       ||(r.po||'').toLowerCase().includes(q);
   });
   var rf = (document.getElementById('proc-reason-filter')||{}).value||'';
-  if(rf) procFiltered = procFiltered.filter(function(r){
-    if(rf==='(none)') return !r.holdReason && (!r.holds || (!r.holds.qa&&!r.holds.po&&!r.holds.pickup&&!r.holds.others));
-    if(rf==='Waiting QA')                  return _holdActive(r,'qa');
-    if(rf==='Missing PO')                  return _holdActive(r,'po');
-    if(rf==='Waiting Customer Pick Up')    return _holdActive(r,'pickup');
-    if(rf==='Others')                      return _holdActive(r,'others');
-    return true;
-  });
+  if(!rf){
+    procFiltered = procFiltered.filter(function(r){ return !findProcShipDate(r); });
+  } else {
+    procFiltered = procFiltered.filter(function(r){
+      if(rf==='(none)') return !r.holdReason && (!r.holds || (!r.holds.qa&&!r.holds.po&&!r.holds.pickup&&!r.holds.others));
+      if(rf==='Waiting QA')                  return _holdActive(r,'qa');
+      if(rf==='Missing PO')                  return _holdActive(r,'po');
+      if(rf==='Waiting Customer Pick Up')    return _holdActive(r,'pickup');
+      if(rf==='Others')                      return _holdActive(r,'others');
+      return true;
+    });
+  }
   var tbody = document.getElementById('proc-tbody');
   if(!procFiltered.length){
     tbody.innerHTML='<tr><td colspan="11"><div class="empty-state"><div class="empty-icon">⏸</div><div class="empty-text">No shipping on hold records yet.</div></div></td></tr>';
