@@ -6479,7 +6479,7 @@ function holdReasonBadges(r){
     if(h.others.closeDate) badges.push(_holdBadge(lbl,'#dcfce7','#15803d'));
     else { hasPending = true; if(!isEquipex) badges.push(_holdBadge(lbl,'#f1f5f9','#475569')); }
   }
-  if(isEquipex && hasPending) badges.push(_holdBadge('Waiting next delivery date','#fff7ed','#b45309'));
+  if(isEquipex && hasPending) badges.push(_holdBadge('Waiting next Schedule date','#fff7ed','#b45309'));
   if(!badges.length) return '<span style="color:#9ca3af;font-size:.75rem">—</span>';
   return '<div style="display:flex;flex-wrap:wrap;gap:3px">'+badges.join('')+'</div>';
 }
