@@ -5729,19 +5729,21 @@ function exportItemsCSV(){
 // ══ PROCESS ON HOLD ══
 
 function findProcShipDate(r){
-  var wo = (r.wo||'').trim().toUpperCase();
-  var so = (r.so||'').trim().toUpperCase();
-  if(!wo && !so) return null;
-  var todayStr    = today();
+  var wo  = (r.wo||'').trim().toUpperCase();
+  var so  = (r.so||'').trim().toUpperCase();
+  var out = (r.outgoing||'').trim().toUpperCase();
+  if(!wo && !so && !out) return null;
+  var todayStr     = today();
   var receivedDate = r.receivedDate || '';
   var found = null;
   Object.values(shpData).forEach(function(shp){
     if(!shp.date) return;
-    if(shp.date > todayStr) return;           // ignore future shipments
-    if(receivedDate && shp.date < receivedDate) return; // ignore shipments before item entered hold
+    if(shp.date > todayStr) return;
+    if(receivedDate && shp.date < receivedDate) return;
     var hit = false;
-    if(wo) hit = hit||(shp.workOrders||[]).some(function(w){ return (w||'').trim().toUpperCase()===wo; });
-    if(so) hit = hit||(shp.salesOrders||[]).some(function(s){ return (s||'').trim().toUpperCase()===so; });
+    if(wo)  hit = hit || (shp.workOrders||[]).some(function(w){ return (w||'').trim().toUpperCase()===wo; });
+    if(so)  hit = hit || (shp.salesOrders||[]).some(function(s){ return (s||'').trim().toUpperCase()===so; });
+    if(out) hit = hit || (shp.outgoing||'').trim().toUpperCase()===out;
     if(hit && (!found||shp.date<found)) found = shp.date;
   });
   return found;
