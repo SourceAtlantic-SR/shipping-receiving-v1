@@ -1529,6 +1529,11 @@ document.addEventListener('keydown', function(ev){
         <select class="year-select" id="pkg-year" onchange="filterPacking()"><option value="">All Years</option></select>
         <select class="year-select" id="pkg-month" onchange="filterPacking()"><option value="">All Months</option></select>
         <select class="year-select" id="pkg-day" onchange="filterPacking()" style="min-width:80px"><option value="">All Days</option></select>
+        <select class="year-select" id="pkg-status-filter" onchange="filterPacking()" style="min-width:130px">
+          <option value="onhold">On Hold Only</option>
+          <option value="">All</option>
+          <option value="shipped">Shipped Only</option>
+        </select>
         <input class="search-input" type="text" id="pkg-search" placeholder="Search order #, customer..." oninput="filterPacking()">
         <button class="btn btn-secondary" onclick="exportPackingCSV()">⬇️ Export Excel</button>
         <button class="btn btn-primary admin-only" onclick="openPackModal()">+ New Record</button>
@@ -6824,6 +6829,9 @@ function renderPacking(){
       return !sd || sd.slice(0,7) >= curYM;
     });
   }
+  var sf = (document.getElementById('pkg-status-filter')||{}).value;
+  if(sf === 'onhold')   rows = rows.filter(function(r){ return !findPkgShipDate(r.orderNum); });
+  else if(sf === 'shipped') rows = rows.filter(function(r){ return !!findPkgShipDate(r.orderNum); });
   pkgFiltered = rows;
   var q = (document.getElementById('pkg-search').value||'').toLowerCase();
   if(q) pkgFiltered = rows.filter(function(r){
