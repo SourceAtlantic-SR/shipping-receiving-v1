@@ -6011,11 +6011,12 @@ function renderProcess(){
     });
   } else {
     procFiltered = procFiltered.filter(function(r){
+      var notShipped = !findProcShipDate(r);
       if(rf==='(none)') return !r.holdReason && (!r.holds || (!r.holds.qa&&!r.holds.po&&!r.holds.pickup&&!r.holds.others));
-      if(rf==='Waiting QA')                  return _holdActive(r,'qa');
-      if(rf==='Missing PO')                  return _holdActive(r,'po');
-      if(rf==='Waiting Customer Pick Up')    return _holdActive(r,'pickup');
-      if(rf==='Others')                      return _holdActive(r,'others');
+      if(rf==='Waiting QA')               return _holdActive(r,'qa')     && notShipped;
+      if(rf==='Missing PO')               return _holdActive(r,'po')     && notShipped;
+      if(rf==='Waiting Customer Pick Up') return _holdActive(r,'pickup') && notShipped;
+      if(rf==='Others')                   return _holdActive(r,'others') && notShipped;
       return true;
     });
   }
