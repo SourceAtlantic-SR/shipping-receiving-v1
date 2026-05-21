@@ -1341,35 +1341,9 @@ document.addEventListener('keydown', function(ev){
             <div class="form-block-hdr hdr-slate">📦 2. Material &amp; Quantity</div>
             <div class="form-block-body">
               <div class="form-group full">
-                <label>Material</label>
-                <select id="shp-material-type" onchange="toggleShpMaterialOther()">
-                  <option value="">— Select Material —</option>
-                  <option>Electric Motor</option>
-                  <option>Pump</option>
-                  <option>Submersible Pump</option>
-                  <option>Air Compressor</option>
-                  <option>DC Motor</option>
-                  <option>Generator</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-              <div class="form-group full" id="shp-material-other-group" style="display:none">
-                <label>Other — Describe Material</label>
-                <input type="text" id="shp-material-other" placeholder="Describe the material..." list="material-suggestions" autocomplete="off" oninput="enforceUpper(this)" style="width:200px;max-width:100%">
-              </div>
-              <div class="form-subgrid" style="grid-template-columns:auto auto auto">
-                <div class="form-group">
-                  <label>Pc (Pieces)</label>
-                  <input type="number" id="shp-pc" placeholder="0" min="0" style="width:65px;max-width:100%">
-                </div>
-                <div class="form-group">
-                  <label>Lb (Pounds)</label>
-                  <input type="number" id="shp-lb" placeholder="0" min="0" step="0.01" style="width:85px;max-width:100%">
-                </div>
-                <div class="form-group">
-                  <label>Rl (Rolls)</label>
-                  <input type="number" id="shp-rl" placeholder="0" min="0" style="width:65px;max-width:100%">
-                </div>
+                <label>Materials &amp; Quantities</label>
+                <div id="shp-material-rows"></div>
+                <button type="button" onclick="addShpMaterialRow()" style="margin-top:4px;border:1.5px dashed #6366f1;background:#f5f3ff;color:#4f46e5;border-radius:8px;padding:4px 12px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit">+ Add Material</button>
               </div>
               <div class="form-subgrid" style="grid-template-columns:auto auto">
                 <div class="form-group">
@@ -4408,17 +4382,7 @@ function prefillFromIncoming(woNum){
     filled.push('Customer');
   }
 
-  if(equipment && !document.getElementById('shp-material-type').value){
-    var mType = equipmentType || (knownMats.includes(equipment) ? equipment : 'Other');
-    document.getElementById('shp-material-type').value = mType;
-    if(mType === 'Other'){
-      document.getElementById('shp-material-other').value = equipment;
-      document.getElementById('shp-material-other-group').style.display = 'flex';
-    } else {
-      document.getElementById('shp-material-other-group').style.display = 'none';
-    }
-    filled.push(equipment);
-  }
+  if(equipment){ shpAutoFillMaterial(equipment); filled.push(equipment); }
 
   if(filled.length){
     showToast('✔ Pre-filled from ' + source + ' — ' + filled.join(', '));
@@ -4488,24 +4452,75 @@ function prefillFromSO(soNum){
     // SO added but no customer found — reveal the customer input so user can type it
     shpSetNewMode('notfound');
   }
-  if(equipment && !document.getElementById('shp-material-type').value){
-    var mType = equipmentType || (knownMats.includes(equipment) ? equipment : 'Other');
-    document.getElementById('shp-material-type').value = mType;
-    if(mType === 'Other'){
-      document.getElementById('shp-material-other').value = equipment;
-      document.getElementById('shp-material-other-group').style.display = 'flex';
-    } else {
-      document.getElementById('shp-material-other-group').style.display = 'none';
-    }
-    filled.push(equipment);
-  }
+  if(equipment){ shpAutoFillMaterial(equipment); filled.push(equipment); }
   if(filled.length) showToast('✔ Pre-filled from ' + source + ' — ' + filled.join(', '));
 }
 
-function toggleShpMaterialOther(){
-  var val = document.getElementById('shp-material-type').value;
-  document.getElementById('shp-material-other-group').style.display = val === 'Other' ? 'flex' : 'none';
-  if(val !== 'Other') document.getElementById('shp-material-other').value = '';
+function addShpMaterialRow(mat, pc, lb, rl){
+  var rows = document.getElementById('shp-material-rows');
+  var row = document.createElement('div');
+  row.className = 'shp-mat-row';
+  row.style.cssText = 'display:flex;gap:4px;margin-bottom:4px;align-items:center;flex-wrap:wrap';
+  var matInp = document.createElement('input');
+  matInp.type = 'text'; matInp.placeholder = 'Material';
+  matInp.className = 'shp-mat-inp';
+  matInp.setAttribute('list','material-suggestions'); matInp.autocomplete = 'off';
+  matInp.style.cssText = 'flex:1;min-width:120px';
+  matInp.oninput = function(){ enforceUpper(this); };
+  if(mat) matInp.value = mat;
+  var pcInp = document.createElement('input');
+  pcInp.type='number'; pcInp.placeholder='Pc'; pcInp.min='0';
+  pcInp.className='shp-mat-pc'; pcInp.style.cssText='width:52px;flex-shrink:0';
+  if(pc) pcInp.value = pc;
+  var lbInp = document.createElement('input');
+  lbInp.type='number'; lbInp.placeholder='Lb'; lbInp.min='0'; lbInp.step='0.01';
+  lbInp.className='shp-mat-lb'; lbInp.style.cssText='width:62px;flex-shrink:0';
+  if(lb) lbInp.value = lb;
+  var rlInp = document.createElement('input');
+  rlInp.type='number'; rlInp.placeholder='Rl'; rlInp.min='0';
+  rlInp.className='shp-mat-rl'; rlInp.style.cssText='width:52px;flex-shrink:0';
+  if(rl) rlInp.value = rl;
+  var btn = document.createElement('button');
+  btn.type='button'; btn.textContent='✕'; btn.title='Remove';
+  btn.style.cssText='border:none;background:#fee2e2;color:#dc2626;border-radius:6px;padding:2px 7px;cursor:pointer;font-size:.85rem;font-weight:700;flex-shrink:0';
+  btn.onclick = function(){ removeShpMaterialRow(btn); };
+  row.appendChild(matInp); row.appendChild(pcInp); row.appendChild(lbInp); row.appendChild(rlInp); row.appendChild(btn);
+  rows.appendChild(row);
+  _updateShpMatBtns();
+  return matInp;
+}
+function removeShpMaterialRow(btn){
+  var rows = document.getElementById('shp-material-rows');
+  if(rows.children.length <= 1) return;
+  btn.parentNode.remove();
+  _updateShpMatBtns();
+}
+function _updateShpMatBtns(){
+  var rows = document.getElementById('shp-material-rows');
+  var btns = rows.querySelectorAll('button');
+  var multi = rows.children.length > 1;
+  btns.forEach(function(b){ b.style.visibility = multi ? 'visible' : 'hidden'; });
+}
+function getShpMaterials(){
+  var arr = [];
+  document.getElementById('shp-material-rows').querySelectorAll('.shp-mat-row').forEach(function(row){
+    var mat = row.querySelector('.shp-mat-inp').value.trim();
+    var pc  = row.querySelector('.shp-mat-pc').value;
+    var lb  = row.querySelector('.shp-mat-lb').value;
+    var rl  = row.querySelector('.shp-mat-rl').value;
+    if(mat) arr.push({material:mat, pc:pc, lb:lb, rl:rl});
+  });
+  return arr;
+}
+function setShpMaterials(arr){
+  var rows = document.getElementById('shp-material-rows');
+  rows.innerHTML = '';
+  if(!arr || !arr.length) arr = [{}];
+  arr.forEach(function(e){ addShpMaterialRow(e.material||'', e.pc||'', e.lb||'', e.rl||''); });
+}
+function shpAutoFillMaterial(mat){
+  var inp = document.getElementById('shp-material-rows').querySelector('.shp-mat-inp');
+  if(inp && !inp.value){ inp.value = mat.toUpperCase(); markAuto(inp); }
 }
 
 function toggleShpCarrierOther(){
@@ -4659,15 +4674,7 @@ function shpWoRealTimeLookup(){
     }
     document.getElementById('shp-customer-filled-name').textContent   = r.customer;
     document.getElementById('shp-customer-filled-source').textContent = '✔ '+r.source;
-    if(r.material && !document.getElementById('shp-material-type').value){
-      document.getElementById('shp-material-type').value = r.materialType; markAuto('shp-material-type');
-      if(r.materialType === 'Other'){
-        document.getElementById('shp-material-other').value = r.material.toUpperCase(); markAuto('shp-material-other');
-        document.getElementById('shp-material-other-group').style.display = 'flex';
-      } else {
-        document.getElementById('shp-material-other-group').style.display = 'none';
-      }
-    }
+    if(r.material){ shpAutoFillMaterial(r.material); }
     shpSetNewMode('found');
   } else {
     shpSetNewMode('notfound');
@@ -5006,12 +5013,7 @@ function openShipModal(key){
     document.getElementById('shp-country').value  = r.country||'Canada';
     var knownMats = ['Electric Motor','Pump','Submersible Pump','Air Compressor','DC Motor','Generator'];
     var mType = r.materialType || (knownMats.includes(r.material) ? r.material : (r.material ? 'Other' : ''));
-    document.getElementById('shp-material-type').value  = mType;
-    document.getElementById('shp-material-other').value = mType === 'Other' ? (r.material||'').toUpperCase() : '';
-    document.getElementById('shp-material-other-group').style.display = mType === 'Other' ? 'flex' : 'none';
-    document.getElementById('shp-pc').value          = r.pc||'';
-    document.getElementById('shp-lb').value          = r.lb||'';
-    document.getElementById('shp-rl').value          = r.rl||'';
+    setShpMaterials(r.materials || [{material: r.material||'', pc: r.pc||'', lb: r.lb||'', rl: r.rl||''}]);
     document.getElementById('shp-weight-lb').value   = r.weightLb||'';
     document.getElementById('shp-weight-kg').value   = r.weightKg||'';
     if(r.freightType){
@@ -5033,12 +5035,11 @@ function openShipModal(key){
   } else {
     shpSetNewMode('notfound');
     document.getElementById('shp-modal-title').textContent = 'New Shipment';
-    ['shp-customer','shp-customer-po','shp-outgoing','shp-city','shp-province','shp-postal','shp-material-other','shp-carrier-other','shp-tracking','shp-photos-link','shp-comments'].forEach(function(id){ document.getElementById(id).value=''; });
+    ['shp-customer','shp-customer-po','shp-outgoing','shp-city','shp-province','shp-postal','shp-carrier-other','shp-tracking','shp-photos-link','shp-comments'].forEach(function(id){ document.getElementById(id).value=''; });
     document.getElementById('shp-auth-noqa').checked = false;
     document.getElementById('shp-auth-nopo').checked = false;
-    document.getElementById('shp-material-type').value = '';
-    document.getElementById('shp-material-other-group').style.display = 'none';
-    ['shp-pc','shp-lb','shp-rl','shp-weight-lb','shp-weight-kg'].forEach(function(id){ document.getElementById(id).value=''; });
+    setShpMaterials([]);
+    ['shp-weight-lb','shp-weight-kg'].forEach(function(id){ document.getElementById(id).value=''; });
     document.getElementById('shp-carrier').value = '';
     document.getElementById('shp-carrier-other-group').style.display = 'none';
     document.getElementById('shp-del-btn').style.display = 'none';
@@ -5093,10 +5094,11 @@ function saveShipment(){
     }
   }
 
-  var materialType  = document.getElementById('shp-material-type').value;
-  var materialOther = document.getElementById('shp-material-other').value.trim().toUpperCase();
-  var material      = (materialType === 'Other' ? materialOther : materialType).toUpperCase();
-  if(!material){ alert('Material is required.'); return; }
+  var shpMats   = getShpMaterials();
+  if(!shpMats.length){ alert('Material is required.'); return; }
+  var knownMats2 = ['Electric Motor','Pump','Submersible Pump','Air Compressor','DC Motor','Generator'];
+  var material  = shpMats[0].material.toUpperCase();
+  var materialType = knownMats2.includes(shpMats[0].material) ? shpMats[0].material : 'Other';
   var frRadio  = document.querySelector('input[name="shp-freight"]:checked');
   var carrier  = document.getElementById('shp-carrier').value;
   var record = {
@@ -5108,10 +5110,11 @@ function saveShipment(){
     province:     document.getElementById('shp-province').value.trim(),
     postalCode:   document.getElementById('shp-postal').value.trim(),
     country:      document.getElementById('shp-country').value.trim(),
-    material, materialType,
-    pc:           document.getElementById('shp-pc').value,
-    lb:           document.getElementById('shp-lb').value,
-    rl:           document.getElementById('shp-rl').value,
+    materials:    shpMats,
+    material,     materialType,
+    pc:           shpMats[0].pc,
+    lb:           shpMats[0].lb,
+    rl:           shpMats[0].rl,
     weightLb:     document.getElementById('shp-weight-lb').value,
     weightKg:     document.getElementById('shp-weight-kg').value,
     freightType:  frRadio ? frRadio.value : '',
