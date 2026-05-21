@@ -1426,16 +1426,16 @@ document.addEventListener('keydown', function(ev){
                 <label>Photos Link (OneDrive)</label>
                 <input type="url" id="shp-photos-link" placeholder="Paste OneDrive folder link here...">
               </div>
-              <div class="form-group full">
-                <label>Release Authorization</label>
+              <div class="form-group full" id="shp-auth-group" style="display:none">
+                <label>Release Authorization — Is this shipment being released without any of the following?</label>
                 <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:2px">
                   <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:.85rem;cursor:pointer;background:#fff7ed;border:1.5px solid #fed7aa;border-radius:8px;padding:6px 12px">
                     <input type="checkbox" id="shp-auth-noqa" style="width:15px;height:15px;cursor:pointer">
-                    Liberado sem QA
+                    Released without QA
                   </label>
                   <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:.85rem;cursor:pointer;background:#fff7ed;border:1.5px solid #fed7aa;border-radius:8px;padding:6px 12px">
                     <input type="checkbox" id="shp-auth-nopo" style="width:15px;height:15px;cursor:pointer">
-                    Liberado sem PO do Cliente
+                    Released without Customer PO
                   </label>
                 </div>
               </div>
@@ -4811,6 +4811,12 @@ function updateShpOrderFields(){
   document.getElementById('shp-so-group').style.display = (!active || active === 'so') ? 'flex' : 'none';
   document.getElementById('shp-tr-group').style.display = (!active || active === 'tr') ? 'flex' : 'none';
   document.getElementById('shp-wo-group').style.display = (!active || active === 'wo') ? 'flex' : 'none';
+  var authGrp = document.getElementById('shp-auth-group');
+  if(authGrp) authGrp.style.display = hasWO ? 'flex' : 'none';
+  if(!hasWO){
+    document.getElementById('shp-auth-noqa').checked = false;
+    document.getElementById('shp-auth-nopo').checked = false;
+  }
 }
 
 function updateProcOrderFields(){
@@ -5030,8 +5036,9 @@ function openShipModal(key){
     document.getElementById('shp-carrier-other-group').style.display = r.carrier==='Other' ? 'flex' : 'none';
     document.getElementById('shp-tracking').value = r.trackingNum||'';
     document.getElementById('shp-photos-link').value = r.photosLink||'';
-    document.getElementById('shp-auth-noqa').checked = (r.releaseAuth||'').includes('Liberado sem QA');
-    document.getElementById('shp-auth-nopo').checked = (r.releaseAuth||'').includes('Liberado sem PO do Cliente');
+    var ra = r.releaseAuth||'';
+    document.getElementById('shp-auth-noqa').checked = ra.includes('Released without QA') || ra.includes('Liberado sem QA');
+    document.getElementById('shp-auth-nopo').checked = ra.includes('Released without Customer PO') || ra.includes('Liberado sem PO do Cliente');
     document.getElementById('shp-comments').value = r.shpComments||'';
     document.getElementById('shp-del-btn').style.display = 'inline-flex';
   } else {
@@ -5127,7 +5134,7 @@ function saveShipment(){
     carrierOther: carrier==='Other' ? document.getElementById('shp-carrier-other').value.trim() : '',
     trackingNum:   document.getElementById('shp-tracking').value.trim(),
     photosLink:    document.getElementById('shp-photos-link').value.trim(),
-    releaseAuth:   (function(){ var a=[]; if(document.getElementById('shp-auth-noqa').checked) a.push('Liberado sem QA'); if(document.getElementById('shp-auth-nopo').checked) a.push('Liberado sem PO do Cliente'); return a.join(', '); })(),
+    releaseAuth:   (function(){ var a=[]; if(document.getElementById('shp-auth-noqa').checked) a.push('Released without QA'); if(document.getElementById('shp-auth-nopo').checked) a.push('Released without Customer PO'); return a.join(', '); })(),
     shpComments:   document.getElementById('shp-comments').value.trim(),
     updatedAt: new Date().toISOString()
   };
@@ -5143,8 +5150,8 @@ function saveShipment(){
   }
 
   // Auto-close QA / PO holds for shipped WOs when release auth is set
-  var relNoQA = record.releaseAuth.includes('Liberado sem QA');
-  var relNoPO = record.releaseAuth.includes('Liberado sem PO do Cliente');
+  var relNoQA = record.releaseAuth.includes('Released without QA') || record.releaseAuth.includes('Liberado sem QA');
+  var relNoPO = record.releaseAuth.includes('Released without Customer PO') || record.releaseAuth.includes('Liberado sem PO do Cliente');
   if((relNoQA || relNoPO) && record.workOrders.length && db && typeof procData !== 'undefined'){
     var shipDate = record.date || today();
     var woSet = record.workOrders.map(function(w){ return w.trim().toUpperCase(); });
