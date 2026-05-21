@@ -6006,7 +6006,9 @@ function renderProcess(){
   });
   var rf = (document.getElementById('proc-reason-filter')||{}).value||'';
   if(!rf){
-    procFiltered = procFiltered.filter(function(r){ return !findProcShipDate(r); });
+    procFiltered = procFiltered.filter(function(r){
+      return _holdActive(r,'qa') || _holdActive(r,'po') || _holdActive(r,'pickup') || _holdActive(r,'others');
+    });
   } else {
     procFiltered = procFiltered.filter(function(r){
       if(rf==='(none)') return !r.holdReason && (!r.holds || (!r.holds.qa&&!r.holds.po&&!r.holds.pickup&&!r.holds.others));
