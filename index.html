@@ -4175,6 +4175,8 @@ function detectCountryFromPostal(){
 document.addEventListener('DOMContentLoaded', function(){
   var cityEl = document.getElementById('shp-city');
   if(cityEl) cityEl.addEventListener('blur', lookupCityProvince);
+  var shpDate = document.getElementById('shp-date');
+  if(shpDate && !shpDate.value) shpDate.value = today();
   initSearchClears();
   initDigitFields();
 });
