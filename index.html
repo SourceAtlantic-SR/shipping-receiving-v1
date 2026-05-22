@@ -2706,7 +2706,7 @@ function initDataListeners(){
   });
   db.ref(SR_PATH+'/process').on('value', function(snap){
     procData = snap.val() || {};
-    populateYearSelect('proc-year', procData, 'receivedDate', new Date().getFullYear().toString());
+    populateYearSelect('proc-year', procData, 'receivedDate');
     renderProcess();
   });
   db.ref(SR_PATH+'/payments').on('value', function(snap){
@@ -6097,8 +6097,6 @@ function renderProcStats(rows){
   var cntPO     = holdRows.filter(function(r){ return _holdActive(r,'po'); }).length;
   var cntPickup = holdRows.filter(function(r){ return _holdActive(r,'pickup'); }).length;
   var cntOthers = holdRows.filter(function(r){ return _holdActive(r,'others'); }).length;
-  var yr = (document.getElementById('proc-year')||{}).value || '';
-  var yrLabel = yr || new Date().getFullYear();
   document.getElementById('proc-stats').innerHTML =
     '<div class="stat-card"><div class="stat-val">'+total+'</div><div class="stat-lbl">Total</div></div>'+
     '<div class="stat-card"><div class="stat-val" style="color:#e65100">'+onHold+'</div><div class="stat-lbl">On Hold</div></div>'+
@@ -6109,17 +6107,24 @@ function renderProcStats(rows){
     (cntPickup?'<div class="stat-card"><div class="stat-val" style="color:#1565c0">'+cntPickup+'</div><div class="stat-lbl">Cust. Pick Up</div></div>':'')+
     (cntOthers?'<div class="stat-card"><div class="stat-val" style="color:#6b7280">'+cntOthers+'</div><div class="stat-lbl">Others</div></div>':'');
   var pBar = document.getElementById('proc-progress');
-  if(pBar && total > 0){
-    var pct = Math.round(shipped / total * 100);
-    pBar.innerHTML =
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">'+
-        '<span style="font-size:.68rem;font-weight:800;color:#1565c0">■ Shipping '+yrLabel+' — '+shipped+' Shipped ('+pct+'%)</span>'+
-        '<span style="font-size:.68rem;font-weight:700;color:#e65100">'+onHold+' On Hold</span>'+
-      '</div>'+
-      '<div style="height:10px;background:#fee2e2;border-radius:6px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.06)">'+
-        '<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#1565c0,#1976d2);border-radius:6px;transition:width .7s ease"></div>'+
-      '</div>';
-  } else if(pBar){ pBar.innerHTML=''; }
+  if(pBar){
+    var allProc   = Object.values(typeof procData!=='undefined' ? procData : {});
+    var allTotal  = allProc.length;
+    var allShipped= allProc.filter(function(r){ return !!findProcShipDate(r); }).length;
+    var allHold   = allTotal - allShipped;
+    var pct       = allTotal > 0 ? Math.round(allShipped / allTotal * 100) : 0;
+    var curYear   = new Date().getFullYear();
+    if(allTotal > 0){
+      pBar.innerHTML =
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">'+
+          '<span style="font-size:.68rem;font-weight:800;color:#1565c0">■ Shipping '+curYear+' — '+allShipped+' Shipped ('+pct+'%)</span>'+
+          '<span style="font-size:.68rem;font-weight:700;color:#e65100">'+allHold+' On Hold</span>'+
+        '</div>'+
+        '<div style="height:10px;background:#fee2e2;border-radius:6px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.06)">'+
+          '<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#1565c0,#1976d2);border-radius:6px;transition:width .7s ease"></div>'+
+        '</div>';
+    } else { pBar.innerHTML=''; }
+  }
 }
 
 function filterProcess(){ renderProcess(); }
