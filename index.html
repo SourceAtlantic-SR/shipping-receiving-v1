@@ -4402,16 +4402,35 @@ function prefillFromSO(soNum){
   var knownMats = ['Electric Motor','Pump','Submersible Pump','Air Compressor','DC Motor','Generator'];
   var customer = '', equipment = '', equipmentType = '', source = '';
 
-  // 1. Incoming Items — line items linked to this Sales Order
-  Object.values(itemsData).some(function(doc){
-    return (doc.lineItems||[]).some(function(li){
-      if((li.salesOrderNum||'').trim().toUpperCase() !== so) return false;
-      customer  = customer  || (li.customer||'');
-      equipment = equipment || (li.material||'');
-      source    = source    || ('Incoming Items receipt ' + (doc.docNum||so));
-      return customer && equipment;
+  // 1a. Incoming Items — same-day receipt: fill ALL materials from today's doc
+  var todayStr = today();
+  var sameDayMats = [];
+  Object.values(itemsData).forEach(function(doc){
+    if(doc.date !== todayStr) return;
+    (doc.lineItems||[]).forEach(function(li){
+      if((li.salesOrderNum||'').trim().toUpperCase() !== so) return;
+      customer = customer || (li.customer||'');
+      if(li.material) sameDayMats.push(li.material);
+      source = source || ('Incoming Items receipt ' + (doc.docNum||so));
     });
   });
+  if(sameDayMats.length){
+    setShpMaterials(sameDayMats.map(function(m){ return {material:m}; }));
+    equipment = sameDayMats[0];
+  }
+
+  // 1b. Fallback: any date
+  if(!equipment){
+    Object.values(itemsData).some(function(doc){
+      return (doc.lineItems||[]).some(function(li){
+        if((li.salesOrderNum||'').trim().toUpperCase() !== so) return false;
+        customer  = customer  || (li.customer||'');
+        equipment = equipment || (li.material||'');
+        source    = source    || ('Incoming Items receipt ' + (doc.docNum||so));
+        return customer && equipment;
+      });
+    });
+  }
 
   // 2. Shipping On Hold — has salesOrders array
   if(!equipment || !customer){
