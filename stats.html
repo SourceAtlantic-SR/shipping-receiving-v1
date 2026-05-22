@@ -214,6 +214,11 @@ tbody tr.row-click:hover{background:#f0f7ff}
 @media(max-width:400px){
   .kpi-row{grid-template-columns:1fr}
 }
+
+/* ── ENTRANCE ANIMATIONS ── */
+@keyframes cardFade { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+@keyframes kpiSlide { from{opacity:0;transform:translateY(10px) scale(.96)} to{opacity:1;transform:none} }
+
 #auth-overlay{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;padding:20px;background:url('warehouse-bg.jpg') center center/cover no-repeat}
 #auth-overlay::before{content:'';position:absolute;inset:0;background:linear-gradient(160deg,rgba(10,25,60,.82) 0%,rgba(15,40,90,.75) 50%,rgba(20,55,110,.70) 100%);backdrop-filter:blur(2px)}
 .auth-box{position:relative;z-index:1;background:#fff;border-radius:16px;width:100%;max-width:420px;box-shadow:0 25px 50px rgba(0,0,0,.35);overflow:hidden}
@@ -670,12 +675,13 @@ function render(){
   var areaIcons={'Electrical':'⚡','Mechanical':'⚙️','Air Compressor':'💨','Generator':'🔋'};
   h += sl('amber','Area Operations — '+cYr+' '+periodLbl+' &nbsp;·&nbsp; Click a card to filter all charts');
   h += '<div class="area-grid" style="margin-bottom:0">';
-  AREAS.forEach(function(a){
+  AREAS.forEach(function(a, aIdx){
     var st=areaStats[a]; var col=AREA_COLS[a];
     var asel = activeFilters.area === a;
     var adim = activeFilters.area && !asel;
     var ringStyle = asel ? 'box-shadow:0 0 0 3px '+col+',0 6px 20px rgba(0,0,0,.14);' : '';
-    h += '<div class="area-card'+(asel?' sel':'')+(adim?' dim':'')+'" style="'+ringStyle+'" onclick="toggleAreaFilter(\''+a+'\')" title="Click to filter by '+a+'">'+
+    var anim = (!activeFilters.area) ? (';animation:cardFade .38s ease '+(aIdx*75)+'ms both') : '';
+    h += '<div class="area-card'+(asel?' sel':'')+(adim?' dim':'')+'" style="'+ringStyle+anim+'" onclick="toggleAreaFilter(\''+a+'\')" title="Click to filter by '+a+'">'+
       '<div class="area-card-top" style="background:'+col+'"></div>'+
       '<div class="area-card-body">'+
         '<div class="area-card-row">'+
@@ -766,6 +772,18 @@ function render(){
   '</div></div>';
 
   document.getElementById('body').innerHTML = h;
+  (function(){
+    var bd = document.getElementById('body');
+    bd.style.opacity = '0';
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        bd.style.transition = 'opacity .28s ease';
+        bd.style.opacity = '1';
+        setTimeout(function(){ bd.style.transition = ''; }, 320);
+      });
+    });
+    animateKpiNums();
+  })();
 
   /* ── CHARTS ── */
 
@@ -787,6 +805,7 @@ function render(){
   CH['trend'] = new Chart(document.getElementById('c-trend').getContext('2d'),{
     type:'line', data:{labels:MO, datasets:tDatasets},
     options:{
+      animation:{ duration:700, easing:'easeInOutQuart' },
       responsive:true, maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
       onClick:function(evt,elements){ if(elements.length) toggleFilter('month',elements[0].index); },
@@ -821,6 +840,7 @@ function render(){
         }]
       },
       options:{
+        animation:{ duration:600, easing:'easeOutQuart' },
         indexAxis:'y', responsive:true, maintainAspectRatio:false,
         layout:{padding:{right:24}},
         onClick:function(evt,elements){ if(elements.length) toggleFilter('customer',top[elements[0].index][0]); },
@@ -863,6 +883,7 @@ function render(){
       }]
     },
     options:{
+      animation:{ animateRotate:true, animateScale:true, duration:750, easing:'easeOutQuart' },
       responsive:true, maintainAspectRatio:false, cutout:'62%',
       onClick:function(evt,elements){
         if(elements.length) toggleFilter('dest',['WIP','Sales Order','Estoque'][elements[0].index]);
@@ -900,6 +921,7 @@ function render(){
         }]
       },
       options:{
+        animation:{ duration:600, easing:'easeOutQuart' },
         indexAxis:'y', responsive:true, maintainAspectRatio:false,
         layout:{padding:{right:24}},
         onClick:function(evt,elements){ if(elements.length) toggleFilter('carrier',topCarriers[elements[0].index][0]); },
@@ -946,6 +968,7 @@ function render(){
         }]
       },
       options:{
+        animation:{ duration:600, easing:'easeOutQuart' },
         indexAxis:'y', responsive:true, maintainAspectRatio:false,
         layout:{padding:{right:28}},
         onClick:function(evt,elements){
@@ -979,6 +1002,22 @@ function render(){
   updateChips();
 }
 
+
+function animateKpiNums(){
+  document.querySelectorAll('.kpi-num').forEach(function(el){
+    var target = parseInt(el.textContent, 10);
+    if(isNaN(target) || target < 2) return;
+    var dur = Math.min(750, 150 + target * 12);
+    var t0 = null;
+    el.textContent = '0';
+    requestAnimationFrame(function step(ts){
+      if(!t0) t0 = ts;
+      var p = Math.min((ts - t0) / dur, 1);
+      el.textContent = Math.round((1 - Math.pow(1 - p, 3)) * target);
+      if(p < 1) requestAnimationFrame(step);
+    });
+  });
+}
 
 function destStatRow(label, color, val, total){
   var pct = total>0 ? Math.round(val/total*100) : 0;
