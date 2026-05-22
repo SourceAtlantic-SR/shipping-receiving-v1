@@ -1559,6 +1559,7 @@ document.addEventListener('keydown', function(ev){
   <!-- ══ PROCESS ON HOLD SECTION ══ -->
   <div id="section-process" style="display:none">
     <div class="stats-bar" id="proc-stats"></div>
+    <div id="proc-progress" style="margin:-14px 0 18px"></div>
     <div class="section-header">
       <div class="section-title">⏸ Shipping On Hold</div>
       <div class="section-actions">
@@ -2637,10 +2638,10 @@ function buildMonthSelects(){
   });
 }
 
-function populateYearSelect(selectId, dataObj, dateField){
+function populateYearSelect(selectId, dataObj, dateField, defaultYear){
   var sel = document.getElementById(selectId);
   if(!sel) return;
-  var cur = sel.value;
+  var cur = sel.value || defaultYear || '';
   var years = {};
   Object.values(dataObj).forEach(function(r){
     var d = r[dateField||'date'];
@@ -2705,7 +2706,7 @@ function initDataListeners(){
   });
   db.ref(SR_PATH+'/process').on('value', function(snap){
     procData = snap.val() || {};
-    populateYearSelect('proc-year', procData, 'receivedDate');
+    populateYearSelect('proc-year', procData, 'receivedDate', new Date().getFullYear().toString());
     renderProcess();
   });
   db.ref(SR_PATH+'/payments').on('value', function(snap){
@@ -6096,15 +6097,29 @@ function renderProcStats(rows){
   var cntPO     = holdRows.filter(function(r){ return _holdActive(r,'po'); }).length;
   var cntPickup = holdRows.filter(function(r){ return _holdActive(r,'pickup'); }).length;
   var cntOthers = holdRows.filter(function(r){ return _holdActive(r,'others'); }).length;
+  var yr = (document.getElementById('proc-year')||{}).value || '';
+  var yrLabel = yr || new Date().getFullYear();
   document.getElementById('proc-stats').innerHTML =
     '<div class="stat-card"><div class="stat-val">'+total+'</div><div class="stat-lbl">Total</div></div>'+
     '<div class="stat-card"><div class="stat-val" style="color:#e65100">'+onHold+'</div><div class="stat-lbl">On Hold</div></div>'+
     '<div class="stat-card"><div class="stat-val" style="color:#2e7d32">'+shipped+'</div><div class="stat-lbl">Shipped</div></div>'+
-    '<div class="stat-card"><div class="stat-val">'+avgDays+'</div><div class="stat-lbl">Avg Days</div></div>'+
+    '<div class="stat-card"><div class="stat-val">'+avgDays+'d</div><div class="stat-lbl">Avg Days</div></div>'+
     (cntQA?'<div class="stat-card"><div class="stat-val" style="color:#d97706">'+cntQA+'</div><div class="stat-lbl">Waiting QA</div></div>':'')+
     (cntPO?'<div class="stat-card"><div class="stat-val" style="color:#dc2626">'+cntPO+'</div><div class="stat-lbl">Missing PO</div></div>':'')+
     (cntPickup?'<div class="stat-card"><div class="stat-val" style="color:#1565c0">'+cntPickup+'</div><div class="stat-lbl">Cust. Pick Up</div></div>':'')+
     (cntOthers?'<div class="stat-card"><div class="stat-val" style="color:#6b7280">'+cntOthers+'</div><div class="stat-lbl">Others</div></div>':'');
+  var pBar = document.getElementById('proc-progress');
+  if(pBar && total > 0){
+    var pct = Math.round(shipped / total * 100);
+    pBar.innerHTML =
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">'+
+        '<span style="font-size:.68rem;font-weight:800;color:#1565c0">■ Shipping '+yrLabel+' — '+shipped+' Shipped ('+pct+'%)</span>'+
+        '<span style="font-size:.68rem;font-weight:700;color:#e65100">'+onHold+' On Hold</span>'+
+      '</div>'+
+      '<div style="height:10px;background:#fee2e2;border-radius:6px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.06)">'+
+        '<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#1565c0,#1976d2);border-radius:6px;transition:width .7s ease"></div>'+
+      '</div>';
+  } else if(pBar){ pBar.innerHTML=''; }
 }
 
 function filterProcess(){ renderProcess(); }
