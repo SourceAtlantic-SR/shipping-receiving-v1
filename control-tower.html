@@ -388,6 +388,32 @@ body>*{position:relative;z-index:1}
         </div>
         <button class="search-btn" onclick="doSearch()">Search</button>
       </div>
+      <div id="mat-date-filters" style="display:none;margin-top:10px;display:none">
+        <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <span style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b">Year</span>
+            <select id="mat-year" style="padding:7px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.82rem;font-family:inherit;color:#0f172a;background:#fff;cursor:pointer;outline:none;min-width:100px" onchange="updateMatDays();doSearch()">
+              <option value="">All Years</option>
+            </select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <span style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b">Month</span>
+            <select id="mat-month" style="padding:7px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.82rem;font-family:inherit;color:#0f172a;background:#fff;cursor:pointer;outline:none;min-width:100px" onchange="updateMatDays();doSearch()">
+              <option value="">All Months</option>
+              <option value="01">January</option><option value="02">February</option><option value="03">March</option>
+              <option value="04">April</option><option value="05">May</option><option value="06">June</option>
+              <option value="07">July</option><option value="08">August</option><option value="09">September</option>
+              <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+            </select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <span style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b">Day</span>
+            <select id="mat-day" style="padding:7px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.82rem;font-family:inherit;color:#0f172a;background:#fff;cursor:pointer;outline:none;min-width:80px" onchange="doSearch()">
+              <option value="">All Days</option>
+            </select>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   <div class="body">
@@ -879,6 +905,41 @@ function setType(t){
   var ph = t==='wo' ? 'e.g. 6020183' : t==='so' ? 'e.g. 12345' : t==='out' ? 'e.g. 42500' : t==='mat' ? 'Part # or description...' : 'e.g. EPS-001';
   document.getElementById('search-input').placeholder = ph;
   document.getElementById('search-input').focus();
+  var mf = document.getElementById('mat-date-filters');
+  if(mf) mf.style.display = t==='mat' ? 'block' : 'none';
+  if(t==='mat') populateMatYears();
+}
+
+function populateMatYears(){
+  var sel = document.getElementById('mat-year');
+  if(!sel || sel.options.length > 1) return;
+  var years = {};
+  Object.values(allData.items||{}).forEach(function(doc){
+    var y = (doc.date||'').slice(0,4); if(y) years[y]=1;
+  });
+  Object.keys(years).sort().reverse().forEach(function(y){
+    sel.innerHTML += '<option value="'+y+'">'+y+'</option>';
+  });
+  updateMatDays();
+}
+
+function updateMatDays(){
+  var yr  = (document.getElementById('mat-year')||{}).value||'';
+  var mo  = (document.getElementById('mat-month')||{}).value||'';
+  var sel = document.getElementById('mat-day');
+  if(!sel) return;
+  var cur = sel.value;
+  var days = {};
+  Object.values(allData.items||{}).forEach(function(doc){
+    var d = doc.date||'';
+    if(yr && !d.startsWith(yr)) return;
+    if(mo && d.slice(5,7)!==mo) return;
+    var day = d.slice(8,10); if(day) days[day]=1;
+  });
+  sel.innerHTML = '<option value="">All Days</option>';
+  Object.keys(days).sort().forEach(function(d){
+    sel.innerHTML += '<option value="'+d+'"'+(cur===d?' selected':'')+'>'+d+'</option>';
+  });
 }
 function clearSearch(){
   var inp = document.getElementById('search-input'); inp.value = '';
@@ -956,8 +1017,15 @@ function searchByOutgoing(q){
 
 function renderMatResults(q, raw){
   document.body.classList.add('has-results');
+  var filterYr  = (document.getElementById('mat-year')||{}).value||'';
+  var filterMo  = (document.getElementById('mat-month')||{}).value||'';
+  var filterDay = (document.getElementById('mat-day')||{}).value||'';
   var matches = [];
   Object.values(allData.items).forEach(function(doc){
+    var d = doc.date||'';
+    if(filterYr  && !d.startsWith(filterYr))       return;
+    if(filterMo  && d.slice(5,7)!==filterMo)       return;
+    if(filterDay && d.slice(8,10)!==filterDay)      return;
     (doc.lineItems||[]).forEach(function(li){
       var mat = norm(li.material||'');
       if(!mat || !mat.includes(q)) return;
@@ -975,14 +1043,17 @@ function renderMatResults(q, raw){
     });
   });
   matches.sort(function(a,b){ return b.date.localeCompare(a.date); });
+  var periodLbl = filterYr||filterMo||filterDay
+    ? ' · '+(filterYr||'All Years')+(filterMo?' / '+filterMo:'')+(filterDay?' / '+filterDay:'')
+    : '';
   var el = document.getElementById('results');
   if(!matches.length){
     el.innerHTML = '<div class="not-found"><div class="not-found-icon">🔍</div>'+
-      '<div class="not-found-title">No materials found matching "'+escHtml(raw)+'"</div>'+
-      '<div class="not-found-sub">Try a shorter keyword or check the description.</div></div>';
+      '<div class="not-found-title">No materials found matching "'+escHtml(raw)+'"'+periodLbl+'</div>'+
+      '<div class="not-found-sub">Try a shorter keyword, adjust the date filters, or check the description.</div></div>';
     return;
   }
-  var h = '<div class="ct-card"><div class="ct-card-title">📦 Material / Components — '+matches.length+' result'+(matches.length===1?'':'s')+' for "'+escHtml(raw)+'"</div>';
+  var h = '<div class="ct-card"><div class="ct-card-title">📦 Material / Components — '+matches.length+' result'+(matches.length===1?'':'s')+' for "'+escHtml(raw)+'"'+escHtml(periodLbl)+'</div>';
   h += '<table class="ct-table"><thead><tr><th>Material / Description</th><th>Qty</th><th>Date</th><th>Location</th><th>Work Order #</th><th>Sales Order #</th><th>Area</th><th>Customer</th></tr></thead><tbody>';
   matches.forEach(function(c){
     var binHtml = c.binLocation==='WIP' ? '<span class="bin-badge bin-wip">WIP</span>'
