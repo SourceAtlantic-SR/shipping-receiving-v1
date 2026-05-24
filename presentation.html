@@ -411,13 +411,13 @@ var N = slides.length;
 var cur = 0;
 
 var NOTES = [
-  { title:'1 — Title',               hint:'Apresente-se: Luiz Silva, Source Atlantic desde Set/2019, Shipper/Receiver no armazém EPS.',                          next:'Introduction' },
-  { title:'2 — Introduction',        hint:'Fale sobre quem é você, sua função e o que observou: clientes internos sem visibilidade do que acontecia em S&R.',     next:'The Challenge' },
-  { title:'3 — The Challenge',       hint:'Explique as lacunas: P21 limitado, formulários manuais (Incoming, Outgoing, Daily Cash), fotos difíceis de acessar.', next:'End-to-End Visibility' },
-  { title:'4 — End-to-End',          hint:'Mostre o fluxo: Entrada → Items Received → On Hold → Shipped. Fotos, tempo no armazém, destinos.',                    next:'Two Environments' },
-  { title:'5 — Two Environments',    hint:'Admin: criar, gerenciar, fazer upload. Viewer: consultar pedidos, ver fotos, somente leitura.',                        next:'Live Demo' },
-  { title:'6 — Live Demo',           hint:'Clique no monitor para abrir o app. Demo: Admin → Viewer → Operations Dashboard. ~13 min.',                           next:'Thank You / Q&A' },
-  { title:'7 — Thank You / Q&A',     hint:'Agradeça a atenção e abra para perguntas.',                                                                           next:'— Fim —' },
+  { title:'1 — Title',               hint:'Introduce yourself: Luiz Silva, at Source Atlantic since Sep/2019, Shipper/Receiver in the EPS warehouse.',                              next:'Introduction' },
+  { title:'2 — Introduction',        hint:'Talk about your role and what you observed: internal clients had no visibility into what was happening inside S&R.',                      next:'The Challenge' },
+  { title:'3 — The Challenge',       hint:'Explain the gaps: P21 limitations, manual forms (Incoming, Outgoing, Daily Cash), photos not easily accessible.',                        next:'End-to-End Visibility' },
+  { title:'4 — End-to-End',          hint:'Walk through the flow: Receiving → Items Received → On Hold → Shipped. Photos, time in warehouse, destinations.',                        next:'Two Environments' },
+  { title:'5 — Two Environments',    hint:'Admin: create, manage, upload. Viewer: look up orders, view photos, read-only access.',                                                  next:'Live Demo' },
+  { title:'6 — Live Demo',           hint:'Click the monitor icon to open the app. Demo: Admin environment → Viewer environment → Operations Dashboard. ~13 min.',                  next:'Thank You / Q&A' },
+  { title:'7 — Thank You / Q&A',     hint:'Thank everyone for their attention and open the floor for questions.',                                                                    next:'— End —' },
 ];
 
 var presWin = null;
@@ -448,8 +448,8 @@ function openPresenter(){
     +'.hint{font-size:.9rem;line-height:1.6;opacity:.82}.nxt .ttl{color:#34d399}'
     +'</style></head><body>'
     +'<div class="top"><span class="badge" id="pg">— / —</span><span class="timer" id="tmr">0:00</span></div>'
-    +'<div class="box cur"><div class="lbl">Slide atual</div><div class="ttl" id="ctitle"></div><div class="hint" id="chint"></div></div>'
-    +'<div class="box nxt"><div class="lbl">Próximo slide</div><div class="ttl" id="ntitle"></div></div>'
+    +'<div class="box cur"><div class="lbl">Current Slide</div><div class="ttl" id="ctitle"></div><div class="hint" id="chint"></div></div>'
+    +'<div class="box nxt"><div class="lbl">Next Slide</div><div class="ttl" id="ntitle"></div></div>'
     +'<script>'
     +'var t0=Date.now();'
     +'function pad(n){return n<10?"0"+n:n}'
@@ -459,7 +459,7 @@ function openPresenter(){
     +'  document.getElementById("pg").textContent=(d.cur+1)+" / "+d.total;'
     +'  document.getElementById("ctitle").textContent=(d.note&&d.note.title)||"";'
     +'  document.getElementById("chint").textContent=(d.note&&d.note.hint)||"";'
-    +'  document.getElementById("ntitle").textContent=d.nextNote?d.nextNote.title:"— Fim da apresentação —";'
+    +'  document.getElementById("ntitle").textContent=d.nextNote?d.nextNote.title:"— End of Presentation —";'
     +'}'
     +'window.srUpdate=srUpdate;'
     +'window.addEventListener("storage",function(e){if(e.key==="sr-pv"&&e.newValue){try{srUpdate(JSON.parse(e.newValue));}catch(x){}}});'
