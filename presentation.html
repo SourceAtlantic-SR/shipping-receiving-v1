@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>S&R App Presentation — Source Atlantic</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',system-ui,-apple-system,sans-serif;background:#0f172a}
+
+/* ── DECK ── */
+.deck{width:100vw;height:100vh;position:relative}
+.slide{position:absolute;inset:0;opacity:0;transform:translateX(48px);transition:opacity .38s ease,transform .38s ease;pointer-events:none;display:flex;flex-direction:column}
+.slide.active{opacity:1;transform:none;pointer-events:all}
+
+/* ── THEMES ── */
+.th-dark{background:linear-gradient(150deg,#0f172a 0%,#1e3a8a 55%,#1d4ed8 100%);color:#fff}
+.th-navy{background:linear-gradient(150deg,#0f172a 0%,#1e293b 100%);color:#fff}
+.th-white{background:#f8faff;color:#0f172a}
+.th-accent{background:linear-gradient(150deg,#1e3a8a 0%,#2563eb 100%);color:#fff}
+
+/* ── TOP BAND ── */
+.band{height:4px;flex-shrink:0;background:linear-gradient(90deg,#1d4ed8,#3b82f6,#60a5fa)}
+.band-gold{height:4px;flex-shrink:0;background:linear-gradient(90deg,#d97706,#f59e0b,#fbbf24)}
+.band-green{height:4px;flex-shrink:0;background:linear-gradient(90deg,#059669,#10b981,#34d399)}
+
+/* ── LAYOUT ── */
+.inner{flex:1;padding:44px 72px;display:flex;flex-direction:column;justify-content:center}
+.inner-top{flex:1;padding:40px 72px 32px;display:flex;flex-direction:column;justify-content:flex-start}
+.inner-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 80px}
+
+/* ── TYPE ── */
+.eyebrow{font-size:.64rem;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;opacity:.5;margin-bottom:10px}
+.h1{font-size:3rem;font-weight:900;line-height:1.08;letter-spacing:-1.8px;margin-bottom:14px}
+.h2{font-size:2rem;font-weight:900;line-height:1.12;letter-spacing:-1px;margin-bottom:12px}
+.sub{font-size:1rem;font-weight:400;line-height:1.7;opacity:.7;max-width:600px}
+.divider{width:44px;height:3px;border-radius:2px;background:linear-gradient(90deg,#2563eb,#60a5fa);margin:14px 0 22px}
+.divider.light{background:linear-gradient(90deg,#60a5fa,#93c5fd)}
+.divider.gold{background:linear-gradient(90deg,#d97706,#fbbf24)}
+
+/* ── GRID ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+
+/* ── CARD ── */
+.card{border-radius:14px;padding:22px 24px;border:1.5px solid}
+.card-dark{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14)}
+.card-light{background:#fff;border-color:#e2e8f0;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.card-blue{background:#eff6ff;border-color:#bfdbfe}
+.card-icon{font-size:1.5rem;margin-bottom:10px}
+.card-ttl{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.card-ttl-blue{color:#1d4ed8}
+.card-ttl-light{color:#93c5fd}
+.card-ttl-green{color:#34d399}
+.card-body{font-size:.86rem;line-height:1.65}
+.card-body-dark{color:rgba(255,255,255,.72)}
+.card-body-light{color:#475569}
+
+/* ── BULLETS ── */
+.bullets{list-style:none;display:flex;flex-direction:column;gap:13px}
+.bullets li{display:flex;align-items:flex-start;gap:12px;font-size:.92rem;line-height:1.6;font-weight:500}
+.bullets li .ic{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+.bullets li .tx{color:#334155}
+.bullets.lgt li .tx{color:rgba(255,255,255,.85)}
+
+/* ── HIGHLIGHT BOX ── */
+.hbox{border-radius:0 12px 12px 0;padding:14px 18px;border-left:3.5px solid}
+.hbox-blue{background:#eff6ff;border-color:#2563eb}
+.hbox-gold{background:#fffbeb;border-color:#d97706}
+.hbox-green{background:#f0fdf4;border-color:#059669}
+.hbox-dark{background:rgba(255,255,255,.07);border-color:#60a5fa}
+.hbox-lbl{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.hbox-txt{font-size:.86rem;line-height:1.6;font-weight:500}
+
+/* ── FLOW ── */
+.flow{display:flex;align-items:stretch;gap:0;margin-top:20px}
+.fstep{flex:1;text-align:center;border-radius:12px;padding:16px 8px;background:linear-gradient(160deg,#1d4ed8,#2563eb);border:none}
+.fstep-ic{font-size:1.4rem;margin-bottom:6px}
+.fstep-lbl{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#fff}
+.fstep-sub{font-size:.62rem;color:rgba(255,255,255,.65);margin-top:4px;line-height:1.45}
+.farrow{display:flex;align-items:center;padding:0 8px;color:#60a5fa;font-size:1.2rem;flex-shrink:0}
+
+/* ── STAT ── */
+.stat-row{display:flex;gap:32px;margin-top:20px;flex-wrap:wrap}
+.stat-item{text-align:center}
+.stat-num{font-size:2.8rem;font-weight:900;letter-spacing:-1.5px;color:#1d4ed8}
+.stat-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-top:2px}
+
+/* ── ENV BADGE ── */
+.env-badge{display:inline-flex;align-items:center;gap:10px;padding:12px 20px;border-radius:12px;margin-bottom:16px}
+.env-badge.admin{background:linear-gradient(135deg,#1d4ed8,#2563eb)}
+.env-badge.viewer{background:linear-gradient(135deg,#059669,#10b981)}
+.env-badge-icon{font-size:1.3rem}
+.env-badge-text{font-size:.82rem;font-weight:800;color:#fff;letter-spacing:.2px}
+
+/* ── DEMO RING ── */
+.demo-ring{width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:3rem;margin:0 auto 24px;animation:pulse 2.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(99,102,241,.4)}50%{box-shadow:0 0 0 22px rgba(99,102,241,0)}}
+
+/* ── NAV / PROGRESS ── */
+.progress-bar{position:fixed;bottom:0;left:0;height:3px;background:linear-gradient(90deg,#1d4ed8,#60a5fa);transition:width .4s ease;z-index:300;border-radius:0 2px 2px 0}
+.nav-dots{position:fixed;bottom:17px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:300}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.22);transition:all .22s;cursor:pointer}
+.dot.on{background:#60a5fa;width:22px;border-radius:4px}
+.nav-btns{position:fixed;bottom:11px;right:18px;display:flex;gap:8px;z-index:300}
+.nbtn{width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:rgba(255,255,255,.65);cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:inherit}
+.nbtn:hover{background:rgba(255,255,255,.22);color:#fff}
+.counter{position:fixed;bottom:19px;left:18px;font-size:.62rem;font-weight:700;letter-spacing:.5px;color:rgba(255,255,255,.3);z-index:300}
+.hint{position:fixed;top:16px;right:16px;font-size:.6rem;color:rgba(255,255,255,.22);font-weight:600;letter-spacing:.5px;z-index:300}
+
+/* ── TIMING CHIP ── */
+.timing{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:3px 12px;font-size:.64rem;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:.3px;margin-top:10px}
+.timing.dark{background:#f1f5f9;border-color:#e2e8f0;color:#64748b}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- ══════════════════════════════════════════
+     SLIDE 1 — TITLE
+══════════════════════════════════════════ -->
+<div class="slide th-dark active">
+<div class="band"></div>
+<div class="inner-center">
+  <div style="width:54px;height:54px;background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.25);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:900;letter-spacing:-.5px;margin:0 auto 20px">SA</div>
+  <div class="eyebrow">Source Atlantic — Industrial Services</div>
+  <div class="h1">Shipping &amp; Receiving<br><span style="color:#60a5fa">Operational Visibility System</span></div>
+  <div class="sub" style="margin:0 auto 32px">A custom-built web application to track, manage and report every step of the warehouse workflow — from dock to delivery.</div>
+  <div style="display:flex;gap:28px;justify-content:center;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.12);padding-top:28px">
+    <div style="text-align:center">
+      <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.38)">Presenter</div>
+      <div style="font-size:.95rem;font-weight:800;margin-top:4px">Luiz Silva</div>
+    </div>
+    <div style="width:1px;background:rgba(255,255,255,.14)"></div>
+    <div style="text-align:center">
+      <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.38)">Role</div>
+      <div style="font-size:.95rem;font-weight:800;margin-top:4px">Shipper / Receiver</div>
+    </div>
+    <div style="width:1px;background:rgba(255,255,255,.14)"></div>
+    <div style="text-align:center">
+      <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.38)">Location</div>
+      <div style="font-size:.95rem;font-weight:800;margin-top:4px">Saint John, NB — May 2026</div>
+    </div>
+  </div>
+  <div class="timing">⏱ 35-minute presentation + live demo</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 2 — INTRODUCTION
+══════════════════════════════════════════ -->
+<div class="slide th-white">
+<div class="band"></div>
+<div class="inner-top">
+  <div class="eyebrow" style="color:#2563eb">Introduction</div>
+  <div class="h2" style="color:#0f172a">A bit about me</div>
+  <div class="divider"></div>
+  <div class="g2">
+    <div>
+      <ul class="bullets" style="margin-bottom:20px">
+        <li><span class="ic">🏭</span><span class="tx">At <strong>Source Atlantic</strong> since <strong>September 2019</strong></span></li>
+        <li><span class="ic">📦</span><span class="tx">Role: <strong>Shipper / Receiver</strong> — warehouse operations, Saint John NB</span></li>
+        <li><span class="ic">🌍</span><span class="tx">Background in logistics and warehousing from <strong>multiple companies</strong> before SA</span></li>
+        <li><span class="ic">🔎</span><span class="tx">This experience showed me <strong>what works, what doesn't</strong> — and what could be improved here</span></li>
+      </ul>
+      <div class="timing dark">⏱ ~2 min</div>
+    </div>
+    <div>
+      <div class="hbox hbox-gold">
+        <div class="hbox-lbl" style="color:#92400e">💡 The Observation</div>
+        <div class="hbox-txt" style="color:#78350f">Working across different environments, I consistently noticed the same gap: <strong>internal clients had very limited visibility</strong> into what was happening inside Shipping &amp; Receiving.</div>
+      </div>
+      <div class="hbox hbox-blue" style="margin-top:14px">
+        <div class="hbox-lbl" style="color:#1e40af">❓ Daily Questions I Received</div>
+        <div class="hbox-txt" style="color:#1e3a8a">
+          "Did my component arrive for Work Order X?"<br>
+          "Can you send me a photo of the incoming material?"<br>
+          "Has this order already been shipped?"
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 3 — THE CHALLENGE
+══════════════════════════════════════════ -->
+<div class="slide th-navy">
+<div class="band"></div>
+<div class="inner-top">
+  <div class="eyebrow">The Problem</div>
+  <div class="h2">What was missing?</div>
+  <div class="divider light"></div>
+  <div class="g3">
+    <div class="card card-dark">
+      <div class="card-icon">👁️</div>
+      <div class="card-ttl card-ttl-light">Visibility Gap</div>
+      <div class="card-body card-body-dark">Internal clients — engineering, sales, operations — had no way to self-serve status information about their Work Orders or shipments.</div>
+    </div>
+    <div class="card card-dark">
+      <div class="card-icon">📷</div>
+      <div class="card-ttl card-ttl-light">Manual Photo Requests</div>
+      <div class="card-body card-body-dark">Every photo request — receiving condition, equipment identification, outgoing packaging — was handled manually via phone or email.</div>
+    </div>
+    <div class="card card-dark">
+      <div class="card-icon">🖥️</div>
+      <div class="card-ttl card-ttl-light">P21 Limitations</div>
+      <div class="card-body card-body-dark">Many S&amp;R workflows were not easily accessible in P21. Real-time hold tracking, photo logs and turnaround data were simply not available.</div>
+    </div>
+  </div>
+  <div class="hbox hbox-dark" style="margin-top:20px">
+    <div class="hbox-lbl" style="color:#93c5fd">📊 Beyond Operations</div>
+    <div class="hbox-txt" style="color:rgba(255,255,255,.78)">I also wanted a <strong style="color:#93c5fd">management data view</strong> — volume trends, carrier mix, turnaround time, hold analysis — to support decision-making and performance reporting.</div>
+  </div>
+  <div class="timing" style="margin-top:14px">⏱ ~3 min</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 4 — END-TO-END VISIBILITY
+══════════════════════════════════════════ -->
+<div class="slide th-white">
+<div class="band"></div>
+<div class="inner-top">
+  <div class="eyebrow" style="color:#2563eb">Core Feature</div>
+  <div class="h2" style="color:#0f172a">End-to-End Visibility</div>
+  <div class="divider"></div>
+  <div style="font-size:.9rem;color:#475569;margin-bottom:18px;max-width:700px">Track the <strong>complete lifecycle</strong> of every work order — from the moment equipment arrives at the dock to the day it ships out to the customer.</div>
+
+  <div class="flow">
+    <div class="fstep">
+      <div class="fstep-ic">📋</div>
+      <div class="fstep-lbl">Incoming Form</div>
+      <div class="fstep-sub">WO / SO created<br>Area &amp; customer assigned</div>
+    </div>
+    <div class="farrow">▶</div>
+    <div class="fstep">
+      <div class="fstep-ic">📦</div>
+      <div class="fstep-lbl">Items Received</div>
+      <div class="fstep-sub">WIP · Sales · Stock<br>Photos uploaded</div>
+    </div>
+    <div class="farrow">▶</div>
+    <div class="fstep">
+      <div class="fstep-ic">⏸</div>
+      <div class="fstep-lbl">On Hold</div>
+      <div class="fstep-sub">QA · PO · Pick-Up<br>Days tracked automatically</div>
+    </div>
+    <div class="farrow">▶</div>
+    <div class="fstep">
+      <div class="fstep-ic">🚚</div>
+      <div class="fstep-lbl">Shipped</div>
+      <div class="fstep-sub">Carrier · Tracking<br>Ship photos attached</div>
+    </div>
+  </div>
+
+  <div class="g3" style="margin-top:18px">
+    <div class="hbox hbox-green" style="border-radius:12px;border-left:none;border:1.5px solid #a7f3d0">
+      <div class="hbox-lbl" style="color:#065f46">📸 Photo Documentation</div>
+      <div class="hbox-txt" style="color:#065f46">Photos attached to every receiving and outgoing record — accessible at any time</div>
+    </div>
+    <div class="hbox hbox-blue" style="border-radius:12px;border-left:none;border:1.5px solid #bfdbfe">
+      <div class="hbox-lbl" style="color:#1e40af">⏱ Time in House</div>
+      <div class="hbox-txt" style="color:#1e40af">Automatic turnaround calculation — from receive date to ship date — per work order and area</div>
+    </div>
+    <div class="hbox hbox-gold" style="border-radius:12px;border-left:none;border:1.5px solid #fde68a">
+      <div class="hbox-lbl" style="color:#92400e">🗂 Destinations</div>
+      <div class="hbox-txt" style="color:#92400e">WIP, Sales Order, Stock and other application types — all tracked and reportable</div>
+    </div>
+  </div>
+  <div class="timing dark">⏱ ~4 min</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 5 — SYSTEM VIEWS
+══════════════════════════════════════════ -->
+<div class="slide th-navy">
+<div class="band"></div>
+<div class="inner-top">
+  <div class="eyebrow">System Architecture</div>
+  <div class="h2">Two Environments</div>
+  <div class="divider light"></div>
+  <div class="g2" style="margin-top:4px">
+
+    <!-- ADMIN -->
+    <div class="card card-dark" style="border-color:rgba(59,130,246,.35)">
+      <div class="env-badge admin" style="margin-bottom:14px">
+        <span class="env-badge-icon">🔧</span>
+        <div>
+          <div style="font-size:.6rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px;font-weight:700">Environment 1</div>
+          <div class="env-badge-text">Administrator</div>
+        </div>
+      </div>
+      <ul class="bullets lgt" style="gap:10px">
+        <li><span class="ic" style="font-size:.95rem">✅</span><span class="tx" style="font-size:.86rem">Create and manage all Incoming Forms and Shipping records</span></li>
+        <li><span class="ic" style="font-size:.95rem">📸</span><span class="tx" style="font-size:.86rem">Upload and link photos to any record</span></li>
+        <li><span class="ic" style="font-size:.95rem">🚚</span><span class="tx" style="font-size:.86rem">Manage carrier, transport and tracking information</span></li>
+        <li><span class="ic" style="font-size:.95rem">⏸</span><span class="tx" style="font-size:.86rem">Open and close hold reasons (QA, PO, Pick-Up)</span></li>
+        <li><span class="ic" style="font-size:.95rem">📊</span><span class="tx" style="font-size:.86rem">Full access to Dashboard and all reports</span></li>
+      </ul>
+    </div>
+
+    <!-- VIEWER -->
+    <div class="card card-dark" style="border-color:rgba(16,185,129,.3)">
+      <div class="env-badge viewer" style="margin-bottom:14px">
+        <span class="env-badge-icon">👥</span>
+        <div>
+          <div style="font-size:.6rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px;font-weight:700">Environment 2</div>
+          <div class="env-badge-text">Viewers / End Users</div>
+        </div>
+      </div>
+      <ul class="bullets lgt" style="gap:10px">
+        <li><span class="ic" style="font-size:.95rem">🔍</span><span class="tx" style="font-size:.86rem">Order Lookup — search by WO #, SO #, Material or Incoming #</span></li>
+        <li><span class="ic" style="font-size:.95rem">📦</span><span class="tx" style="font-size:.86rem">View full status of any incoming or outgoing item</span></li>
+        <li><span class="ic" style="font-size:.95rem">📸</span><span class="tx" style="font-size:.86rem">Access photos attached to any shipment or receipt</span></li>
+        <li><span class="ic" style="font-size:.95rem">📋</span><span class="tx" style="font-size:.86rem">See hold reasons, shipping details and tracking numbers</span></li>
+        <li><span class="ic" style="font-size:.95rem">📊</span><span class="tx" style="font-size:.86rem">Read-only access to the Operations Dashboard</span></li>
+      </ul>
+    </div>
+
+  </div>
+  <div class="timing" style="margin-top:14px">⏱ ~3 min</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 6 — SECURITY
+══════════════════════════════════════════ -->
+<div class="slide th-white">
+<div class="band-gold"></div>
+<div class="inner-top">
+  <div class="eyebrow" style="color:#d97706">Access Control</div>
+  <div class="h2" style="color:#0f172a">Security &amp; Authentication</div>
+  <div class="divider gold"></div>
+  <div class="g2" style="margin-top:4px">
+    <div>
+      <ul class="bullets">
+        <li><span class="ic">🔐</span><span class="tx"><strong>Email-based authentication</strong> — only accounts with a <strong style="color:#1d4ed8">@sourceatlantic.ca</strong> email can register</span></li>
+        <li><span class="ic">✉️</span><span class="tx"><strong>Invite-only registration</strong> — access is granted by sharing a direct link — not publicly listed or advertised</span></li>
+        <li><span class="ic">🔑</span><span class="tx"><strong>Password-protected sessions</strong> — every visit requires login; password reset is available via email</span></li>
+        <li><span class="ic">☁️</span><span class="tx"><strong>Google Firebase</strong> — enterprise-grade cloud infrastructure with encrypted data storage and secure connections (HTTPS)</span></li>
+        <li><span class="ic">📱</span><span class="tx"><strong>Works on any device</strong> — browser-based, no installation required, accessible from office, workshop or field</span></li>
+      </ul>
+    </div>
+    <div>
+      <div class="hbox hbox-gold">
+        <div class="hbox-lbl" style="color:#92400e">⚠️ Important Note</div>
+        <div class="hbox-txt" style="color:#78350f">The app is <strong>not hosted on the Source Atlantic corporate portal</strong> — it runs independently on a secure web address, outside of IT infrastructure constraints.</div>
+      </div>
+      <div class="hbox hbox-green" style="margin-top:14px">
+        <div class="hbox-lbl" style="color:#065f46">✅ Who Can Access</div>
+        <div class="hbox-txt" style="color:#065f46">Any Source Atlantic employee with a <strong>@sourceatlantic.ca</strong> email address who receives the registration link. No IT ticket needed.</div>
+      </div>
+      <div class="hbox hbox-blue" style="margin-top:14px">
+        <div class="hbox-lbl" style="color:#1e40af">🔧 Admin vs Viewer</div>
+        <div class="hbox-txt" style="color:#1e3a8a">Admins have full write access. Viewers are read-only — they can look up orders and see photos, but cannot modify any record.</div>
+      </div>
+    </div>
+  </div>
+  <div class="timing dark">⏱ ~2 min</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 7 — LIVE DEMO
+══════════════════════════════════════════ -->
+<div class="slide th-dark">
+<div class="band"></div>
+<div class="inner-center">
+  <div class="demo-ring">🖥️</div>
+  <div class="eyebrow" style="color:rgba(255,255,255,.45)">Next Up</div>
+  <div class="h1" style="margin-bottom:10px">Live Demo</div>
+  <div class="sub" style="margin:0 auto 32px">Let's walk through both environments so you can see exactly how the system works in practice.</div>
+  <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.18);border-radius:12px;padding:14px 22px">
+      <span style="font-size:1.3rem">🔧</span>
+      <div style="text-align:left">
+        <div style="font-size:.6rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;font-weight:700">Step 1</div>
+        <div style="font-size:.9rem;font-weight:800">Admin Environment</div>
+        <div style="font-size:.72rem;color:rgba(255,255,255,.5);margin-top:2px">Create, manage, upload</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;color:rgba(255,255,255,.35);font-size:1.4rem;padding:0 4px">→</div>
+    <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.18);border-radius:12px;padding:14px 22px">
+      <span style="font-size:1.3rem">👥</span>
+      <div style="text-align:left">
+        <div style="font-size:.6rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;font-weight:700">Step 2</div>
+        <div style="font-size:.9rem;font-weight:800">Viewer Environment</div>
+        <div style="font-size:.72rem;color:rgba(255,255,255,.5);margin-top:2px">Lookup, status, photos</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;color:rgba(255,255,255,.35);font-size:1.4rem;padding:0 4px">→</div>
+    <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.18);border-radius:12px;padding:14px 22px">
+      <span style="font-size:1.3rem">📊</span>
+      <div style="text-align:left">
+        <div style="font-size:.6rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;font-weight:700">Step 3</div>
+        <div style="font-size:.9rem;font-weight:800">Operations Dashboard</div>
+        <div style="font-size:.72rem;color:rgba(255,255,255,.5);margin-top:2px">Charts, trends, reports</div>
+      </div>
+    </div>
+  </div>
+  <div class="timing" style="margin-top:28px">⏱ ~13 min demo</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 8 — THANK YOU
+══════════════════════════════════════════ -->
+<div class="slide th-dark">
+<div class="band"></div>
+<div class="inner-center">
+  <div style="width:54px;height:54px;background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.25);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:900;letter-spacing:-.5px;margin:0 auto 20px">SA</div>
+  <div class="eyebrow" style="color:rgba(255,255,255,.45)">Thank You</div>
+  <div class="h1" style="margin-bottom:12px">Questions?</div>
+  <div class="sub" style="margin:0 auto 32px">Happy to walk through any part of the system in more detail, or demonstrate a specific scenario.</div>
+  <div style="display:flex;gap:28px;justify-content:center;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.12);padding-top:28px">
+    <div style="text-align:center">
+      <div style="font-size:.62rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.8px;font-weight:700">Presenter</div>
+      <div style="font-size:1rem;font-weight:800;margin-top:4px">Luiz Silva</div>
+      <div style="font-size:.8rem;color:rgba(255,255,255,.5);margin-top:2px">Shipper / Receiver · SA since 2019</div>
+    </div>
+    <div style="width:1px;background:rgba(255,255,255,.12)"></div>
+    <div style="text-align:center">
+      <div style="font-size:.62rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.8px;font-weight:700">App</div>
+      <div style="font-size:1rem;font-weight:800;margin-top:4px">S&amp;R Operational Visibility</div>
+      <div style="font-size:.8rem;color:rgba(255,255,255,.5);margin-top:2px">sourceatlantic-sr.github.io</div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div><!-- /deck -->
+
+<!-- ── UI ── -->
+<div class="progress-bar" id="pb"></div>
+<div class="nav-dots" id="dots"></div>
+<div class="nav-btns">
+  <button class="nbtn" onclick="go(-1)" title="Previous (←)">←</button>
+  <button class="nbtn" onclick="go(1)"  title="Next (→)">→</button>
+</div>
+<div class="counter" id="ctr"></div>
+<div class="hint">← → SPACE to navigate</div>
+
+<script>
+var slides = Array.from(document.querySelectorAll('.slide'));
+var N = slides.length;
+var cur = 0;
+
+function go(d){ var n=cur+d; if(n>=0&&n<N){ cur=n; draw(); } }
+function jump(n){ cur=n; draw(); }
+
+function draw(){
+  slides.forEach(function(s,i){ s.classList.toggle('active',i===cur); });
+  document.getElementById('pb').style.width=((cur+1)/N*100)+'%';
+  document.getElementById('ctr').textContent=(cur+1)+' / '+N;
+  document.querySelectorAll('.dot').forEach(function(d,i){ d.classList.toggle('on',i===cur); });
+}
+
+// build dots
+var dotsEl=document.getElementById('dots');
+slides.forEach(function(_,i){
+  var d=document.createElement('div');
+  d.className='dot'+(i===0?' on':'');
+  d.onclick=(function(n){return function(){jump(n);};})(i);
+  dotsEl.appendChild(d);
+});
+
+// keyboard
+document.addEventListener('keydown',function(e){
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' '){e.preventDefault();go(1);}
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();go(-1);}
+  if(e.key==='Home') jump(0);
+  if(e.key==='End')  jump(N-1);
+});
+
+// touch swipe
+var tx=0;
+document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;},{passive:true});
+document.addEventListener('touchend',function(e){
+  var dx=e.changedTouches[0].clientX-tx;
+  if(Math.abs(dx)>50) go(dx<0?1:-1);
+},{passive:true});
+
+draw();
+</script>
+</body>
+</html>
