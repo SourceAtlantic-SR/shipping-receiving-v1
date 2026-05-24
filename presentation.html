@@ -6,7 +6,7 @@
 <title>S&R App Presentation — Source Atlantic</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',system-ui,-apple-system,sans-serif;background:#0f172a}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',system-ui,-apple-system,sans-serif;background:#0f172a;font-size:19px}
 
 /* ── DECK ── */
 .deck{width:100vw;height:100vh;position:relative}
@@ -30,10 +30,10 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',system-ui,-
 .inner-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 80px}
 
 /* ── TYPE ── */
-.eyebrow{font-size:.64rem;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;opacity:.5;margin-bottom:10px}
-.h1{font-size:3rem;font-weight:900;line-height:1.08;letter-spacing:-1.8px;margin-bottom:14px}
-.h2{font-size:2rem;font-weight:900;line-height:1.12;letter-spacing:-1px;margin-bottom:12px}
-.sub{font-size:1rem;font-weight:400;line-height:1.7;opacity:.7;max-width:600px}
+.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;opacity:.5;margin-bottom:10px}
+.h1{font-size:3.4rem;font-weight:900;line-height:1.08;letter-spacing:-1.8px;margin-bottom:14px}
+.h2{font-size:2.3rem;font-weight:900;line-height:1.12;letter-spacing:-1px;margin-bottom:12px}
+.sub{font-size:1.1rem;font-weight:400;line-height:1.7;opacity:.7;max-width:680px}
 .divider{width:44px;height:3px;border-radius:2px;background:linear-gradient(90deg,#2563eb,#60a5fa);margin:14px 0 22px}
 .divider.light{background:linear-gradient(90deg,#60a5fa,#93c5fd)}
 .divider.gold{background:linear-gradient(90deg,#d97706,#fbbf24)}
@@ -49,17 +49,17 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',system-ui,-
 .card-light{background:#fff;border-color:#e2e8f0;box-shadow:0 1px 4px rgba(0,0,0,.07)}
 .card-blue{background:#eff6ff;border-color:#bfdbfe}
 .card-icon{font-size:1.5rem;margin-bottom:10px}
-.card-ttl{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.card-ttl{font-size:.88rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
 .card-ttl-blue{color:#1d4ed8}
 .card-ttl-light{color:#93c5fd}
 .card-ttl-green{color:#34d399}
-.card-body{font-size:.86rem;line-height:1.65}
+.card-body{font-size:1rem;line-height:1.65}
 .card-body-dark{color:rgba(255,255,255,.72)}
 .card-body-light{color:#475569}
 
 /* ── BULLETS ── */
 .bullets{list-style:none;display:flex;flex-direction:column;gap:13px}
-.bullets li{display:flex;align-items:flex-start;gap:12px;font-size:.92rem;line-height:1.6;font-weight:500}
+.bullets li{display:flex;align-items:flex-start;gap:12px;font-size:1.05rem;line-height:1.6;font-weight:500}
 .bullets li .ic{font-size:1.1rem;flex-shrink:0;margin-top:1px}
 .bullets li .tx{color:#334155}
 .bullets.lgt li .tx{color:rgba(255,255,255,.85)}
@@ -70,8 +70,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',system-ui,-
 .hbox-gold{background:#fffbeb;border-color:#d97706}
 .hbox-green{background:#f0fdf4;border-color:#059669}
 .hbox-dark{background:rgba(255,255,255,.07);border-color:#60a5fa}
-.hbox-lbl{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
-.hbox-txt{font-size:.86rem;line-height:1.6;font-weight:500}
+.hbox-lbl{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.hbox-txt{font-size:1rem;line-height:1.6;font-weight:500}
 
 /* ── FLOW ── */
 .flow{display:flex;align-items:stretch;gap:0;margin-top:20px}
@@ -84,7 +84,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',system-ui,-
 /* ── STAT ── */
 .stat-row{display:flex;gap:32px;margin-top:20px;flex-wrap:wrap}
 .stat-item{text-align:center}
-.stat-num{font-size:2.8rem;font-weight:900;letter-spacing:-1.5px;color:#1d4ed8}
+.stat-num{font-size:3.2rem;font-weight:900;letter-spacing:-1.5px;color:#1d4ed8}
 .stat-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-top:2px}
 
 /* ── ENV BADGE ── */
@@ -95,7 +95,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',system-ui,-
 .env-badge-text{font-size:.82rem;font-weight:800;color:#fff;letter-spacing:.2px}
 
 /* ── DEMO RING ── */
-.demo-ring{width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:3rem;margin:0 auto 24px;animation:pulse 2.5s infinite}
+.demo-ring{width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:3.8rem;margin:0 auto 24px;animation:pulse 2.5s infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(99,102,241,.4)}50%{box-shadow:0 0 0 22px rgba(99,102,241,0)}}
 
 /* ── NAV / PROGRESS ── */
