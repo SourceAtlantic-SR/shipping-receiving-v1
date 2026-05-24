@@ -403,12 +403,25 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',system-ui,-
   <button class="nbtn" onclick="go(1)"  title="Next (→)">→</button>
 </div>
 <div class="counter" id="ctr"></div>
-<div class="hint">← → SPACE to navigate</div>
+<div class="hint">← → SPACE · P = Presenter View</div>
 
 <script>
 var slides = Array.from(document.querySelectorAll('.slide'));
 var N = slides.length;
 var cur = 0;
+
+var NOTES = [
+  { title:'1 — Title',               hint:'Apresente-se: Luiz Silva, Source Atlantic desde Set/2019, Shipper/Receiver no armazém EPS.',                          next:'Introduction' },
+  { title:'2 — Introduction',        hint:'Fale sobre quem é você, sua função e o que observou: clientes internos sem visibilidade do que acontecia em S&R.',     next:'The Challenge' },
+  { title:'3 — The Challenge',       hint:'Explique as lacunas: P21 limitado, formulários manuais (Incoming, Outgoing, Daily Cash), fotos difíceis de acessar.', next:'End-to-End Visibility' },
+  { title:'4 — End-to-End',          hint:'Mostre o fluxo: Entrada → Items Received → On Hold → Shipped. Fotos, tempo no armazém, destinos.',                    next:'Two Environments' },
+  { title:'5 — Two Environments',    hint:'Admin: criar, gerenciar, fazer upload. Viewer: consultar pedidos, ver fotos, somente leitura.',                        next:'Live Demo' },
+  { title:'6 — Live Demo',           hint:'Clique no monitor para abrir o app. Demo: Admin → Viewer → Operations Dashboard. ~13 min.',                           next:'Thank You / Q&A' },
+  { title:'7 — Thank You / Q&A',     hint:'Agradeça a atenção e abra para perguntas.',                                                                           next:'— Fim —' },
+];
+
+var presWin = null;
+var timerStart = Date.now();
 
 function go(d){ var n=cur+d; if(n>=0&&n<N){ cur=n; draw(); } }
 function jump(n){ cur=n; draw(); }
@@ -418,6 +431,43 @@ function draw(){
   document.getElementById('pb').style.width=((cur+1)/N*100)+'%';
   document.getElementById('ctr').textContent=(cur+1)+' / '+N;
   document.querySelectorAll('.dot').forEach(function(d,i){ d.classList.toggle('on',i===cur); });
+  var data = { cur:cur, total:N, note:NOTES[cur]||{}, nextNote:NOTES[cur+1]||null, elapsed: Math.floor((Date.now()-timerStart)/1000) };
+  try{ localStorage.setItem('sr-pv', JSON.stringify(data)); }catch(e){}
+  if(presWin && !presWin.closed) presWin.srUpdate && presWin.srUpdate(data);
+}
+
+function openPresenter(){
+  presWin = window.open('','srPresenter','width=660,height=420,resizable=yes,menubar=no,toolbar=no,location=no');
+  if(!presWin){ alert('Pop-up bloqueado. Permita pop-ups para este site.'); return; }
+  var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Presenter View</title>'
+    +'<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif;background:#0f172a;color:#fff;padding:24px;display:flex;flex-direction:column;gap:16px;min-height:100vh}'
+    +'.top{display:flex;justify-content:space-between;align-items:center}.badge{background:#1e3a8a;border-radius:8px;padding:4px 12px;font-size:.75rem;font-weight:700;letter-spacing:.5px}'
+    +'.timer{font-size:1.6rem;font-weight:900;letter-spacing:-1px;color:#60a5fa;font-variant-numeric:tabular-nums}'
+    +'.box{border-radius:12px;padding:18px 20px}.cur{background:#1e3a8a;border:1.5px solid #2563eb}.nxt{background:#0f2b1a;border:1.5px solid #059669}'
+    +'.lbl{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.5;margin-bottom:8px}.ttl{font-size:1.1rem;font-weight:800;margin-bottom:8px}'
+    +'.hint{font-size:.9rem;line-height:1.6;opacity:.82}.nxt .ttl{color:#34d399}'
+    +'</style></head><body>'
+    +'<div class="top"><span class="badge" id="pg">— / —</span><span class="timer" id="tmr">0:00</span></div>'
+    +'<div class="box cur"><div class="lbl">Slide atual</div><div class="ttl" id="ctitle"></div><div class="hint" id="chint"></div></div>'
+    +'<div class="box nxt"><div class="lbl">Próximo slide</div><div class="ttl" id="ntitle"></div></div>'
+    +'<script>'
+    +'var t0=Date.now();'
+    +'function pad(n){return n<10?"0"+n:n}'
+    +'function tick(){var s=Math.floor((Date.now()-t0)/1000);document.getElementById("tmr").textContent=Math.floor(s/60)+":"+pad(s%60);}'
+    +'setInterval(tick,500);'
+    +'function srUpdate(d){'
+    +'  document.getElementById("pg").textContent=(d.cur+1)+" / "+d.total;'
+    +'  document.getElementById("ctitle").textContent=(d.note&&d.note.title)||"";'
+    +'  document.getElementById("chint").textContent=(d.note&&d.note.hint)||"";'
+    +'  document.getElementById("ntitle").textContent=d.nextNote?d.nextNote.title:"— Fim da apresentação —";'
+    +'}'
+    +'window.srUpdate=srUpdate;'
+    +'window.addEventListener("storage",function(e){if(e.key==="sr-pv"&&e.newValue){try{srUpdate(JSON.parse(e.newValue));}catch(x){}}});'
+    +'<\/script></body></html>';
+  presWin.document.open();
+  presWin.document.write(html);
+  presWin.document.close();
+  setTimeout(function(){ if(presWin&&!presWin.closed){ presWin.srUpdate&&presWin.srUpdate({cur:cur,total:N,note:NOTES[cur]||{},nextNote:NOTES[cur+1]||null}); } }, 300);
 }
 
 // build dots
@@ -435,6 +485,7 @@ document.addEventListener('keydown',function(e){
   if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();go(-1);}
   if(e.key==='Home') jump(0);
   if(e.key==='End')  jump(N-1);
+  if(e.key==='p'||e.key==='P') openPresenter();
 });
 
 // touch swipe
