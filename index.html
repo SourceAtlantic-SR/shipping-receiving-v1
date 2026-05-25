@@ -1566,13 +1566,13 @@ document.addEventListener('keydown', function(ev){
         <select class="year-select" id="proc-year" onchange="filterProcess()"><option value="">All Years</option></select>
         <select class="year-select" id="proc-month" onchange="filterProcess()"><option value="">All Months</option></select>
         <select class="year-select" id="proc-day" onchange="filterProcess()" style="min-width:80px"><option value="">All Days</option></select>
-        <select class="year-select" id="proc-reason-filter" onchange="filterProcess()" style="min-width:160px">
-          <option value="">All Reasons</option>
+        <select class="year-select" id="proc-reason-filter" onchange="filterProcess()" style="min-width:185px">
+          <option value="">All Records</option>
           <option value="Waiting QA">Waiting QA</option>
-          <option value="Missing PO">Missing PO</option>
+          <option value="Waiting PO">Waiting PO</option>
           <option value="Waiting Customer Pick Up">Waiting Customer Pick Up</option>
+          <option value="Waiting Credit Approval">Waiting Credit Approval</option>
           <option value="Others">Others</option>
-          <option value="(none)">(No Reason)</option>
         </select>
         <input class="search-input" type="text" id="proc-search" placeholder="Search outgoing #, WO #, customer..." oninput="filterProcess()">
         <button class="btn btn-secondary" onclick="exportProcessCSV()">⬇️ Export Excel</button>
@@ -2167,7 +2167,7 @@ document.addEventListener('keydown', function(ev){
             <div class="hold-row" id="hold-row-po">
               <div class="hold-row-check">
                 <input type="checkbox" id="hold-po-active" onchange="onHoldChange()">
-                <label for="hold-po-active">Missing PO</label>
+                <label for="hold-po-active">Waiting PO</label>
                 <span class="hold-status-pill" id="hold-po-pill" style="display:none"></span>
               </div>
               <div class="hold-row-dates" id="hold-po-dates" style="display:none">
@@ -2179,6 +2179,25 @@ document.addEventListener('keydown', function(ev){
                   <span class="hold-date-lbl">Closed</span>
                   <input type="date" class="hold-date-inp" id="hold-po-close" onchange="onHoldChange()">
                   <span id="hold-po-days" style="font-size:.72rem;font-weight:800;padding:2px 8px;border-radius:20px;background:#fee2e2;color:#dc2626;display:none"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="hold-row" id="hold-row-credit">
+              <div class="hold-row-check">
+                <input type="checkbox" id="hold-credit-active" onchange="onHoldChange()">
+                <label for="hold-credit-active">Waiting Credit Approval</label>
+                <span class="hold-status-pill" id="hold-credit-pill" style="display:none"></span>
+              </div>
+              <div class="hold-row-dates" id="hold-credit-dates" style="display:none">
+                <div class="hold-date-group">
+                  <span class="hold-date-lbl">Start</span>
+                  <input type="date" class="hold-date-inp" id="hold-credit-start" readonly>
+                </div>
+                <div class="hold-date-group">
+                  <span class="hold-date-lbl">Closed</span>
+                  <input type="date" class="hold-date-inp" id="hold-credit-close" onchange="onHoldChange()">
+                  <span id="hold-credit-days" style="font-size:.72rem;font-weight:800;padding:2px 8px;border-radius:20px;background:#f3e8ff;color:#7c3aed;display:none"></span>
                 </div>
               </div>
             </div>
@@ -2200,7 +2219,7 @@ document.addEventListener('keydown', function(ev){
                   <span id="hold-pickup-days" style="font-size:.72rem;font-weight:800;padding:2px 8px;border-radius:20px;background:#dbeafe;color:#1565c0;display:none"></span>
                 </div>
               </div>
-              <div id="hold-pickup-note" style="font-size:.72rem;color:var(--text-muted);padding-left:24px">Available after Waiting QA and Missing PO are resolved</div>
+              <div id="hold-pickup-note" style="font-size:.72rem;color:var(--text-muted);padding-left:24px">Available after Waiting QA, Waiting PO and Waiting Credit Approval are resolved</div>
             </div>
 
             <div class="hold-row" id="hold-row-others">
@@ -6033,16 +6052,12 @@ function renderProcess(){
       ||(r.po||'').toLowerCase().includes(q);
   });
   var rf = (document.getElementById('proc-reason-filter')||{}).value||'';
-  if(!rf){
+  if(rf){
     procFiltered = procFiltered.filter(function(r){
-      return _holdActive(r,'qa') || _holdActive(r,'po') || _holdActive(r,'pickup') || _holdActive(r,'others');
-    });
-  } else {
-    procFiltered = procFiltered.filter(function(r){
-      if(rf==='(none)') return !r.holdReason && (!r.holds || (!r.holds.qa&&!r.holds.po&&!r.holds.pickup&&!r.holds.others));
       if(rf==='Waiting QA')               return _holdActive(r,'qa');
-      if(rf==='Missing PO')               return _holdActive(r,'po');
+      if(rf==='Waiting PO')               return _holdActive(r,'po');
       if(rf==='Waiting Customer Pick Up') return _holdActive(r,'pickup');
+      if(rf==='Waiting Credit Approval')  return _holdActive(r,'credit');
       if(rf==='Others')                   return _holdActive(r,'others');
       return true;
     });
@@ -6309,7 +6324,7 @@ function openProcModal(key){
     setHoldsToModal(r.holds || (r.holdReason ? _migrateHoldReason(r) : {}), r.receivedDate||'');
     var autoShipDate = findProcShipDate(r);
     if(autoShipDate){
-      ['hold-qa','hold-po','hold-pickup','hold-others'].forEach(function(prefix){
+      ['hold-qa','hold-po','hold-credit','hold-pickup','hold-others'].forEach(function(prefix){
         var activeCB = document.getElementById(prefix+'-active');
         var closeEl  = document.getElementById(prefix+'-close');
         if(activeCB && activeCB.checked && closeEl && !closeEl.value) closeEl.value = autoShipDate;
@@ -6359,9 +6374,19 @@ function onHoldChange(){
   var rpo = document.getElementById('hold-row-po');
   rpo.className = 'hold-row'+(poActive ? (poClose ? ' hold-closed' : ' hold-active') : '');
 
+  var creditActive = document.getElementById('hold-credit-active').checked;
+  var creditClose  = document.getElementById('hold-credit-close').value;
+  if(creditActive && !document.getElementById('hold-credit-start').value)
+    document.getElementById('hold-credit-start').value = receivedDate;
+  document.getElementById('hold-credit-dates').style.display = creditActive ? '' : 'none';
+  _updateHoldPill('credit', creditActive, document.getElementById('hold-credit-start').value, creditClose);
+  var rcr = document.getElementById('hold-row-credit');
+  rcr.className = 'hold-row'+(creditActive ? (creditClose ? ' hold-closed' : ' hold-active') : '');
+
   var qaResolved     = !qaActive || !!qaClose;
   var poResolved     = !poActive || !!poClose;
-  var pickupEnabled  = qaResolved && poResolved;
+  var creditResolved = !creditActive || !!creditClose;
+  var pickupEnabled  = qaResolved && poResolved && creditResolved;
   var pickupCB       = document.getElementById('hold-pickup-active');
   pickupCB.disabled  = !pickupEnabled;
   document.getElementById('hold-pickup-note').style.display = pickupEnabled ? 'none' : '';
@@ -6369,8 +6394,9 @@ function onHoldChange(){
   var pickupClose    = document.getElementById('hold-pickup-close').value;
   if(pickupActive && !document.getElementById('hold-pickup-start').value){
     var cands = [receivedDate];
-    if(qaClose) cands.push(qaClose);
-    if(poClose) cands.push(poClose);
+    if(qaClose)     cands.push(qaClose);
+    if(poClose)     cands.push(poClose);
+    if(creditClose) cands.push(creditClose);
     cands.sort();
     document.getElementById('hold-pickup-start').value = cands[cands.length-1];
   }
@@ -6391,11 +6417,13 @@ function onHoldChange(){
 
   _showHoldDays('qa',     qaActive,     document.getElementById('hold-qa-start').value,     qaClose);
   _showHoldDays('po',     poActive,     document.getElementById('hold-po-start').value,     poClose);
+  _showHoldDays('credit', creditActive, document.getElementById('hold-credit-start').value, creditClose);
   _showHoldDays('pickup', pickupActive, document.getElementById('hold-pickup-start').value, pickupClose);
   _showHoldDays('others', othersActive, document.getElementById('hold-others-start').value, othersClose);
   _updateProcDaysBreakdown({
     qa:     {active:qaActive,     start:document.getElementById('hold-qa-start').value,     close:qaClose},
     po:     {active:poActive,     start:document.getElementById('hold-po-start').value,     close:poClose},
+    credit: {active:creditActive, start:document.getElementById('hold-credit-start').value, close:creditClose},
     pickup: {active:pickupActive, start:document.getElementById('hold-pickup-start').value, close:pickupClose},
     others: {active:othersActive, start:document.getElementById('hold-others-start').value, close:othersClose}
   });
@@ -6431,11 +6459,12 @@ function _updateProcDaysBreakdown(h){
   var parts=[], allClosed=true, lastClose='';
   var meta = {
     qa:    {lbl:'Waiting QA',    bg:'#fef3c7',bg2:'#dcfce7',clr:'#d97706'},
-    po:    {lbl:'Missing PO',    bg:'#fee2e2',bg2:'#dcfce7',clr:'#dc2626'},
+    po:    {lbl:'Waiting PO',    bg:'#fee2e2',bg2:'#dcfce7',clr:'#dc2626'},
+    credit:{lbl:'Credit Appr.',  bg:'#f3e8ff',bg2:'#dcfce7',clr:'#7c3aed'},
     pickup:{lbl:'Cust. Pick Up', bg:'#dbeafe',bg2:'#dcfce7',clr:'#1565c0'},
     others:{lbl:'Others',        bg:'#f1f5f9',bg2:'#dcfce7',clr:'#475569'}
   };
-  ['qa','po','pickup','others'].forEach(function(type){
+  ['qa','po','credit','pickup','others'].forEach(function(type){
     var ho = h[type];
     if(!ho.active || !ho.start) return;
     var d = calcBusinessDays(ho.start, ho.close||undefined);
@@ -6462,13 +6491,16 @@ function _updateProcDaysBreakdown(h){
 
 function setHoldsToModal(holds, receivedDate){
   var h = holds||{};
-  var qa = h.qa||{}, po = h.po||{}, pickup = h.pickup||{}, others = h.others||{};
+  var qa = h.qa||{}, po = h.po||{}, credit = h.credit||{}, pickup = h.pickup||{}, others = h.others||{};
   document.getElementById('hold-qa-active').checked      = !!qa.active;
   document.getElementById('hold-qa-start').value         = qa.startDate||'';
   document.getElementById('hold-qa-close').value         = qa.closeDate||'';
   document.getElementById('hold-po-active').checked      = !!po.active;
   document.getElementById('hold-po-start').value         = po.startDate||'';
   document.getElementById('hold-po-close').value         = po.closeDate||'';
+  document.getElementById('hold-credit-active').checked  = !!credit.active;
+  document.getElementById('hold-credit-start').value     = credit.startDate||'';
+  document.getElementById('hold-credit-close').value     = credit.closeDate||'';
   document.getElementById('hold-pickup-active').checked  = !!pickup.active;
   document.getElementById('hold-pickup-start').value     = pickup.startDate||'';
   document.getElementById('hold-pickup-close').value     = pickup.closeDate||'';
@@ -6480,19 +6512,23 @@ function setHoldsToModal(holds, receivedDate){
 }
 
 function getHoldsFromModal(){
-  var receivedDate = document.getElementById('proc-received-date').value||today();
-  var qaActive  = document.getElementById('hold-qa-active').checked;
-  var qaClose   = document.getElementById('hold-qa-close').value;
-  var poActive  = document.getElementById('hold-po-active').checked;
-  var poClose   = document.getElementById('hold-po-close').value;
+  var receivedDate  = document.getElementById('proc-received-date').value||today();
+  var qaActive      = document.getElementById('hold-qa-active').checked;
+  var qaClose       = document.getElementById('hold-qa-close').value;
+  var poActive      = document.getElementById('hold-po-active').checked;
+  var poClose       = document.getElementById('hold-po-close').value;
+  var creditActive  = document.getElementById('hold-credit-active').checked;
+  var creditClose   = document.getElementById('hold-credit-close').value;
   var qaResolved    = !qaActive || !!qaClose;
   var poResolved    = !poActive || !!poClose;
-  var pickupEnabled = qaResolved && poResolved;
+  var creditResolved= !creditActive || !!creditClose;
+  var pickupEnabled = qaResolved && poResolved && creditResolved;
   var pickupActive  = pickupEnabled && document.getElementById('hold-pickup-active').checked;
   var othersActive  = document.getElementById('hold-others-active').checked;
   return {
-    qa:     { active:qaActive,  startDate:qaActive  ? (document.getElementById('hold-qa-start').value||receivedDate)     : '', closeDate:qaActive  ? qaClose  : '' },
-    po:     { active:poActive,  startDate:poActive  ? (document.getElementById('hold-po-start').value||receivedDate)     : '', closeDate:poActive  ? poClose  : '' },
+    qa:     { active:qaActive,     startDate:qaActive     ? (document.getElementById('hold-qa-start').value||receivedDate)     : '', closeDate:qaActive     ? qaClose     : '' },
+    po:     { active:poActive,     startDate:poActive     ? (document.getElementById('hold-po-start').value||receivedDate)     : '', closeDate:poActive     ? poClose     : '' },
+    credit: { active:creditActive, startDate:creditActive ? (document.getElementById('hold-credit-start').value||receivedDate) : '', closeDate:creditActive ? creditClose  : '' },
     pickup: { active:pickupActive, startDate:pickupActive ? (document.getElementById('hold-pickup-start').value||receivedDate) : '', closeDate:pickupActive ? document.getElementById('hold-pickup-close').value : '' },
     others: { active:othersActive, startDate:othersActive ? (document.getElementById('hold-others-start').value||receivedDate) : '', closeDate:othersActive ? document.getElementById('hold-others-close').value : '', description:othersActive ? document.getElementById('hold-others-desc').value.trim() : '' }
   };
@@ -6524,7 +6560,11 @@ function holdReasonBadges(r){
   }
   if(h.po && h.po.active){
     if(h.po.closeDate)   badges.push(_holdBadge('PO ✓','#dcfce7','#15803d'));
-    else { hasPending = true; if(!isEquipex) badges.push(_holdBadge('Missing PO','#fee2e2','#dc2626')); }
+    else { hasPending = true; if(!isEquipex) badges.push(_holdBadge('Waiting PO','#fee2e2','#dc2626')); }
+  }
+  if(h.credit && h.credit.active){
+    if(h.credit.closeDate) badges.push(_holdBadge('Credit ✓','#dcfce7','#15803d'));
+    else { hasPending = true; if(!isEquipex) badges.push(_holdBadge('Waiting Credit','#f3e8ff','#7c3aed')); }
   }
   if(h.pickup && h.pickup.active){
     if(h.pickup.closeDate) badges.push(_holdBadge('Pick Up ✓','#dcfce7','#15803d'));
@@ -6543,7 +6583,7 @@ function holdReasonBadges(r){
 function _holdActive(r, type){
   if(r.holds && r.holds[type]) return !!(r.holds[type].active && !r.holds[type].closeDate);
   if(type==='qa')     return r.holdReason==='Waiting QA';
-  if(type==='po')     return r.holdReason==='Missing PO';
+  if(type==='po')     return r.holdReason==='Missing PO' || r.holdReason==='Waiting PO';
   if(type==='pickup') return r.holdReason==='Waiting Customer Pick Up';
   if(type==='others') return r.holdReason==='Others';
   return false;
@@ -6551,7 +6591,7 @@ function _holdActive(r, type){
 function _holdHad(r, type){
   if(r.holds && r.holds[type]) return !!(r.holds[type].active);
   if(type==='qa')     return r.holdReason==='Waiting QA';
-  if(type==='po')     return r.holdReason==='Missing PO';
+  if(type==='po')     return r.holdReason==='Missing PO' || r.holdReason==='Waiting PO';
   if(type==='pickup') return r.holdReason==='Waiting Customer Pick Up';
   if(type==='others') return r.holdReason==='Others';
   return false;
