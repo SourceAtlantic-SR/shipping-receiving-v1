@@ -6039,12 +6039,11 @@ function renderProcess(){
     });
   } else {
     procFiltered = procFiltered.filter(function(r){
-      var notShipped = !findProcShipDate(r);
       if(rf==='(none)') return !r.holdReason && (!r.holds || (!r.holds.qa&&!r.holds.po&&!r.holds.pickup&&!r.holds.others));
-      if(rf==='Waiting QA')               return _holdActive(r,'qa')     && notShipped;
-      if(rf==='Missing PO')               return _holdActive(r,'po')     && notShipped;
-      if(rf==='Waiting Customer Pick Up') return _holdActive(r,'pickup') && notShipped;
-      if(rf==='Others')                   return _holdActive(r,'others') && notShipped;
+      if(rf==='Waiting QA')               return _holdHad(r,'qa');
+      if(rf==='Missing PO')               return _holdHad(r,'po');
+      if(rf==='Waiting Customer Pick Up') return _holdHad(r,'pickup');
+      if(rf==='Others')                   return _holdHad(r,'others');
       return true;
     });
   }
@@ -6543,6 +6542,14 @@ function holdReasonBadges(r){
 
 function _holdActive(r, type){
   if(r.holds && r.holds[type]) return !!(r.holds[type].active && !r.holds[type].closeDate);
+  if(type==='qa')     return r.holdReason==='Waiting QA';
+  if(type==='po')     return r.holdReason==='Missing PO';
+  if(type==='pickup') return r.holdReason==='Waiting Customer Pick Up';
+  if(type==='others') return r.holdReason==='Others';
+  return false;
+}
+function _holdHad(r, type){
+  if(r.holds && r.holds[type]) return !!(r.holds[type].active);
   if(type==='qa')     return r.holdReason==='Waiting QA';
   if(type==='po')     return r.holdReason==='Missing PO';
   if(type==='pickup') return r.holdReason==='Waiting Customer Pick Up';
