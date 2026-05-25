@@ -6040,10 +6040,10 @@ function renderProcess(){
   } else {
     procFiltered = procFiltered.filter(function(r){
       if(rf==='(none)') return !r.holdReason && (!r.holds || (!r.holds.qa&&!r.holds.po&&!r.holds.pickup&&!r.holds.others));
-      if(rf==='Waiting QA')               return _holdHad(r,'qa');
-      if(rf==='Missing PO')               return _holdHad(r,'po');
-      if(rf==='Waiting Customer Pick Up') return _holdHad(r,'pickup');
-      if(rf==='Others')                   return _holdHad(r,'others');
+      if(rf==='Waiting QA')               return _holdActive(r,'qa');
+      if(rf==='Missing PO')               return _holdActive(r,'po');
+      if(rf==='Waiting Customer Pick Up') return _holdActive(r,'pickup');
+      if(rf==='Others')                   return _holdActive(r,'others');
       return true;
     });
   }
