@@ -5328,7 +5328,7 @@ function filterItems(){ itmPage = 0; renderItems(); }
 // ── Line item card renderer ──
 function renderItmLines(){
   var c = document.getElementById('itm-lines-container');
-  var binOpts = ['WIP','NOBIN','Shop Supply','Shop Equip. Maintenance','Office Supplies','Sanitation Supply','Stock'];
+  var binOpts = ['WIP','NOBIN','Shop Supply','Shop Equip. Maintenance','Office Supplies','Sanitation Supply','Stock','Uniforms'];
   var fi = 'width:100%;box-sizing:border-box;padding:5px 6px;border:1.5px solid #d1d5db;border-radius:5px;font-size:.8rem;font-family:inherit;background:#fff';
   var bodyRows = itmLines.map(function(item,i){
     var binSel  = binOpts.map(function(o){ return '<option'+(item.binLocation===o?' selected':'')+'>'+o+'</option>'; }).join('');
