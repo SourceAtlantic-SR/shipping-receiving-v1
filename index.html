@@ -6308,6 +6308,15 @@ function openProcModal(key){
     document.getElementById('proc-received-date').value = r.receivedDate||'';
     document.getElementById('proc-del-btn').style.display='';
     setHoldsToModal(r.holds || (r.holdReason ? _migrateHoldReason(r) : {}), r.receivedDate||'');
+    var autoShipDate = findProcShipDate(r);
+    if(autoShipDate){
+      ['hold-qa','hold-po','hold-pickup','hold-others'].forEach(function(prefix){
+        var activeCB = document.getElementById(prefix+'-active');
+        var closeEl  = document.getElementById(prefix+'-close');
+        if(activeCB && activeCB.checked && closeEl && !closeEl.value) closeEl.value = autoShipDate;
+      });
+      onHoldChange();
+    }
     updateProcDays();
     procSetNewMode('edit');
   } else {
