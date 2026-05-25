@@ -6054,11 +6054,12 @@ function renderProcess(){
   var rf = (document.getElementById('proc-reason-filter')||{}).value||'';
   if(rf){
     procFiltered = procFiltered.filter(function(r){
-      if(rf==='Waiting QA')               return _holdActive(r,'qa');
-      if(rf==='Waiting PO')               return _holdActive(r,'po');
-      if(rf==='Waiting Customer Pick Up') return _holdActive(r,'pickup');
-      if(rf==='Waiting Credit Approval')  return _holdActive(r,'credit');
-      if(rf==='Others')                   return _holdActive(r,'others');
+      var notShipped = !findProcShipDate(r);
+      if(rf==='Waiting QA')               return _holdActive(r,'qa')     && notShipped;
+      if(rf==='Waiting PO')               return _holdActive(r,'po')     && notShipped;
+      if(rf==='Waiting Customer Pick Up') return _holdActive(r,'pickup') && notShipped;
+      if(rf==='Waiting Credit Approval')  return _holdActive(r,'credit') && notShipped;
+      if(rf==='Others')                   return _holdActive(r,'others') && notShipped;
       return true;
     });
   }
@@ -6580,12 +6581,24 @@ function holdReasonBadges(r){
   return '<div style="display:flex;flex-wrap:wrap;gap:3px">'+badges.join('')+'</div>';
 }
 
+function _isCreditDesc(desc){ return !!(desc && desc.toLowerCase().replace(/[\s-]/g,'').includes('creditapproval')); }
 function _holdActive(r, type){
+  if(type==='credit'){
+    if(r.holds && r.holds.credit) return !!(r.holds.credit.active && !r.holds.credit.closeDate);
+    if(r.holds && r.holds.others && r.holds.others.active && !r.holds.others.closeDate && _isCreditDesc(r.holds.others.description)) return true;
+    return r.holdReason==='Waiting Credit Approval';
+  }
+  if(type==='others'){
+    if(r.holds && r.holds.others){
+      if(_isCreditDesc(r.holds.others.description)) return false;
+      return !!(r.holds.others.active && !r.holds.others.closeDate);
+    }
+    return r.holdReason==='Others';
+  }
   if(r.holds && r.holds[type]) return !!(r.holds[type].active && !r.holds[type].closeDate);
   if(type==='qa')     return r.holdReason==='Waiting QA';
   if(type==='po')     return r.holdReason==='Missing PO' || r.holdReason==='Waiting PO';
   if(type==='pickup') return r.holdReason==='Waiting Customer Pick Up';
-  if(type==='others') return r.holdReason==='Others';
   return false;
 }
 function _holdHad(r, type){
