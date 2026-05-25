@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Operations Dashboard — Source Atlantic SR</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -1075,9 +1077,114 @@ function buildTable(cats, cYr, pYr, lastMo, live){
   return h;
 }
 
+/* ── MAP MODAL ── */
+var _leafMap = null;
+var _geoCache = {};
+
 function openProvModal(prov){
-  window.location.href = 'control-tower.html?page=oms&section=shipping&province='+encodeURIComponent(prov);
+  var modal = document.getElementById('map-modal-overlay');
+  document.getElementById('map-modal-title').textContent = '📍 ' + prov;
+  document.getElementById('map-modal-status').textContent = 'Loading locations…';
+  document.getElementById('map-modal-status').style.display = '';
+  modal.style.display = 'flex';
+
+  // collect shipments for this province
+  var ships = Object.values(allData.shipping||{}).filter(function(r){
+    return destKey(r) === prov;
+  });
+
+  // group by city + postal (for marker count)
+  var cityMap = {};
+  ships.forEach(function(r){
+    var city   = (r.city||'').trim();
+    var postal = (r.postalCode||'').trim().toUpperCase().slice(0,3); // FSA for CA, first 5 for US
+    var key    = city + '|' + postal;
+    if(!key || key === '|') return;
+    if(!cityMap[key]) cityMap[key] = {city:city, postal:(r.postalCode||'').trim(), country:(r.country||'Canada'), count:0};
+    cityMap[key].count++;
+  });
+
+  var locations = Object.values(cityMap);
+  if(!locations.length){
+    document.getElementById('map-modal-status').textContent = 'No location data available for this destination.';
+    initMap([]); return;
+  }
+
+  // geocode each unique location
+  var results = [];
+  var pending = locations.length;
+  function done(){ pending--; if(pending<=0){ document.getElementById('map-modal-status').style.display='none'; initMap(results); } }
+
+  locations.forEach(function(loc, i){
+    var cacheKey = loc.city+'|'+loc.country;
+    if(_geoCache[cacheKey]){
+      results.push(Object.assign({}, loc, _geoCache[cacheKey]));
+      done(); return;
+    }
+    var q = loc.city + (loc.postal ? ', ' + loc.postal : '') + ', ' + loc.country;
+    setTimeout(function(){
+      fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(q)+'&format=json&limit=1&addressdetails=0')
+        .then(function(res){ return res.json(); })
+        .then(function(data){
+          if(data && data[0]){
+            var coords = {lat:parseFloat(data[0].lat), lng:parseFloat(data[0].lon)};
+            _geoCache[cacheKey] = coords;
+            results.push(Object.assign({}, loc, coords));
+          }
+          done();
+        })
+        .catch(function(){ done(); });
+    }, i * 600);
+  });
+}
+
+function initMap(locations){
+  var container = document.getElementById('map-container');
+  if(_leafMap){ _leafMap.remove(); _leafMap=null; }
+  _leafMap = L.map(container).setView([46.5,-66.5], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom:18
+  }).addTo(_leafMap);
+
+  if(!locations.length) return;
+
+  var maxCount = Math.max.apply(null, locations.map(function(l){return l.count;}));
+  var bounds = [];
+  locations.forEach(function(loc){
+    if(!loc.lat || !loc.lng) return;
+    var r = 8 + (loc.count / maxCount) * 22;
+    var circle = L.circleMarker([loc.lat, loc.lng],{
+      radius: r, fillColor:'#2563eb', color:'#1e40af',
+      weight:2, opacity:1, fillOpacity:0.75
+    }).addTo(_leafMap);
+    circle.bindPopup(
+      '<strong>'+(loc.city||'Unknown')+'</strong><br>'+
+      (loc.postal ? loc.postal+'<br>' : '')+
+      '<span style="color:#2563eb;font-weight:700">'+loc.count+' shipment'+(loc.count>1?'s':'')+'</span>'
+    );
+    bounds.push([loc.lat, loc.lng]);
+  });
+  if(bounds.length) _leafMap.fitBounds(bounds, {padding:[32,32]});
+  setTimeout(function(){ _leafMap.invalidateSize(); }, 120);
+}
+
+function closeMapModal(){
+  document.getElementById('map-modal-overlay').style.display='none';
 }
 </script>
+
+<!-- MAP MODAL -->
+<div id="map-modal-overlay" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.65);backdrop-filter:blur(5px)" onclick="if(event.target===this)closeMapModal()">
+  <div style="background:#fff;border-radius:18px;width:100%;max-width:780px;box-shadow:0 32px 72px rgba(0,0,0,.3);overflow:hidden;display:flex;flex-direction:column">
+    <div style="background:linear-gradient(155deg,#0f172a 0%,#1e3a8a 60%,#2563eb 100%);padding:16px 22px;display:flex;align-items:center;justify-content:space-between">
+      <div style="color:#fff;font-size:1rem;font-weight:800" id="map-modal-title">Map</div>
+      <button onclick="closeMapModal()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;cursor:pointer;font-size:.82rem;font-weight:700;padding:5px 14px;font-family:inherit">✕ Close</button>
+    </div>
+    <div id="map-modal-status" style="text-align:center;padding:8px;font-size:.8rem;color:#64748b;display:none">Loading locations…</div>
+    <div id="map-container" style="height:460px"></div>
+  </div>
+</div>
+
 </body>
 </html>
