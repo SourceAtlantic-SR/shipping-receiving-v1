@@ -720,6 +720,11 @@ function showPage(page){
 }
 
 function overviewBack(){
+  var inp = document.getElementById('search-input');
+  if(inp && inp.value.trim()){
+    clearSearch();
+    return;
+  }
   if(overviewFrom){ var dest = overviewFrom; overviewFrom = null; showPage(dest); }
   else { showPage('home'); }
 }
