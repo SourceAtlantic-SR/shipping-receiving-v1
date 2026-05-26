@@ -1083,7 +1083,7 @@ function getStatus(result){
 var STATUS_CFG = {
   shipped:  {color:'#059669',bg:'#f0fdf4',border:'#6ee7b7',icon:'✅',label:'SHIPPED'},
   'on-hold':{color:'#dc2626',bg:'#fff5f5',border:'#fca5a5',icon:'⏸',label:'SHIPPING ON HOLD'},
-  packing:  {color:'#d97706',bg:'#fffbeb',border:'#fcd34d',icon:'📦',label:'PACKING & HOLD'},
+  packing:  {color:'#d97706',bg:'#fffbeb',border:'#fcd34d',icon:'📦',label:'PICKING & HOLD'},
   active:   {color:'#2563eb',bg:'#eff6ff',border:'#bfdbfe',icon:'⚙️',label:'ACTIVE — IN PROCESS'},
   notfound: {color:'#6b7280',bg:'#f9fafb',border:'#e5e7eb',icon:'🔍',label:'NOT FOUND'}
 };
@@ -1204,7 +1204,7 @@ function renderResults(result, raw){
   if(result.packing.length){
     var packEndDate = shpList.length ? shpList[0].date : null;
     var packDays = calcBusinessDays(pack.pickDate, packEndDate);
-    h += '<div class="ct-card card-warning"><div class="ct-card-title">📦 Packing & Hold</div>';
+    h += '<div class="ct-card card-warning"><div class="ct-card-title">📦 Picking & Hold</div>';
     h += '<div style="display:flex;align-items:flex-start;gap:28px;flex-wrap:wrap">';
     if(packDays!==null) h += '<div style="text-align:center;flex-shrink:0"><div class="hold-days" style="color:#d97706">'+packDays+'</div><div class="hold-lbl">Days on Hold</div></div>';
     h += '<div style="flex:1">'+infoRow('Order #',pack.orderNum)+infoRow('Customer',pack.customer)+infoRow('Pick Date',fmtDate(pack.pickDate))+'</div></div></div>';

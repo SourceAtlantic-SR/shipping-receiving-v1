@@ -726,7 +726,7 @@ document.addEventListener('keydown', function(ev){
     <button class="nav-tab" onclick="showSection('items')">📦 Incoming Items</button>
     <button class="nav-tab" onclick="showSection('shipping')">🚚 Shipping</button>
     <button class="nav-tab" onclick="showSection('subcontractor')">🔧 Subcontractor</button>
-    <button class="nav-tab" onclick="showSection('packing')">📦 Packing & Hold</button>
+    <button class="nav-tab" onclick="showSection('packing')">📦 Picking & Hold</button>
     <button class="nav-tab" onclick="showSection('process')">⏸ Shipping On Hold</button>
     <button class="nav-tab" onclick="showSection('sherrors')">⚠️ Picking Errors</button>
     <button class="nav-tab" id="nav-tab-payments" onclick="showSection('payments')" style="display:none">💰 Payments</button>
@@ -1521,11 +1521,11 @@ document.addEventListener('keydown', function(ev){
       </table>
     </div>
   </div>
-  <!-- ══ PACKING & HOLD SECTION ══ -->
+  <!-- ══ PICKING & HOLD SECTION ══ -->
   <div id="section-packing" style="display:none">
     <div class="stats-bar" id="pkg-stats"></div>
     <div class="section-header">
-      <div class="section-title">📦 Packing &amp; Hold</div>
+      <div class="section-title">📦 Picking &amp; Hold</div>
       <div class="section-actions">
         <select class="year-select" id="pkg-year" onchange="filterPacking()"><option value="">All Years</option></select>
         <select class="year-select" id="pkg-month" onchange="filterPacking()"><option value="">All Months</option></select>
@@ -1868,11 +1868,11 @@ document.addEventListener('keydown', function(ev){
   </div>
 </div>
 
-<!-- ══ PACKING & HOLD MODAL ══ -->
+<!-- ══ PICKING & HOLD MODAL ══ -->
 <div class="modal-overlay" id="pkg-modal" style="display:none" onclick="if(event.target===this)closePackModal()">
   <div class="modal" style="max-width:560px">
     <div class="modal-header">
-      <div class="modal-title" id="pkg-modal-title">New Packing &amp; Hold Record</div>
+      <div class="modal-title" id="pkg-modal-title">New Picking &amp; Hold Record</div>
       <button class="modal-close" onclick="closePackModal()">✕</button>
     </div>
     <div class="modal-body">
@@ -6721,7 +6721,7 @@ function printPackLabel(){
   var qrData = _ctBase + (orderNum ? '?so=' + encodeURIComponent(orderNum) : '');
 
   function buildPackLabel(qrImgTag){
-    return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Packing &amp; Hold Label</title><style>'+
+    return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Picking &amp; Hold Label</title><style>'+
       '*{margin:0;padding:0;box-sizing:border-box}'+
       'html,body{font-family:Arial,sans-serif;background:#fff;margin:0}'+
       'body{padding:0 0 0 15mm}'+
@@ -6748,7 +6748,7 @@ function printPackLabel(){
       '<div class="label-header">'+
         '<div class="hdr-left">'+
           (customer?'<div style="font-size:9pt;font-weight:700;color:#333">'+customer+'</div>':'')+
-          '<div class="hold-badge">PACKING &amp; HOLD</div>'+
+          '<div class="hold-badge">PICKING &amp; HOLD</div>'+
         '</div>'+
         '<div class="hdr-right">'+
           '<div class="company">SOURCE ATLANTIC<br>Saint John, NB</div>'+
@@ -6844,7 +6844,7 @@ function exportProcessCSV(){
   toXLS('process-hold', headers, data);
 }
 
-// ══ PACKING & HOLD ══
+// ══ PICKING & HOLD ══
 
 function _easterSunday(y){
   var a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4;
@@ -6943,7 +6943,7 @@ function renderPacking(){
   });
   var tbody = document.getElementById('pkg-tbody');
   if(!pkgFiltered.length){
-    tbody.innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">📦</div><div class="empty-text">No packing &amp; hold records yet.</div></div></td></tr>';
+    tbody.innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">📦</div><div class="empty-text">No picking &amp; hold records yet.</div></div></td></tr>';
     renderPkgStats(rows); return;
   }
   tbody.innerHTML = pkgFiltered.map(function(r){
@@ -7011,14 +7011,14 @@ function openPackModal(key){
 
   if(key && pkgData[key]){
     var r = pkgData[key];
-    document.getElementById('pkg-modal-title').textContent = 'Edit Packing & Hold Record';
+    document.getElementById('pkg-modal-title').textContent = 'Edit Picking & Hold Record';
     document.getElementById('pkg-order').value    = r.orderNum||'';
     document.getElementById('pkg-customer').value = r.customer||'';
     document.getElementById('pkg-pick-date').value = r.pickDate||'';
     document.getElementById('pkg-del-btn').style.display = '';
     updateDaysOnHold();
   } else {
-    document.getElementById('pkg-modal-title').textContent = 'New Packing & Hold Record';
+    document.getElementById('pkg-modal-title').textContent = 'New Picking & Hold Record';
     document.getElementById('pkg-order').value    = '';
     document.getElementById('pkg-customer').value = '';
     document.getElementById('pkg-pick-date').value = '';
