@@ -1202,7 +1202,19 @@ function openProvModal(prov){
   stEl.style.display = 'none';
   modal.style.display = 'flex';
 
-  var ships = Object.values(allData.shipping||{}).filter(function(r){ return destKey(r)===prov; });
+  // Apply the same year + month filters that the province chart uses
+  var _cYr    = document.getElementById('sel-curr').value;
+  var _moFrom = parseInt(document.getElementById('sel-from').value);
+  var _moTo   = parseInt(document.getElementById('sel-to').value);
+  var _live   = (_cYr === new Date().getFullYear().toString());
+  var _lastMo = _live ? new Date().getMonth() : 11;
+  var _moToCurr = _live ? Math.min(_moTo, _lastMo) : _moTo;
+  var _effFrom  = activeFilters.month !== null ? activeFilters.month : _moFrom;
+  var _effTo    = activeFilters.month !== null ? activeFilters.month : _moToCurr;
+  function _inRange(dateStr){ if(!(dateStr||'').startsWith(_cYr)) return false; var m=parseInt((dateStr||'').slice(5,7),10)-1; return m>=_effFrom && m<=_effTo; }
+
+  var ships = Object.values(allData.shipping||{}).filter(function(r){ return destKey(r)===prov && _inRange(r.date); });
+  document.getElementById('map-modal-title').textContent += '  —  ' + _cYr + (activeFilters.month!==null ? ' · '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][activeFilters.month] : '');
   var cityMap = {};
   ships.forEach(function(r){
     var city = (r.city||'').trim();
