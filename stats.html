@@ -1079,96 +1079,154 @@ function buildTable(cats, cYr, pYr, lastMo, live){
 
 /* ── MAP MODAL ── */
 var _leafMap = null;
-var _geoCache = {};
+var _GEO = {
+  // New Brunswick
+  'fredericton':[45.9636,-66.6431],'moncton':[46.0878,-64.7782],'saint john':[45.2733,-66.0633],
+  'st. john':[45.2733,-66.0633],'dieppe':[46.0892,-64.7157],'riverview':[46.0626,-64.8036],
+  'bathurst':[47.6193,-65.6516],'miramichi':[47.0204,-65.5013],'campbellton':[47.9985,-66.6711],
+  'oromocto':[45.8452,-66.4803],'sussex':[45.7272,-65.5101],'grand falls':[46.9378,-67.7375],
+  'edmundston':[47.3765,-68.3218],'woodstock':[46.1503,-67.5985],'shediac':[46.2234,-64.5429],
+  'caraquet':[47.8019,-64.9483],'tracadie':[47.5132,-64.9109],'sackville':[45.8999,-64.3716],
+  'hartland':[46.3058,-67.5333],'st. stephen':[45.2007,-67.2780],'mcadam':[45.5984,-67.3298],
+  // Nova Scotia
+  'halifax':[44.6488,-63.5752],'dartmouth':[44.6718,-63.5724],'sydney':[46.1368,-60.1942],
+  'truro':[45.3645,-63.2807],'new glasgow':[45.5879,-62.6452],'amherst':[45.8329,-64.2201],
+  'bridgewater':[44.3762,-64.5215],'kentville':[45.0774,-64.4926],'yarmouth':[43.8352,-66.1175],
+  'antigonish':[45.6234,-61.9962],'pictou':[45.6784,-62.7076],
+  // PEI
+  'charlottetown':[46.2382,-63.1311],'summerside':[46.3966,-63.7897],
+  // Newfoundland
+  "st. john's":[47.5615,-52.7126],"saint john's":[47.5615,-52.7126],
+  'corner brook':[48.9500,-57.9500],'mount pearl':[47.5192,-52.8058],'gander':[48.9575,-54.6089],
+  // Ontario
+  'toronto':[43.6532,-79.3832],'ottawa':[45.4215,-75.6972],'hamilton':[43.2557,-79.8711],
+  'london':[42.9849,-81.2453],'windsor':[42.3149,-83.0364],'kingston':[44.2312,-76.4860],
+  'kitchener':[43.4516,-80.4925],'waterloo':[43.4668,-80.5164],'cambridge':[43.3616,-80.3144],
+  'oshawa':[43.8971,-78.8658],'barrie':[44.3894,-79.6903],'mississauga':[43.5890,-79.6441],
+  'brampton':[43.7315,-79.7624],'markham':[43.8561,-79.3370],'vaughan':[43.8315,-79.4988],
+  'richmond hill':[43.8828,-79.4403],'oakville':[43.4675,-79.6877],'burlington':[43.3255,-79.7990],
+  'sudbury':[46.4917,-80.9930],'thunder bay':[48.3809,-89.2477],'peterborough':[44.3001,-78.3200],
+  'brantford':[43.1394,-80.2644],'sarnia':[42.9745,-82.4066],'sault ste. marie':[46.5194,-84.3461],
+  'st. catharines':[43.1594,-79.2469],'guelph':[43.5448,-80.2482],'whitby':[43.8975,-78.9429],
+  'belleville':[44.1628,-77.3832],'north bay':[46.3176,-79.4613],'timmins':[48.4758,-81.3305],
+  'ajax':[43.8509,-79.0204],'pickering':[43.8384,-79.0868],'newmarket':[44.0501,-79.4663],
+  // Quebec
+  'montreal':[45.5017,-73.5673],'québec':[46.8139,-71.2080],'quebec city':[46.8139,-71.2080],
+  'laval':[45.5720,-73.6921],'gatineau':[45.4769,-75.7013],'longueuil':[45.5312,-73.5184],
+  'sherbrooke':[45.4000,-71.8997],'trois-rivières':[46.3432,-72.5453],'saguenay':[48.4282,-71.0603],
+  'lévis':[46.8026,-71.1773],'saint-jérôme':[45.7745,-74.0000],
+  // Alberta
+  'edmonton':[53.5461,-113.4938],'calgary':[51.0447,-114.0719],'red deer':[52.2681,-113.8112],
+  'lethbridge':[49.6942,-112.8328],'medicine hat':[50.0405,-110.6764],
+  'grande prairie':[55.1707,-118.7897],'fort mcmurray':[56.7265,-111.3803],
+  // BC
+  'vancouver':[49.2827,-123.1207],'surrey':[49.1913,-122.8490],'burnaby':[49.2488,-122.9805],
+  'victoria':[48.4284,-123.3656],'kelowna':[49.8880,-119.4960],'abbotsford':[49.0504,-122.0453],
+  'richmond':[49.1666,-123.1336],'coquitlam':[49.2838,-122.7932],
+  'prince george':[53.9171,-122.7497],'kamloops':[50.6745,-120.3273],'nanaimo':[49.1659,-123.9401],
+  // Saskatchewan / Manitoba
+  'saskatoon':[52.1332,-106.6700],'regina':[50.4452,-104.6189],
+  'winnipeg':[49.8951,-97.1384],'brandon':[49.8483,-99.9500],
+  // USA
+  'new york':[40.7128,-74.0060],'new york city':[40.7128,-74.0060],'nyc':[40.7128,-74.0060],
+  'los angeles':[34.0522,-118.2437],'chicago':[41.8781,-87.6298],'houston':[29.7604,-95.3698],
+  'phoenix':[33.4484,-112.0740],'philadelphia':[39.9526,-75.1652],'san antonio':[29.4241,-98.4936],
+  'san diego':[32.7157,-117.1611],'dallas':[32.7767,-96.7970],'san jose':[37.3382,-121.8863],
+  'austin':[30.2672,-97.7431],'seattle':[47.6062,-122.3321],'denver':[39.7392,-104.9903],
+  'washington':[38.9072,-77.0369],'nashville':[36.1627,-86.7816],'boston':[42.3601,-71.0589],
+  'atlanta':[33.7490,-84.3880],'miami':[25.7617,-80.1918],'minneapolis':[44.9778,-93.2650],
+  'portland':[45.5051,-122.6750],'las vegas':[36.1699,-115.1398],'detroit':[42.3314,-83.0458],
+  'pittsburgh':[40.4406,-79.9959],'cleveland':[41.4993,-81.6944],'baltimore':[39.2904,-76.6122],
+  'milwaukee':[43.0389,-87.9065],'memphis':[35.1495,-90.0490],'buffalo':[42.8864,-78.8784],
+  'indianapolis':[39.7684,-86.1581],'louisville':[38.2527,-85.7585],'columbus':[39.9612,-82.9988],
+  'charlotte':[35.2271,-80.8431],'raleigh':[35.7796,-78.6382],'tampa':[27.9506,-82.4572],
+  'new orleans':[29.9511,-90.0715],'kansas city':[39.0997,-94.5786],'sacramento':[38.5816,-121.4944],
+  'el paso':[31.7619,-106.4850],'tucson':[32.2217,-110.9265],'albuquerque':[35.0844,-106.6504],
+  'fresno':[36.7468,-119.7726],'omaha':[41.2565,-95.9345],'spokane':[47.6588,-117.4260],
+  'virginia beach':[36.8529,-75.9780],'colorado springs':[38.8339,-104.8214],
+};
+
+function _lookupCity(city){
+  var k = (city||'').trim().toLowerCase();
+  if(_GEO[k]) return _GEO[k];
+  var keys = Object.keys(_GEO);
+  for(var i=0;i<keys.length;i++){
+    if(k.startsWith(keys[i]) || keys[i].startsWith(k)) return _GEO[keys[i]];
+  }
+  return null;
+}
 
 function openProvModal(prov){
   var modal = document.getElementById('map-modal-overlay');
   document.getElementById('map-modal-title').textContent = '📍 ' + prov;
-  document.getElementById('map-modal-status').textContent = 'Loading locations…';
-  document.getElementById('map-modal-status').style.display = '';
+  var stEl = document.getElementById('map-modal-status');
+  stEl.style.display = 'none';
   modal.style.display = 'flex';
 
-  // collect shipments for this province
-  var ships = Object.values(allData.shipping||{}).filter(function(r){
-    return destKey(r) === prov;
-  });
-
-  // group by city + postal (for marker count)
+  var ships = Object.values(allData.shipping||{}).filter(function(r){ return destKey(r)===prov; });
   var cityMap = {};
   ships.forEach(function(r){
-    var city   = (r.city||'').trim();
-    var postal = (r.postalCode||'').trim().toUpperCase().slice(0,3); // FSA for CA, first 5 for US
-    var key    = city + '|' + postal;
-    if(!key || key === '|') return;
-    if(!cityMap[key]) cityMap[key] = {city:city, postal:(r.postalCode||'').trim(), country:(r.country||'Canada'), count:0};
+    var city = (r.city||'').trim();
+    var postal = (r.postalCode||'').trim();
+    var key = (city||postal||'unknown').toLowerCase();
+    if(!key || key==='unknown') return;
+    if(!cityMap[key]) cityMap[key]={city:city,postal:postal,country:(r.country||'Canada'),count:0};
     cityMap[key].count++;
   });
 
   var locations = Object.values(cityMap);
-  if(!locations.length){
-    document.getElementById('map-modal-status').textContent = 'No location data available for this destination.';
-    initMap([]); return;
-  }
+  if(!locations.length){ stEl.textContent='No location data available.'; stEl.style.display=''; initMap([]); return; }
 
-  // geocode each unique location via Nominatim (OSM free service)
-  var results = [];
-  var pending = locations.length;
-  function done(){ pending--; if(pending<=0){ var st=document.getElementById('map-modal-status'); if(st) st.style.display='none'; initMap(results); } }
+  // resolve coords instantly from local table; unknown cities queued for Nominatim
+  var results = [], unknown = [];
+  locations.forEach(function(loc){
+    var c = _lookupCity(loc.city);
+    if(c){ results.push(Object.assign({},loc,{lat:c[0],lng:c[1]})); }
+    else { unknown.push(loc); }
+  });
 
-  locations.forEach(function(loc, i){
-    var cacheKey = (loc.city+'|'+loc.country).toLowerCase();
-    if(_geoCache[cacheKey]){
-      results.push(Object.assign({}, loc, _geoCache[cacheKey]));
-      done(); return;
-    }
+  if(!unknown.length){ initMap(results); return; }
+
+  // fallback: Nominatim only for cities not in table
+  stEl.textContent = 'Looking up ' + unknown.length + ' unknown location(s)…';
+  stEl.style.display = '';
+  var pending = unknown.length;
+  function done(){ pending--; if(pending<=0){ stEl.style.display='none'; initMap(results); } }
+  unknown.forEach(function(loc, i){
     var q = [loc.city, loc.postal, loc.country].filter(Boolean).join(', ');
     setTimeout(function(){
-      if(document.getElementById('map-modal-overlay').style.display==='none'){ done(); return; }
-      fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q), {headers:{'Accept':'application/json'}})
-        .then(function(res){ return res.ok ? res.json() : []; })
+      if(modal.style.display==='none'){ done(); return; }
+      fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q))
+        .then(function(r){ return r.ok?r.json():[]; })
         .then(function(data){
-          if(data && data[0]){
-            var coords = {lat:parseFloat(data[0].lat), lng:parseFloat(data[0].lon)};
-            _geoCache[cacheKey] = coords;
-            results.push(Object.assign({}, loc, coords));
-          }
+          if(data&&data[0]) results.push(Object.assign({},loc,{lat:parseFloat(data[0].lat),lng:parseFloat(data[0].lon)}));
           done();
-        })
-        .catch(function(){ done(); });
-    }, i * 700);
+        }).catch(function(){ done(); });
+    }, i*800);
   });
 }
 
 function initMap(locations){
   var container = document.getElementById('map-container');
-  if(!container || typeof L === 'undefined'){ return; }
+  if(!container||typeof L==='undefined') return;
   if(_leafMap){ try{_leafMap.remove();}catch(e){} _leafMap=null; }
-  _leafMap = L.map(container).setView([46.5,-66.5], 5);
+  _leafMap = L.map(container).setView([46.5,-66.5],5);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom:18
+    attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:18
   }).addTo(_leafMap);
-
-  if(!locations.length) return;
-
-  var maxCount = Math.max.apply(null, locations.map(function(l){return l.count;}));
-  var bounds = [];
+  if(!locations.length){ setTimeout(function(){_leafMap.invalidateSize();},250); return; }
+  var maxC = Math.max.apply(null,locations.map(function(l){return l.count;}));
+  var bounds=[];
   locations.forEach(function(loc){
-    if(!loc.lat || !loc.lng) return;
-    var r = 8 + (loc.count / maxCount) * 22;
-    var circle = L.circleMarker([loc.lat, loc.lng],{
-      radius: r, fillColor:'#2563eb', color:'#1e40af',
-      weight:2, opacity:1, fillOpacity:0.75
-    }).addTo(_leafMap);
-    circle.bindPopup(
-      '<strong>'+(loc.city||'Unknown')+'</strong><br>'+
-      (loc.postal ? loc.postal+'<br>' : '')+
-      '<span style="color:#2563eb;font-weight:700">'+loc.count+' shipment'+(loc.count>1?'s':'')+'</span>'
-    );
-    bounds.push([loc.lat, loc.lng]);
+    if(!loc.lat||!loc.lng) return;
+    var r = 9+(loc.count/maxC)*20;
+    L.circleMarker([loc.lat,loc.lng],{radius:r,fillColor:'#2563eb',color:'#1e40af',weight:2,opacity:1,fillOpacity:0.78})
+      .addTo(_leafMap)
+      .bindPopup('<strong>'+(loc.city||'Unknown')+'</strong>'+(loc.postal?'<br>'+loc.postal:'')+'<br><span style="color:#2563eb;font-weight:700">'+loc.count+' shipment'+(loc.count>1?'s':'')+'</span>');
+    bounds.push([loc.lat,loc.lng]);
   });
-  if(bounds.length) _leafMap.fitBounds(bounds, {padding:[32,32]});
-  setTimeout(function(){ _leafMap.invalidateSize(); }, 120);
+  if(bounds.length) _leafMap.fitBounds(bounds,{padding:[40,40]});
+  setTimeout(function(){_leafMap.invalidateSize();},250);
 }
 
 function closeMapModal(){
@@ -1177,14 +1235,14 @@ function closeMapModal(){
 </script>
 
 <!-- MAP MODAL -->
-<div id="map-modal-overlay" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.65);backdrop-filter:blur(5px)" onclick="if(event.target===this)closeMapModal()">
-  <div style="background:#fff;border-radius:18px;width:100%;max-width:1100px;height:90vh;box-shadow:0 32px 72px rgba(0,0,0,.3);overflow:hidden;display:flex;flex-direction:column">
-    <div style="background:linear-gradient(155deg,#0f172a 0%,#1e3a8a 60%,#2563eb 100%);padding:16px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+<div id="map-modal-overlay" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:6px;background:rgba(15,23,42,.65);backdrop-filter:blur(5px)" onclick="if(event.target===this)closeMapModal()">
+  <div style="background:#fff;border-radius:14px;width:98vw;max-width:1600px;box-shadow:0 32px 72px rgba(0,0,0,.3);overflow:hidden">
+    <div style="background:linear-gradient(155deg,#0f172a 0%,#1e3a8a 60%,#2563eb 100%);padding:12px 18px;display:flex;align-items:center;justify-content:space-between">
       <div style="color:#fff;font-size:1rem;font-weight:800" id="map-modal-title">Map</div>
       <button onclick="closeMapModal()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;cursor:pointer;font-size:.82rem;font-weight:700;padding:5px 14px;font-family:inherit">✕ Close</button>
     </div>
-    <div id="map-modal-status" style="text-align:center;padding:8px;font-size:.8rem;color:#64748b;display:none">Loading locations…</div>
-    <div id="map-container" style="flex:1;min-height:0"></div>
+    <div id="map-modal-status" style="text-align:center;padding:6px;font-size:.78rem;color:#64748b;display:none">Loading…</div>
+    <div id="map-container" style="height:calc(90vh - 52px);width:100%"></div>
   </div>
 </div>
 
