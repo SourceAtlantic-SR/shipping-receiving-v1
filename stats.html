@@ -1079,55 +1079,85 @@ function buildTable(cats, cYr, pYr, lastMo, live){
 
 /* ── MAP MODAL ── */
 var _leafMap = null;
+
+/* Province-keyed lookup — avoids cross-province name collisions
+   (e.g. "Truro" in NS vs PE, "Stratford" in ON vs PE, "Cornwall" in ON vs PE) */
 var _GEO = {
-  // New Brunswick
-  'fredericton':[45.9636,-66.6431],'moncton':[46.0878,-64.7782],'saint john':[45.2733,-66.0633],
-  'st. john':[45.2733,-66.0633],'dieppe':[46.0892,-64.7157],'riverview':[46.0626,-64.8036],
-  'bathurst':[47.6193,-65.6516],'miramichi':[47.0204,-65.5013],'campbellton':[47.9985,-66.6711],
-  'oromocto':[45.8452,-66.4803],'sussex':[45.7272,-65.5101],'grand falls':[46.9378,-67.7375],
-  'edmundston':[47.3765,-68.3218],'woodstock':[46.1503,-67.5985],'shediac':[46.2234,-64.5429],
-  'caraquet':[47.8019,-64.9483],'tracadie':[47.5132,-64.9109],'sackville':[45.8999,-64.3716],
-  'hartland':[46.3058,-67.5333],'st. stephen':[45.2007,-67.2780],'mcadam':[45.5984,-67.3298],
-  // Nova Scotia
-  'halifax':[44.6488,-63.5752],'dartmouth':[44.6718,-63.5724],'sydney':[46.1368,-60.1942],
-  'truro':[45.3645,-63.2807],'new glasgow':[45.5879,-62.6452],'amherst':[45.8329,-64.2201],
-  'bridgewater':[44.3762,-64.5215],'kentville':[45.0774,-64.4926],'yarmouth':[43.8352,-66.1175],
-  'antigonish':[45.6234,-61.9962],'pictou':[45.6784,-62.7076],
-  // PEI
-  'charlottetown':[46.2382,-63.1311],'summerside':[46.3966,-63.7897],
-  // Newfoundland
-  "st. john's":[47.5615,-52.7126],"saint john's":[47.5615,-52.7126],
-  'corner brook':[48.9500,-57.9500],'mount pearl':[47.5192,-52.8058],'gander':[48.9575,-54.6089],
-  // Ontario
-  'toronto':[43.6532,-79.3832],'ottawa':[45.4215,-75.6972],'hamilton':[43.2557,-79.8711],
-  'london':[42.9849,-81.2453],'windsor':[42.3149,-83.0364],'kingston':[44.2312,-76.4860],
-  'kitchener':[43.4516,-80.4925],'waterloo':[43.4668,-80.5164],'cambridge':[43.3616,-80.3144],
-  'oshawa':[43.8971,-78.8658],'barrie':[44.3894,-79.6903],'mississauga':[43.5890,-79.6441],
-  'brampton':[43.7315,-79.7624],'markham':[43.8561,-79.3370],'vaughan':[43.8315,-79.4988],
-  'richmond hill':[43.8828,-79.4403],'oakville':[43.4675,-79.6877],'burlington':[43.3255,-79.7990],
-  'sudbury':[46.4917,-80.9930],'thunder bay':[48.3809,-89.2477],'peterborough':[44.3001,-78.3200],
-  'brantford':[43.1394,-80.2644],'sarnia':[42.9745,-82.4066],'sault ste. marie':[46.5194,-84.3461],
-  'st. catharines':[43.1594,-79.2469],'guelph':[43.5448,-80.2482],'whitby':[43.8975,-78.9429],
-  'belleville':[44.1628,-77.3832],'north bay':[46.3176,-79.4613],'timmins':[48.4758,-81.3305],
-  'ajax':[43.8509,-79.0204],'pickering':[43.8384,-79.0868],'newmarket':[44.0501,-79.4663],
-  // Quebec
-  'montreal':[45.5017,-73.5673],'québec':[46.8139,-71.2080],'quebec city':[46.8139,-71.2080],
-  'laval':[45.5720,-73.6921],'gatineau':[45.4769,-75.7013],'longueuil':[45.5312,-73.5184],
-  'sherbrooke':[45.4000,-71.8997],'trois-rivières':[46.3432,-72.5453],'saguenay':[48.4282,-71.0603],
-  'lévis':[46.8026,-71.1773],'saint-jérôme':[45.7745,-74.0000],
-  // Alberta
-  'edmonton':[53.5461,-113.4938],'calgary':[51.0447,-114.0719],'red deer':[52.2681,-113.8112],
-  'lethbridge':[49.6942,-112.8328],'medicine hat':[50.0405,-110.6764],
-  'grande prairie':[55.1707,-118.7897],'fort mcmurray':[56.7265,-111.3803],
-  // BC
-  'vancouver':[49.2827,-123.1207],'surrey':[49.1913,-122.8490],'burnaby':[49.2488,-122.9805],
-  'victoria':[48.4284,-123.3656],'kelowna':[49.8880,-119.4960],'abbotsford':[49.0504,-122.0453],
-  'richmond':[49.1666,-123.1336],'coquitlam':[49.2838,-122.7932],
-  'prince george':[53.9171,-122.7497],'kamloops':[50.6745,-120.3273],'nanaimo':[49.1659,-123.9401],
-  // Saskatchewan / Manitoba
-  'saskatoon':[52.1332,-106.6700],'regina':[50.4452,-104.6189],
-  'winnipeg':[49.8951,-97.1384],'brandon':[49.8483,-99.9500],
-  // USA
+  'NB':{
+    'fredericton':[45.9636,-66.6431],'moncton':[46.0878,-64.7782],'saint john':[45.2733,-66.0633],
+    'st. john':[45.2733,-66.0633],'dieppe':[46.0892,-64.7157],'riverview':[46.0626,-64.8036],
+    'bathurst':[47.6193,-65.6516],'miramichi':[47.0204,-65.5013],'campbellton':[47.9985,-66.6711],
+    'oromocto':[45.8452,-66.4803],'sussex':[45.7272,-65.5101],'grand falls':[46.9378,-67.7375],
+    'edmundston':[47.3765,-68.3218],'woodstock':[46.1503,-67.5985],'shediac':[46.2234,-64.5429],
+    'caraquet':[47.8019,-64.9483],'tracadie':[47.5132,-64.9109],'sackville':[45.8999,-64.3716],
+    'hartland':[46.3058,-67.5333],'st. stephen':[45.2007,-67.2780],'mcadam':[45.5984,-67.3298],
+    'quispamsis':[45.4319,-65.9434],'rothesay':[45.3918,-65.9867],'lincoln':[46.0011,-66.6458],
+  },
+  'NS':{
+    'halifax':[44.6488,-63.5752],'dartmouth':[44.6718,-63.5724],'sydney':[46.1368,-60.1942],
+    'truro':[45.3645,-63.2807],'new glasgow':[45.5879,-62.6452],'amherst':[45.8329,-64.2201],
+    'bridgewater':[44.3762,-64.5215],'kentville':[45.0774,-64.4926],'yarmouth':[43.8352,-66.1175],
+    'antigonish':[45.6234,-61.9962],'pictou':[45.6784,-62.7076],'glace bay':[46.1968,-59.9573],
+    'north sydney':[46.2058,-60.2525],'stellarton':[45.5684,-62.6635],'port hawkesbury':[45.6148,-61.3534],
+  },
+  'PE':{
+    'charlottetown':[46.2382,-63.1311],'summerside':[46.3966,-63.7897],
+    'stratford':[46.2097,-63.0892],'cornwall':[46.2365,-63.2039],'montague':[46.1636,-62.6467],
+    'kensington':[46.4382,-63.6436],'souris':[46.3583,-62.2533],'alberton':[46.8185,-64.0653],
+    'truro':[46.3000,-63.2600],'o\'leary':[46.7089,-64.2319],
+  },
+  'NL':{
+    "st. john's":[47.5615,-52.7126],"saint john's":[47.5615,-52.7126],
+    'corner brook':[48.9500,-57.9500],'mount pearl':[47.5192,-52.8058],'gander':[48.9575,-54.6089],
+    'grand falls-windsor':[48.9360,-55.6630],'happy valley-goose bay':[53.3035,-60.4265],
+    'labrador city':[52.9438,-66.9137],'marystown':[47.1667,-55.1500],
+  },
+  'ON':{
+    'toronto':[43.6532,-79.3832],'ottawa':[45.4215,-75.6972],'hamilton':[43.2557,-79.8711],
+    'london':[42.9849,-81.2453],'windsor':[42.3149,-83.0364],'kingston':[44.2312,-76.4860],
+    'kitchener':[43.4516,-80.4925],'waterloo':[43.4668,-80.5164],'cambridge':[43.3616,-80.3144],
+    'oshawa':[43.8971,-78.8658],'barrie':[44.3894,-79.6903],'mississauga':[43.5890,-79.6441],
+    'brampton':[43.7315,-79.7624],'markham':[43.8561,-79.3370],'vaughan':[43.8315,-79.4988],
+    'richmond hill':[43.8828,-79.4403],'oakville':[43.4675,-79.6877],'burlington':[43.3255,-79.7990],
+    'sudbury':[46.4917,-80.9930],'thunder bay':[48.3809,-89.2477],'peterborough':[44.3001,-78.3200],
+    'brantford':[43.1394,-80.2644],'sarnia':[42.9745,-82.4066],'sault ste. marie':[46.5194,-84.3461],
+    'st. catharines':[43.1594,-79.2469],'guelph':[43.5448,-80.2482],'whitby':[43.8975,-78.9429],
+    'belleville':[44.1628,-77.3832],'north bay':[46.3176,-79.4613],'timmins':[48.4758,-81.3305],
+    'ajax':[43.8509,-79.0204],'pickering':[43.8384,-79.0868],'newmarket':[44.0501,-79.4663],
+    'stratford':[43.3690,-80.9822],'cornwall':[45.0220,-74.7321],'trenton':[44.0984,-77.5762],
+  },
+  'QC':{
+    'montreal':[45.5017,-73.5673],'québec':[46.8139,-71.2080],'quebec city':[46.8139,-71.2080],
+    'quebec':[46.8139,-71.2080],'laval':[45.5720,-73.6921],'gatineau':[45.4769,-75.7013],
+    'longueuil':[45.5312,-73.5184],'sherbrooke':[45.4000,-71.8997],'trois-rivières':[46.3432,-72.5453],
+    'saguenay':[48.4282,-71.0603],'lévis':[46.8026,-71.1773],'saint-jérôme':[45.7745,-74.0000],
+    'drummondville':[45.8833,-72.4833],'granby':[45.4009,-72.7323],'saint-hyacinthe':[45.6178,-72.9545],
+  },
+  'AB':{
+    'edmonton':[53.5461,-113.4938],'calgary':[51.0447,-114.0719],'red deer':[52.2681,-113.8112],
+    'lethbridge':[49.6942,-112.8328],'medicine hat':[50.0405,-110.6764],
+    'grande prairie':[55.1707,-118.7897],'fort mcmurray':[56.7265,-111.3803],
+    'airdrie':[51.2917,-114.0144],'spruce grove':[53.5450,-113.9008],'leduc':[53.2596,-113.5490],
+  },
+  'BC':{
+    'vancouver':[49.2827,-123.1207],'surrey':[49.1913,-122.8490],'burnaby':[49.2488,-122.9805],
+    'victoria':[48.4284,-123.3656],'kelowna':[49.8880,-119.4960],'abbotsford':[49.0504,-122.0453],
+    'richmond':[49.1666,-123.1336],'coquitlam':[49.2838,-122.7932],
+    'prince george':[53.9171,-122.7497],'kamloops':[50.6745,-120.3273],'nanaimo':[49.1659,-123.9401],
+    'langley':[49.1044,-122.6603],'delta':[49.0847,-123.0586],'north vancouver':[49.3200,-123.0724],
+  },
+  'SK':{
+    'saskatoon':[52.1332,-106.6700],'regina':[50.4452,-104.6189],
+    'moose jaw':[50.3933,-105.5517],'prince albert':[53.2033,-105.7531],
+  },
+  'MB':{
+    'winnipeg':[49.8951,-97.1384],'brandon':[49.8483,-99.9500],
+    'steinbach':[49.5258,-96.6842],'thompson':[55.7435,-97.8553],
+  },
+};
+
+/* US cities — flat table (province key is "STATE · USA") */
+var _GEO_US = {
   'new york':[40.7128,-74.0060],'new york city':[40.7128,-74.0060],'nyc':[40.7128,-74.0060],
   'los angeles':[34.0522,-118.2437],'chicago':[41.8781,-87.6298],'houston':[29.7604,-95.3698],
   'phoenix':[33.4484,-112.0740],'philadelphia':[39.9526,-75.1652],'san antonio':[29.4241,-98.4936],
@@ -1146,14 +1176,23 @@ var _GEO = {
   'virginia beach':[36.8529,-75.9780],'colorado springs':[38.8339,-104.8214],
 };
 
-function _lookupCity(city){
+function _lookupCity(city, prov){
   var k = (city||'').trim().toLowerCase();
-  if(_GEO[k]) return _GEO[k];
-  var keys = Object.keys(_GEO);
-  for(var i=0;i<keys.length;i++){
-    if(k.startsWith(keys[i]) || keys[i].startsWith(k)) return _GEO[keys[i]];
+  if(!k) return null;
+  var isUSA = prov && prov.includes('·');
+  // Province-specific table (exact match only — no partial matching)
+  var tbl = !isUSA && prov ? _GEO[prov] : null;
+  if(tbl){
+    if(tbl[k]) return tbl[k];
+    // Handle "St. X" ↔ "Saint X" spelling variants
+    var alt = k.replace(/\bst\.\s*/g,'saint ').replace(/\bsaint\s+/g,'st. ');
+    if(tbl[alt]) return tbl[alt];
   }
-  return null;
+  // US flat table
+  if(isUSA){
+    if(_GEO_US[k]) return _GEO_US[k];
+  }
+  return null; // Unknown → Nominatim with province context
 }
 
 function openProvModal(prov){
@@ -1180,7 +1219,7 @@ function openProvModal(prov){
   // resolve coords instantly from local table; unknown cities queued for Nominatim
   var results = [], unknown = [];
   locations.forEach(function(loc){
-    var c = _lookupCity(loc.city);
+    var c = _lookupCity(loc.city, prov);
     if(c){ results.push(Object.assign({},loc,{lat:c[0],lng:c[1]})); }
     else { unknown.push(loc); }
   });
@@ -1192,8 +1231,10 @@ function openProvModal(prov){
   stEl.style.display = '';
   var pending = unknown.length;
   function done(){ pending--; if(pending<=0){ stEl.style.display='none'; initMap(results); } }
+  // Derive a clean province/state string for Nominatim (strip " · USA" notation)
+  var provForNom = prov && prov.includes(' · ') ? prov.replace(' · ', ', ') : prov;
   unknown.forEach(function(loc, i){
-    var q = [loc.city, loc.postal, loc.country].filter(Boolean).join(', ');
+    var q = [loc.city, loc.postal, provForNom, loc.country].filter(Boolean).join(', ');
     setTimeout(function(){
       if(modal.style.display==='none'){ done(); return; }
       fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q))
