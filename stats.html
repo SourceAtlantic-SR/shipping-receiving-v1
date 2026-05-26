@@ -1110,21 +1110,22 @@ function openProvModal(prov){
     initMap([]); return;
   }
 
-  // geocode each unique location
+  // geocode each unique location via Nominatim (OSM free service)
   var results = [];
   var pending = locations.length;
-  function done(){ pending--; if(pending<=0){ document.getElementById('map-modal-status').style.display='none'; initMap(results); } }
+  function done(){ pending--; if(pending<=0){ var st=document.getElementById('map-modal-status'); if(st) st.style.display='none'; initMap(results); } }
 
   locations.forEach(function(loc, i){
-    var cacheKey = loc.city+'|'+loc.country;
+    var cacheKey = (loc.city+'|'+loc.country).toLowerCase();
     if(_geoCache[cacheKey]){
       results.push(Object.assign({}, loc, _geoCache[cacheKey]));
       done(); return;
     }
-    var q = loc.city + (loc.postal ? ', ' + loc.postal : '') + ', ' + loc.country;
+    var q = [loc.city, loc.postal, loc.country].filter(Boolean).join(', ');
     setTimeout(function(){
-      fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(q)+'&format=json&limit=1&addressdetails=0')
-        .then(function(res){ return res.json(); })
+      if(document.getElementById('map-modal-overlay').style.display==='none'){ done(); return; }
+      fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q), {headers:{'Accept':'application/json'}})
+        .then(function(res){ return res.ok ? res.json() : []; })
         .then(function(data){
           if(data && data[0]){
             var coords = {lat:parseFloat(data[0].lat), lng:parseFloat(data[0].lon)};
@@ -1134,13 +1135,14 @@ function openProvModal(prov){
           done();
         })
         .catch(function(){ done(); });
-    }, i * 600);
+    }, i * 700);
   });
 }
 
 function initMap(locations){
   var container = document.getElementById('map-container');
-  if(_leafMap){ _leafMap.remove(); _leafMap=null; }
+  if(!container || typeof L === 'undefined'){ return; }
+  if(_leafMap){ try{_leafMap.remove();}catch(e){} _leafMap=null; }
   _leafMap = L.map(container).setView([46.5,-66.5], 5);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
     attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
