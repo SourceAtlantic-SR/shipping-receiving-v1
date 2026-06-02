@@ -262,7 +262,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
       </div>
     </div>
 
-    <button class="btn-plan" onclick="planTrip()">✈️ &nbsp; Plan My Trip</button>
+    <button class="btn-plan" id="btn-plan" onclick="planTrip()">✈️ &nbsp; Plan My Trip</button>
   </div>
 </div>
 
@@ -272,11 +272,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
   <!-- Summary -->
   <div class="trip-summary" id="trip-summary"></div>
 
-  <!-- Event Box -->
+  <!-- Venue / Event Box -->
   <div class="event-box hidden" id="event-box">
-    <div class="event-box-title">🎉 Event Details</div>
-    <div class="event-name-display" id="event-name-display"></div>
-    <div style="font-size:12px;color:#7c3aed;margin-top:4px" id="event-date-display"></div>
+    <div class="event-box-title" id="event-box-title">📍 Venue Details</div>
+    <div class="event-name-display" id="event-name-display" style="display:none"></div>
+    <div id="venue-name-display" style="font-size:16px;font-weight:800;color:#4c1d95"></div>
+    <div id="venue-address-display" style="font-size:13px;color:#6b21a8;margin-top:6px;line-height:1.5;display:flex;align-items:flex-start;gap:6px">
+      <span>🔍</span><span id="venue-addr-text">Looking up address…</span>
+    </div>
+    <div style="font-size:12px;color:#7c3aed;margin-top:6px" id="event-date-display"></div>
   </div>
 
   <!-- Accommodation -->
@@ -359,8 +363,28 @@ function expediaDate(d){
   return `${m}/${day}/${y}`;
 }
 
+// ── NOMINATIM VENUE LOOKUP ────────────────────────────────────────────────────
+async function lookupVenueAddress(venue, city, state, country){
+  try {
+    const q = [venue, city, state, country !== 'Other' ? country : ''].filter(Boolean).join(', ');
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1&addressdetails=1&accept-language=en`;
+    const res = await fetch(url, { headers: { 'User-Agent': 'TripPlannerApp/1.0' } });
+    const data = await res.json();
+    if(!data || !data.length) return null;
+    const a = data[0].address || {};
+    const parts = [
+      (a.house_number ? a.house_number + ' ' : '') + (a.road || a.pedestrian || a.footway || ''),
+      a.suburb || a.neighbourhood || '',
+      a.city || a.town || a.village || a.county || '',
+      a.state || a.province || '',
+      a.postcode || ''
+    ].map(s => s.trim()).filter(Boolean);
+    return parts.length ? parts.join(', ') : data[0].display_name.split(',').slice(0,4).join(',').trim();
+  } catch(e) { return null; }
+}
+
 // ── PLAN ─────────────────────────────────────────────────────────────────────
-function planTrip(){
+async function planTrip(){
   const city    = document.getElementById('f-city').value.trim();
   const state   = document.getElementById('f-state').value.trim();
   const country = document.getElementById('f-country').value;
@@ -401,14 +425,42 @@ function planTrip(){
       <div class="ts-days-lbl">night${nights!==1?'s':''}</div>
     </div>`;
 
-  // ── EVENT BOX ──
+  // ── VENUE / EVENT BOX ──
   const evtBox = document.getElementById('event-box');
   const eventPurposes = ['concert','sports','festival','conference'];
-  if(eventPurposes.includes(purpose) && evtName){
+  if(venue || evtName){
     evtBox.classList.remove('hidden');
-    document.getElementById('event-name-display').textContent = evtName;
-    document.getElementById('event-date-display').textContent = fmtDate(checkin) + (checkin !== checkout ? ' – ' + fmtDate(checkout) : '') + ' · ' + locShort;
-  } else { evtBox.classList.add('hidden'); }
+
+    // Event name line
+    const evtNameEl = document.getElementById('event-name-display');
+    if(evtName){ evtNameEl.textContent = evtName; evtNameEl.style.display = ''; }
+    else { evtNameEl.style.display = 'none'; }
+
+    // Venue name line
+    const venueNameEl = document.getElementById('venue-name-display');
+    venueNameEl.textContent = venue || '';
+    venueNameEl.style.display = venue ? '' : 'none';
+
+    // Box title
+    const isEvent = eventPurposes.includes(purpose);
+    document.getElementById('event-box-title').textContent = isEvent ? '🎉 Event & Venue' : '📍 Venue Details';
+
+    // Address: show spinner, then populate async
+    const addrWrap = document.getElementById('venue-address-display');
+    const addrText = document.getElementById('venue-addr-text');
+    if(venue){
+      addrWrap.style.display = 'flex';
+      addrText.textContent = 'Looking up address…';
+    } else {
+      addrWrap.style.display = 'none';
+    }
+
+    // Date line
+    document.getElementById('event-date-display').textContent =
+      fmtDate(checkin) + (checkin !== checkout ? ' – ' + fmtDate(checkout) : '') + ' · ' + locShort;
+  } else {
+    evtBox.classList.add('hidden');
+  }
 
   // ── HOTELS ──
   const hotelCards = buildHotelCards(loc, locShort, nearAnchor, city, state, country, checkin, checkout, nights, budget);
@@ -431,6 +483,19 @@ function planTrip(){
   document.getElementById('form-section').classList.add('hidden');
   document.getElementById('results-section').classList.remove('hidden');
   window.scrollTo({top:0,behavior:'smooth'});
+
+  // ── ASYNC: fetch venue address after results are shown ──
+  if(venue){
+    const addr = await lookupVenueAddress(venue, city, state, country);
+    const addrText = document.getElementById('venue-addr-text');
+    if(addr){
+      document.getElementById('venue-address-display').querySelector('span').textContent = '📌';
+      addrText.textContent = addr;
+    } else {
+      document.getElementById('venue-address-display').querySelector('span').textContent = '⚠️';
+      addrText.textContent = 'Address not found — try adding the full venue name';
+    }
+  }
 }
 
 // ── HOTEL CARDS ───────────────────────────────────────────────────────────────
