@@ -128,6 +128,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 .tab-top{flex:1;padding:13px 8px;border:none;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:background .15s}
 .tab-top:first-child{border-radius:14px 0 0 0}
 .tab-top:last-child{border-radius:0 14px 0 0}
+.tab-top.tab-green{background:rgba(22,163,74,.22);color:rgba(255,255,255,.95)}
+.tab-top.tab-green.active{background:#fff;color:#166534}
 .tab-top.active{background:#fff;color:var(--teal2)}
 .tab-top:not(.active){background:rgba(255,255,255,.22);color:rgba(255,255,255,.95)}
 .rt-form-wrap{max-width:680px;margin:0 auto;padding:0 16px 32px;position:relative;z-index:10}
@@ -263,6 +265,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 <div class="tab-bar">
   <button class="tab-top active" id="tab-rt" onclick="switchTab('rt')">🚗 Road Trip</button>
   <button class="tab-top" id="tab-dest" onclick="switchTab('dest')">🏙️ Local Trip</button>
+  <button class="tab-top tab-green" id="tab-exp" onclick="switchTab('exp')">💰 Gastos</button>
 </div>
 
 <!-- ═══ ROAD TRIP FORM ═══ -->
@@ -537,6 +540,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
   <button class="btn-reset" onclick="resetForm()">← Plan Another Trip</button>
 </div>
 
+<!-- ═══ GASTOS REAIS ═══ -->
+<div class="results-wrap hidden" id="exp-section">
+  <div id="exp-section-content"></div>
+</div>
+
 <!-- ═══ ROAD TRIP RESULTS ═══ -->
 <div class="results-wrap hidden" id="rt-results-section">
   <div id="rt-results-content"></div>
@@ -661,13 +669,19 @@ async function geocodeForProvince(city, stateId, countryId){
 function switchTab(tab){
   document.getElementById('tab-rt').classList.toggle('active', tab==='rt');
   document.getElementById('tab-dest').classList.toggle('active', tab==='dest');
+  document.getElementById('tab-exp').classList.toggle('active', tab==='exp');
   const rtF=document.getElementById('rt-form-section'), rtR=document.getElementById('rt-results-section');
   const dtF=document.getElementById('form-section'),    dtR=document.getElementById('results-section');
+  const expS=document.getElementById('exp-section');
   rtF.classList.add('hidden'); rtR.classList.add('hidden');
   dtF.classList.add('hidden'); dtR.classList.add('hidden');
+  expS.classList.add('hidden');
   if(tab==='rt'){
     if(_rtView==='results') rtR.classList.remove('hidden');
     else rtF.classList.remove('hidden');
+  } else if(tab==='exp'){
+    expS.classList.remove('hidden');
+    document.getElementById('exp-section-content').innerHTML=buildExpensesHTML(_rtData);
   } else {
     // Auto-fill destination from RT if dest city is empty
     const rtDest = document.getElementById('rt-dest-city').value.trim();
@@ -921,6 +935,9 @@ function toggleExpForm(){
 function refreshExpenses(){
   const el=document.getElementById('rt-expenses-section');
   if(el) el.innerHTML=buildExpensesHTML(_rtData);
+  const el2=document.getElementById('exp-section-content');
+  if(el2&&!document.getElementById('exp-section').classList.contains('hidden'))
+    el2.innerHTML=buildExpensesHTML(_rtData);
 }
 
 function buildExpensesHTML(d){
@@ -1083,8 +1100,6 @@ function buildRTHTML(d){
 
   h+='<div style="background:#e0f2fe;border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--teal2)">'+
     '💡 Para ver estacionamento e detalhes do local, acesse a aba <strong>🏙️ Local Trip</strong></div>';
-
-  h+='<div id="rt-expenses-section">'+buildExpensesHTML(d)+'</div>';
 
   h+='<button class="btn-reset" onclick="resetRT()">← Edit Route</button>';
   return h;
