@@ -113,6 +113,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 /* ── RESET BTN ── */
 .btn-reset{display:block;width:calc(100% - 32px);margin:8px 16px 0;padding:14px;background:#fff;color:var(--teal);border:2px solid var(--teal);border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;transition:all .15s}
 .btn-reset:hover{background:#e0f2fe}
+/* ── EDIT DEST BTN ── */
+.btn-edit-dest{display:flex;align-items:center;gap:6px;margin:0 0 14px auto;padding:8px 16px;background:rgba(255,255,255,.25);color:#fff;border:1.5px solid rgba(255,255,255,.5);border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn-edit-dest:hover{background:rgba(255,255,255,.4)}
 
 /* ── EVENT BOX ── */
 .event-box{background:#faf5ff;border:1.5px solid #d8b4fe;border-radius:12px;padding:14px 16px;margin-bottom:10px}
@@ -506,6 +509,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 <div class="results-wrap hidden" id="results-section">
 
   <div class="trip-summary" id="trip-summary"></div>
+  <button class="btn-edit-dest" onclick="editLocalTrip()">✏️ Editar busca</button>
 
   <div class="event-box hidden" id="event-box">
     <div class="event-box-title" id="event-box-title">📍 Venue Details</div>
@@ -537,7 +541,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
     <div class="link-grid" id="parking-links"></div>
   </div>
 
-  <button class="btn-reset" onclick="resetForm()">← Plan Another Trip</button>
+  <button class="btn-reset" onclick="editLocalTrip()">✏️ Editar / Nova busca</button>
 </div>
 
 <!-- ═══ GASTOS REAIS ═══ -->
@@ -1428,8 +1432,16 @@ function buildParkingCards(city,state,locShort,nearAnchor){
   }).join('');
 }
 
-// ── RESET DESTINATION ─────────────────────────────────────────────────────────
+// ── RESET / EDIT DESTINATION ──────────────────────────────────────────────────
 function resetForm(){
+  _destView='form';
+  document.getElementById('results-section').classList.add('hidden');
+  document.getElementById('form-section').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function editLocalTrip(){
+  // Go back to form keeping all field values intact
   _destView='form';
   document.getElementById('results-section').classList.add('hidden');
   document.getElementById('form-section').classList.remove('hidden');
