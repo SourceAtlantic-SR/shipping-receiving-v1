@@ -1,5 +1,5 @@
-const CACHE = 'trip-planner-v1';
-const ASSETS = ['./travel.html', './manifest.json', './icon.svg'];
+const CACHE = 'gastos-v2';
+const ASSETS = ['./gastos-casa.html', './travel.html', './manifest.json', './icon-gastos.svg', './icon.svg'];
 
 self.addEventListener('install', function(e) {
   e.waitUntil(caches.open(CACHE).then(function(c) { return c.addAll(ASSETS); }));
@@ -19,7 +19,7 @@ self.addEventListener('fetch', function(e) {
   e.respondWith(
     caches.match(e.request).then(function(cached) {
       return cached || fetch(e.request).catch(function() {
-        if(e.request.mode === 'navigate') return caches.match('./travel.html');
+        if(e.request.mode === 'navigate') return caches.match('./gastos-casa.html');
       });
     })
   );

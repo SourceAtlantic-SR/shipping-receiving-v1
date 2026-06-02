@@ -7,6 +7,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Gastos Casa">
 <meta name="theme-color" content="#059669">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-gastos.svg">
 <title>Gastos Casa</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -198,8 +200,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
     <div class="trip-link-left">
       <span class="trip-link-ico">🚗</span>
       <div>
-        <div class="trip-link-lbl">Ver no Trip Planner</div>
-        <div class="trip-link-sub">Gastos filtrados pelo período da viagem</div>
+        <div class="trip-link-lbl">🚗 Planejar Viagem</div>
+        <div class="trip-link-sub">Road Trip, Local Trip e resumo de gastos por período</div>
       </div>
     </div>
     <span class="trip-link-arr">›</span>
@@ -351,6 +353,7 @@ function render(){
 (function(){
   document.getElementById('gc-date').value = new Date().toISOString().slice(0,10);
   render();
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
 })();
 </script>
 </body>

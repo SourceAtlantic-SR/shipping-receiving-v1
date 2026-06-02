@@ -1,23 +1,23 @@
 {
-  "name": "Trip Planner",
-  "short_name": "Trip Planner",
-  "description": "Plan road trips, hotels, restaurants & parking in seconds",
-  "start_url": "./travel.html",
+  "name": "Gastos & Viagem",
+  "short_name": "Gastos",
+  "description": "Registre gastos do dia a dia e planeje suas viagens de carro",
+  "start_url": "./gastos-casa.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0c4a6e",
-  "theme_color": "#0891b2",
+  "background_color": "#064e3b",
+  "theme_color": "#059669",
   "orientation": "portrait-primary",
-  "categories": ["travel", "navigation"],
+  "categories": ["finance", "travel"],
   "icons": [
     {
-      "src": "icon.svg",
+      "src": "icon-gastos.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "icon.svg",
+      "src": "icon-gastos.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "maskable"
