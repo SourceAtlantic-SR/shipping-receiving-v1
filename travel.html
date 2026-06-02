@@ -60,10 +60,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 .budget-lbl{font-size:12px;font-weight:700;color:var(--text)}
 .budget-sub{font-size:10px;color:var(--muted);margin-top:2px}
 
-/* ── SUBMIT ── */
-.btn-plan{display:block;width:calc(100% - 40px);margin:20px 20px;padding:16px;background:linear-gradient(135deg,var(--teal2),var(--teal));color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.3px;transition:all .18s;box-shadow:0 4px 16px rgba(8,145,178,.35)}
+/* ── SUBMIT / CLEAR BTNS ── */
+.btn-plan{display:block;width:calc(100% - 40px);margin:20px 20px 8px;padding:16px;background:linear-gradient(135deg,var(--teal2),var(--teal));color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.3px;transition:all .18s;box-shadow:0 4px 16px rgba(8,145,178,.35)}
 .btn-plan:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(8,145,178,.45)}
 .btn-plan:active{transform:none}
+.btn-clear{display:block;width:calc(100% - 40px);margin:0 20px 20px;padding:13px;background:#fff;color:var(--red);border:2px solid #fecaca;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;transition:all .15s}
+.btn-clear:hover{background:#fef2f2;border-color:var(--red)}
 
 /* ── RESULTS ── */
 .results-wrap{max-width:680px;margin:0 auto;padding:0 16px 60px}
@@ -85,7 +87,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 .link-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .link-card{background:#fff;border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);border:1px solid var(--border);text-decoration:none;display:flex;flex-direction:column;gap:6px;transition:all .18s;cursor:pointer}
 .link-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(8,145,178,.2);border-color:var(--teal3)}
-.link-card:active{transform:none}
+.link-card:active{transform:none;opacity:.8}
 .lc-top{display:flex;align-items:center;gap:8px}
 .lc-ico{font-size:24px;flex-shrink:0}
 .lc-name{font-size:14px;font-weight:800;color:var(--text)}
@@ -95,10 +97,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 .tag-best{background:#dbeafe;color:#1e40af}
 .tag-event{background:#f3e8ff;color:#6b21a8}
 .lc-desc{font-size:11px;color:var(--muted);line-height:1.4}
+.lc-cost{font-size:11px;color:var(--green);font-weight:700;margin-top:2px}
 .lc-btn{margin-top:4px;padding:8px 14px;background:var(--teal);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;transition:background .15s}
 .lc-btn:hover{background:var(--teal2)}
-
-/* food cards: full width */
 .link-grid.food{grid-template-columns:1fr}
 .link-grid.food .link-card{flex-direction:row;align-items:center}
 .link-grid.food .lc-ico{font-size:28px}
@@ -129,13 +130,40 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 .rt-form-card{background:#fff;border-radius:0 20px 20px 20px;box-shadow:0 8px 32px rgba(8,145,178,.18);overflow:hidden}
 .form-card{border-radius:20px 0 20px 20px!important}
 
+/* ── ROUND TRIP TOGGLE ── */
+.rt-options-row{display:flex;gap:12px;align-items:flex-end}
+.rt-toggle-label{display:flex;align-items:center;gap:8px;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer;background:#fff;transition:all .15s;font-size:14px;font-weight:600;color:var(--text);width:100%}
+.rt-toggle-label input{width:18px;height:18px;accent-color:var(--teal);flex-shrink:0}
+.rt-toggle-label:has(input:checked){border-color:var(--teal);background:#e0f2fe;color:var(--teal2)}
+
 /* ── ROUTE SUMMARY ── */
-.route-sum{background:linear-gradient(135deg,#0c4a6e,#0891b2);border-radius:16px;padding:18px 20px;margin-bottom:16px;color:#fff}
+.route-sum{background:linear-gradient(135deg,#0c4a6e,#0891b2);border-radius:16px;padding:18px 20px;margin-bottom:12px;color:#fff}
 .rs-title{font-size:16px;font-weight:900;margin-bottom:14px}
 .rs-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .rm{background:rgba(255,255,255,.15);border-radius:10px;padding:12px 14px}
 .rm-val{font-size:22px;font-weight:900;line-height:1}
 .rm-lbl{font-size:10px;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+
+/* ── COST BOX ── */
+.cost-box{background:linear-gradient(135deg,#064e3b,#059669);border-radius:16px;padding:18px 20px;margin-bottom:16px;color:#fff}
+.cost-box-title{font-size:15px;font-weight:900;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.cost-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.cost-row{display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.cost-row-label{color:rgba(255,255,255,.8)}
+.cost-row-val{font-weight:800;font-size:14px}
+.cost-sep{height:1px;background:rgba(255,255,255,.2);margin:6px 0}
+.cost-hotel-sect{background:rgba(255,255,255,.12);border-radius:12px;padding:12px;margin-top:8px}
+.cost-hotel-title{font-size:12px;font-weight:700;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.htier-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+.htier-btn{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);border-radius:10px;padding:10px 6px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;transition:all .15s;line-height:1.4}
+.htier-btn:hover{background:rgba(255,255,255,.25);border-color:rgba(255,255,255,.6)}
+.htier-btn.htier-sel{background:#fff;color:#059669;border-color:#fff}
+.cost-totals{border-top:1px solid rgba(255,255,255,.25);padding-top:12px;display:flex;gap:10px}
+.cost-total-item{flex:1;background:rgba(255,255,255,.15);border-radius:10px;padding:12px 10px;text-align:center}
+.cost-total-item.rt-total{background:rgba(255,255,255,.25)}
+.cti-lbl{font-size:10px;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.cti-val{font-size:20px;font-weight:900}
+.cost-note{font-size:10px;color:rgba(255,255,255,.5);margin-top:10px;text-align:center}
 
 /* ── STOP CARD ── */
 .stop-card{background:#fff;border-radius:14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px;overflow:hidden}
@@ -143,13 +171,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 .stop-badge{font-size:10px;font-weight:700;color:var(--teal2);background:#fff;border:1px solid var(--teal3);border-radius:8px;padding:3px 8px;white-space:nowrap;flex-shrink:0}
 .stop-city{font-size:13px;font-weight:700;color:var(--text);flex:1}
 .stop-body{padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sl-sect{grid-column:span 2;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--teal);padding:4px 0 2px;border-bottom:1px solid var(--border);margin-top:4px}
+.sl-sect:first-child{margin-top:0}
 .sl{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1.5px solid #e2e8f0;text-decoration:none;transition:all .15s;cursor:pointer}
 .sl:hover,.sl:active{border-color:var(--teal);background:#f0f9ff}
 .sl:active{opacity:.75}
 .sl.sl-hotel{border-color:#d8b4fe;background:#faf5ff}
 .sl.sl-hotel:hover,.sl.sl-hotel:active{border-color:#9333ea}
 .sl.sl-wide{grid-column:span 2}
-.pd-card:active{opacity:.75}
 .sl-ico{font-size:20px;flex-shrink:0}
 .sl-name{font-size:12px;font-weight:800;color:var(--text)}
 .sl-sub{font-size:10px;color:var(--muted);margin-top:1px}
@@ -158,9 +187,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 .park-direct{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .pd-card{background:#fff;border-radius:14px;padding:14px 12px;box-shadow:var(--shadow);border:2px solid #e2e8f0;text-decoration:none;display:flex;align-items:flex-start;gap:10px;transition:all .18s;cursor:pointer}
 .pd-card:hover{border-color:var(--teal);transform:translateY(-2px);box-shadow:0 6px 20px rgba(8,145,178,.2)}
+.pd-card:active{opacity:.75}
 .pd-ico{font-size:24px;flex-shrink:0;margin-top:2px}
 .pd-name{font-size:13px;font-weight:800;color:var(--text)}
 .pd-desc{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
+.pd-cost{font-size:11px;color:var(--green);font-weight:700;margin-top:3px}
 .pd-tag{font-size:10px;font-weight:700;border-radius:6px;padding:2px 7px;margin-top:5px;display:inline-block}
 .pd-pre{background:#dbeafe;color:#1e40af}
 .pd-free{background:#dcfce7;color:#166534}
@@ -186,15 +217,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
   <button class="tab-top" id="tab-dest" onclick="switchTab('dest')">🗺️ Destination</button>
 </div>
 
-<!-- ROAD TRIP FORM -->
+<!-- ═══ ROAD TRIP FORM ═══ -->
 <div class="rt-form-wrap" id="rt-form-section">
   <div class="rt-form-card">
 
     <div class="form-section">
       <div class="form-section-title">🏠 Origin</div>
       <div class="field-row">
-        <div class="field"><label>City</label><input type="text" id="rt-origin-city" placeholder="e.g. Saint John" autocomplete="off"></div>
-        <div class="field"><label>Province / State</label><input type="text" id="rt-origin-state" placeholder="e.g. NB" autocomplete="off"></div>
+        <div class="field">
+          <label>City</label>
+          <input type="text" id="rt-origin-city" placeholder="e.g. Saint John" autocomplete="off"
+            onblur="autofillProvince('rt-origin-city','rt-origin-state','rt-origin-country')">
+        </div>
+        <div class="field">
+          <label>Province / State</label>
+          <input type="text" id="rt-origin-state" placeholder="e.g. NB" autocomplete="off">
+        </div>
       </div>
       <div class="field">
         <label>Country</label>
@@ -212,8 +250,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
     <div class="form-section">
       <div class="form-section-title">📍 Destination</div>
       <div class="field-row">
-        <div class="field"><label>City</label><input type="text" id="rt-dest-city" placeholder="e.g. Quebec City" autocomplete="off"></div>
-        <div class="field"><label>Province / State</label><input type="text" id="rt-dest-state" placeholder="e.g. QC" autocomplete="off"></div>
+        <div class="field">
+          <label>City</label>
+          <input type="text" id="rt-dest-city" placeholder="e.g. Quebec City" autocomplete="off"
+            onblur="autofillProvince('rt-dest-city','rt-dest-state','rt-dest-country')">
+        </div>
+        <div class="field">
+          <label>Province / State</label>
+          <input type="text" id="rt-dest-state" placeholder="e.g. QC" autocomplete="off">
+        </div>
       </div>
       <div class="field">
         <label>Country</label>
@@ -253,20 +298,40 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
       </div>
     </div>
 
+    <div class="divider" style="margin:0"></div>
+
+    <div class="form-section" style="padding-bottom:4px">
+      <div class="form-section-title">🔄 Trip Options</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Number of Travelers</label>
+          <input type="number" id="rt-travelers" value="2" min="1" max="20" step="1" placeholder="2">
+        </div>
+        <div class="field">
+          <label>Trip Type</label>
+          <label class="rt-toggle-label">
+            <input type="checkbox" id="rt-roundtrip">
+            🔄 Round Trip
+          </label>
+        </div>
+      </div>
+    </div>
+
     <button class="btn-plan" onclick="calculateRoute()">🚗 &nbsp; Calculate Route & Costs</button>
+    <button class="btn-clear" onclick="clearRT()">🗑️ &nbsp; Clear & Start Over</button>
   </div>
 </div>
 
-<!-- FORM -->
+<!-- ═══ DESTINATION FORM ═══ -->
 <div class="form-wrap hidden" id="form-section">
   <div class="form-card">
 
-    <!-- Destination -->
     <div class="form-section">
       <div class="form-section-title">📍 Destination</div>
       <div class="field">
         <label>City</label>
-        <input type="text" id="f-city" placeholder="e.g. Toronto" autocomplete="off">
+        <input type="text" id="f-city" placeholder="e.g. Toronto" autocomplete="off"
+          onblur="autofillProvince('f-city','f-state','f-country')">
       </div>
       <div class="field-row">
         <div class="field">
@@ -294,7 +359,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 
     <div class="divider" style="margin:14px 0 0"></div>
 
-    <!-- Dates -->
     <div class="form-section">
       <div class="form-section-title">📅 Dates</div>
       <div class="field-row">
@@ -314,7 +378,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 
     <div class="divider" style="margin:14px 0 0"></div>
 
-    <!-- Purpose -->
     <div class="form-section">
       <div class="form-section-title">🎯 Purpose of Travel</div>
       <div class="field">
@@ -339,7 +402,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 
     <div class="divider" style="margin:14px 0 0"></div>
 
-    <!-- Food -->
     <div class="form-section">
       <div class="form-section-title">🍽️ Food Preferences</div>
       <div class="food-grid">
@@ -360,33 +422,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 
     <div class="divider" style="margin:14px 0 0"></div>
 
-    <!-- Budget -->
     <div class="form-section" style="padding-bottom:4px">
       <div class="form-section-title">💰 Accommodation Budget</div>
       <div class="budget-grid">
         <div class="budget-opt">
           <input type="radio" name="budget" id="b-budget" value="budget" checked>
-          <label for="b-budget">
-            <span class="budget-ico">🎒</span>
-            <span class="budget-lbl">Budget</span>
-            <span class="budget-sub">Hostels & cheap hotels</span>
-          </label>
+          <label for="b-budget"><span class="budget-ico">🎒</span><span class="budget-lbl">Budget</span><span class="budget-sub">Hostels & cheap hotels</span></label>
         </div>
         <div class="budget-opt">
           <input type="radio" name="budget" id="b-moderate" value="moderate">
-          <label for="b-moderate">
-            <span class="budget-ico">🏨</span>
-            <span class="budget-lbl">Moderate</span>
-            <span class="budget-sub">Mid-range hotels</span>
-          </label>
+          <label for="b-moderate"><span class="budget-ico">🏨</span><span class="budget-lbl">Moderate</span><span class="budget-sub">Mid-range hotels</span></label>
         </div>
         <div class="budget-opt">
           <input type="radio" name="budget" id="b-luxury" value="luxury">
-          <label for="b-luxury">
-            <span class="budget-ico">⭐</span>
-            <span class="budget-lbl">Luxury</span>
-            <span class="budget-sub">Premium & resorts</span>
-          </label>
+          <label for="b-luxury"><span class="budget-ico">⭐</span><span class="budget-lbl">Luxury</span><span class="budget-sub">Premium & resorts</span></label>
         </div>
       </div>
     </div>
@@ -395,13 +444,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
   </div>
 </div>
 
-<!-- RESULTS -->
+<!-- ═══ DESTINATION RESULTS ═══ -->
 <div class="results-wrap hidden" id="results-section">
 
-  <!-- Summary -->
   <div class="trip-summary" id="trip-summary"></div>
 
-  <!-- Venue / Event Box -->
   <div class="event-box hidden" id="event-box">
     <div class="event-box-title" id="event-box-title">📍 Venue Details</div>
     <div class="event-name-display" id="event-name-display" style="display:none"></div>
@@ -412,72 +459,177 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
     <div style="font-size:12px;color:#7c3aed;margin-top:6px" id="event-date-display"></div>
   </div>
 
-  <!-- Accommodation -->
   <div class="sec">
-    <div class="sec-header">
-      <span class="sec-icon">🏨</span>
-      <span class="sec-title">Where to Stay</span>
-    </div>
+    <div class="sec-header"><span class="sec-icon">🏨</span><span class="sec-title">Where to Stay</span></div>
     <div class="link-grid" id="hotel-links"></div>
   </div>
 
-  <!-- Dining -->
   <div class="sec" id="dining-sec">
-    <div class="sec-header">
-      <span class="sec-icon">🍽️</span>
-      <span class="sec-title">Where to Eat</span>
-    </div>
+    <div class="sec-header"><span class="sec-icon">🍽️</span><span class="sec-title">Where to Eat</span></div>
     <div class="link-grid food" id="food-links"></div>
   </div>
 
-  <!-- Events -->
   <div class="sec">
-    <div class="sec-header">
-      <span class="sec-icon">🎉</span>
-      <span class="sec-title">Events & Entertainment</span>
-    </div>
+    <div class="sec-header"><span class="sec-icon">🎉</span><span class="sec-title">Events & Entertainment</span></div>
     <div class="link-grid" id="event-links"></div>
   </div>
 
-  <!-- Parking -->
   <div class="sec">
-    <div class="sec-header">
-      <span class="sec-icon">🅿️</span>
-      <span class="sec-title">Parking</span>
-    </div>
+    <div class="sec-header"><span class="sec-icon">🅿️</span><span class="sec-title">Parking</span></div>
     <div class="link-grid" id="parking-links"></div>
   </div>
 
   <button class="btn-reset" onclick="resetForm()">← Plan Another Trip</button>
 </div>
 
-<!-- ROAD TRIP RESULTS -->
+<!-- ═══ ROAD TRIP RESULTS ═══ -->
 <div class="results-wrap hidden" id="rt-results-section">
   <div id="rt-results-content"></div>
 </div>
 
 <script>
-// ── ROAD TRIP ─────────────────────────────────────────────────────────────────
+// ── STATE ─────────────────────────────────────────────────────────────────────
+var _rtView  = 'form';   // 'form' | 'results'
+var _destView= 'form';   // 'form' | 'results'
+var _rtData  = null;     // stored after calculateRoute()
 
+// ── CITY → PROVINCE LOOKUP ───────────────────────────────────────────────────
+const CITY_PROV = {
+  // New Brunswick
+  'saint john':['NB','Canada'],'moncton':['NB','Canada'],'fredericton':['NB','Canada'],
+  'miramichi':['NB','Canada'],'bathurst':['NB','Canada'],'edmundston':['NB','Canada'],
+  // Nova Scotia
+  'halifax':['NS','Canada'],'dartmouth':['NS','Canada'],'sydney':['NS','Canada'],
+  'truro':['NS','Canada'],'new glasgow':['NS','Canada'],
+  // Ontario
+  'toronto':['ON','Canada'],'ottawa':['ON','Canada'],'mississauga':['ON','Canada'],
+  'brampton':['ON','Canada'],'hamilton':['ON','Canada'],'london':['ON','Canada'],
+  'windsor':['ON','Canada'],'kitchener':['ON','Canada'],'markham':['ON','Canada'],
+  'vaughan':['ON','Canada'],'richmond hill':['ON','Canada'],'oakville':['ON','Canada'],
+  'burlington':['ON','Canada'],'oshawa':['ON','Canada'],'barrie':['ON','Canada'],
+  'kingston':['ON','Canada'],'thunder bay':['ON','Canada'],'sudbury':['ON','Canada'],
+  // Quebec
+  'montreal':['QC','Canada'],'quebec city':['QC','Canada'],'laval':['QC','Canada'],
+  'gatineau':['QC','Canada'],'longueuil':['QC','Canada'],'sherbrooke':['QC','Canada'],
+  'saguenay':['QC','Canada'],'levis':['QC','Canada'],'lévis':['QC','Canada'],
+  'trois-rivières':['QC','Canada'],'trois-rivieres':['QC','Canada'],
+  // Alberta
+  'calgary':['AB','Canada'],'edmonton':['AB','Canada'],'red deer':['AB','Canada'],
+  'lethbridge':['AB','Canada'],'medicine hat':['AB','Canada'],'grande prairie':['AB','Canada'],
+  // British Columbia
+  'vancouver':['BC','Canada'],'surrey':['BC','Canada'],'burnaby':['BC','Canada'],
+  'richmond':['BC','Canada'],'kelowna':['BC','Canada'],'abbotsford':['BC','Canada'],
+  'victoria':['BC','Canada'],'nanaimo':['BC','Canada'],'kamloops':['BC','Canada'],
+  // Manitoba
+  'winnipeg':['MB','Canada'],'brandon':['MB','Canada'],
+  // Saskatchewan
+  'saskatoon':['SK','Canada'],'regina':['SK','Canada'],
+  // Newfoundland
+  "st. john's":['NL','Canada'],'st johns':['NL','Canada'],'corner brook':['NL','Canada'],
+  // PEI
+  'charlottetown':['PE','Canada'],
+  // Territories
+  'whitehorse':['YT','Canada'],'yellowknife':['NT','Canada'],'iqaluit':['NU','Canada'],
+  // USA
+  'new york':['NY','USA'],'los angeles':['CA','USA'],'chicago':['IL','USA'],
+  'houston':['TX','USA'],'phoenix':['AZ','USA'],'philadelphia':['PA','USA'],
+  'san antonio':['TX','USA'],'san diego':['CA','USA'],'dallas':['TX','USA'],
+  'san jose':['CA','USA'],'austin':['TX','USA'],'jacksonville':['FL','USA'],
+  'fort worth':['TX','USA'],'columbus':['OH','USA'],'charlotte':['NC','USA'],
+  'san francisco':['CA','USA'],'indianapolis':['IN','USA'],'seattle':['WA','USA'],
+  'denver':['CO','USA'],'nashville':['TN','USA'],'boston':['MA','USA'],
+  'portland':['OR','USA'],'las vegas':['NV','USA'],'memphis':['TN','USA'],
+  'baltimore':['MD','USA'],'miami':['FL','USA'],'atlanta':['GA','USA'],
+  'minneapolis':['MN','USA'],'new orleans':['LA','USA'],'cleveland':['OH','USA'],
+  'pittsburgh':['PA','USA'],'detroit':['MI','USA'],'milwaukee':['WI','USA'],
+  'orlando':['FL','USA'],'tampa':['FL','USA'],'buffalo':['NY','USA'],
+  'rochester':['NY','USA'],'albany':['NY','USA'],
+};
+
+const PROV_ABBR = {
+  'New Brunswick':'NB','Nova Scotia':'NS','Ontario':'ON','Quebec':'QC',
+  'British Columbia':'BC','Alberta':'AB','Manitoba':'MB','Saskatchewan':'SK',
+  'Newfoundland and Labrador':'NL','Prince Edward Island':'PE',
+  'Northwest Territories':'NT','Nunavut':'NU','Yukon':'YT'
+};
+const STATE_ABBR = {
+  'Alabama':'AL','Alaska':'AK','Arizona':'AZ','Arkansas':'AR','California':'CA',
+  'Colorado':'CO','Connecticut':'CT','Delaware':'DE','Florida':'FL','Georgia':'GA',
+  'Hawaii':'HI','Idaho':'ID','Illinois':'IL','Indiana':'IN','Iowa':'IA',
+  'Kansas':'KS','Kentucky':'KY','Louisiana':'LA','Maine':'ME','Maryland':'MD',
+  'Massachusetts':'MA','Michigan':'MI','Minnesota':'MN','Mississippi':'MS',
+  'Missouri':'MO','Montana':'MT','Nebraska':'NE','Nevada':'NV','New Hampshire':'NH',
+  'New Jersey':'NJ','New Mexico':'NM','New York':'NY','North Carolina':'NC',
+  'North Dakota':'ND','Ohio':'OH','Oklahoma':'OK','Oregon':'OR','Pennsylvania':'PA',
+  'Rhode Island':'RI','South Carolina':'SC','South Dakota':'SD','Tennessee':'TN',
+  'Texas':'TX','Utah':'UT','Vermont':'VT','Virginia':'VA','Washington':'WA',
+  'West Virginia':'WV','Wisconsin':'WI','Wyoming':'WY','District of Columbia':'DC'
+};
+
+function autofillProvince(cityId, stateId, countryId){
+  const city = document.getElementById(cityId).value.trim();
+  const stateEl = document.getElementById(stateId);
+  if(!city || stateEl.value.trim()) return;
+  const entry = CITY_PROV[city.toLowerCase()];
+  if(entry){
+    stateEl.value = entry[0];
+    document.getElementById(countryId).value = entry[1];
+  } else {
+    geocodeForProvince(city, stateId, countryId);
+  }
+}
+
+async function geocodeForProvince(city, stateId, countryId){
+  try {
+    const r = await fetch(
+      'https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(city)+
+      '&format=json&limit=1&addressdetails=1',
+      {headers:{'Accept-Language':'en'}}
+    );
+    const d = await r.json();
+    if(!d||!d.length) return;
+    const a = d[0].address || {};
+    const stateEl = document.getElementById(stateId);
+    const countryEl = document.getElementById(countryId);
+    if(stateEl.value.trim()) return; // filled in the meantime
+    const fullState = a.state || a.province || '';
+    const isoCode = (a['ISO3166-2-lvl4']||'').split('-').pop();
+    const abbr = PROV_ABBR[fullState] || STATE_ABBR[fullState] || isoCode || fullState;
+    if(abbr) stateEl.value = abbr;
+    const ctry = (a.country||'').toLowerCase();
+    const cmap = {'canada':'Canada','united states':'USA','brazil':'Brazil','united kingdom':'UK','france':'France','portugal':'Portugal'};
+    if(cmap[ctry]) countryEl.value = cmap[ctry];
+  } catch(e){}
+}
+
+// ── TAB SWITCHING ─────────────────────────────────────────────────────────────
 function switchTab(tab){
   document.getElementById('tab-rt').classList.toggle('active', tab==='rt');
   document.getElementById('tab-dest').classList.toggle('active', tab==='dest');
   const rtF=document.getElementById('rt-form-section'), rtR=document.getElementById('rt-results-section');
   const dtF=document.getElementById('form-section'),    dtR=document.getElementById('results-section');
+  rtF.classList.add('hidden'); rtR.classList.add('hidden');
+  dtF.classList.add('hidden'); dtR.classList.add('hidden');
   if(tab==='rt'){
-    dtF.classList.add('hidden'); dtR.classList.add('hidden');
-    if(!rtR.classList.contains('hidden')) rtF.classList.add('hidden');
+    if(_rtView==='results') rtR.classList.remove('hidden');
     else rtF.classList.remove('hidden');
   } else {
-    rtF.classList.add('hidden'); rtR.classList.add('hidden');
-    if(!dtR.classList.contains('hidden')) dtF.classList.add('hidden');
+    // Auto-fill destination from RT if dest city is empty
+    const rtDest = document.getElementById('rt-dest-city').value.trim();
+    if(rtDest && !document.getElementById('f-city').value.trim()){
+      document.getElementById('f-city').value = rtDest;
+      document.getElementById('f-state').value = document.getElementById('rt-dest-state').value;
+      document.getElementById('f-country').value = document.getElementById('rt-dest-country').value;
+    }
+    if(_destView==='results') dtR.classList.remove('hidden');
     else dtF.classList.remove('hidden');
   }
 }
 
+// ── GEO / ROUTING ────────────────────────────────────────────────────────────
 async function geocodePlace(query){
   try{
-    const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`,{headers:{'Accept-Language':'en'}});
+    const r=await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(query)+'&format=json&limit=1',{headers:{'Accept-Language':'en'}});
     const d=await r.json();
     return d&&d.length?{lat:parseFloat(d[0].lat),lng:parseFloat(d[0].lon)}:null;
   }catch(e){return null;}
@@ -485,7 +637,7 @@ async function geocodePlace(query){
 
 async function getOSRMRoute(lng1,lat1,lng2,lat2){
   try{
-    const r=await fetch(`https://router.project-osrm.org/route/v1/driving/${lng1},${lat1};${lng2},${lat2}?overview=false`);
+    const r=await fetch('https://router.project-osrm.org/route/v1/driving/'+lng1+','+lat1+';'+lng2+','+lat2+'?overview=false');
     const d=await r.json();
     return(d.routes&&d.routes.length)?{distance:d.routes[0].distance,duration:d.routes[0].duration}:null;
   }catch(e){return null;}
@@ -493,7 +645,7 @@ async function getOSRMRoute(lng1,lat1,lng2,lat2){
 
 async function reverseCity(lat,lng){
   try{
-    const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=en`,{headers:{'Accept-Language':'en'}});
+    const r=await fetch('https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lng+'&format=json&accept-language=en',{headers:{'Accept-Language':'en'}});
     const d=await r.json(); const a=d.address||{};
     return a.city||a.town||a.village||a.county||'';
   }catch(e){return '';}
@@ -502,14 +654,14 @@ async function reverseCity(lat,lng){
 function rtSleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
 function showRTError(msg){
-  document.getElementById('rt-results-content').innerHTML=`
-    <div style="text-align:center;padding:48px 20px">
-      <div style="font-size:40px;margin-bottom:12px">⚠️</div>
-      <div style="font-size:15px;font-weight:700;color:var(--text)">${msg}</div>
-      <button class="btn-reset" style="margin-top:20px" onclick="resetRT()">← Try Again</button>
-    </div>`;
+  document.getElementById('rt-results-content').innerHTML=
+    '<div style="text-align:center;padding:48px 20px">'+
+    '<div style="font-size:40px;margin-bottom:12px">⚠️</div>'+
+    '<div style="font-size:15px;font-weight:700;color:var(--text)">'+msg+'</div>'+
+    '<button class="btn-reset" style="margin-top:20px" onclick="resetRT()">← Try Again</button></div>';
 }
 
+// ── CALCULATE ROUTE ───────────────────────────────────────────────────────────
 async function calculateRoute(){
   const origCity=document.getElementById('rt-origin-city').value.trim();
   const origState=document.getElementById('rt-origin-state').value.trim();
@@ -520,18 +672,20 @@ async function calculateRoute(){
   const venue=document.getElementById('rt-venue').value.trim();
   const consumption=parseFloat(document.getElementById('rt-consumption').value)||10;
   const fuelPrice=parseFloat(document.getElementById('rt-fuelprice').value)||1.65;
+  const travelers=parseInt(document.getElementById('rt-travelers').value)||2;
+  const roundTrip=document.getElementById('rt-roundtrip').checked;
 
   if(!origCity){alert('Please enter your origin city.');return;}
   if(!destCity){alert('Please enter your destination city.');return;}
 
+  _rtView='results';
   document.getElementById('rt-form-section').classList.add('hidden');
   document.getElementById('rt-results-section').classList.remove('hidden');
-  document.getElementById('rt-results-content').innerHTML=`
-    <div style="text-align:center;padding:48px 20px">
-      <div class="rt-spin" style="font-size:40px">⚙️</div>
-      <div style="font-size:15px;font-weight:700;color:var(--text);margin-top:14px">Calculating your route…</div>
-      <div style="font-size:13px;color:var(--muted);margin-top:6px">Locating origin and destination</div>
-    </div>`;
+  document.getElementById('rt-results-content').innerHTML=
+    '<div style="text-align:center;padding:48px 20px">'+
+    '<div class="rt-spin" style="font-size:40px">⚙️</div>'+
+    '<div style="font-size:15px;font-weight:700;color:var(--text);margin-top:14px">Calculating your route…</div>'+
+    '<div style="font-size:13px;color:var(--muted);margin-top:6px">Locating origin and destination</div></div>';
   window.scrollTo({top:0,behavior:'smooth'});
 
   const origQ=[origCity,origState,origCountry!=='Other'?origCountry:''].filter(Boolean).join(', ');
@@ -557,13 +711,22 @@ async function calculateRoute(){
       id:'rts-'+i,
       lat:origGeo.lat+(destGeo.lat-origGeo.lat)*frac,
       lng:origGeo.lng+(destGeo.lng-origGeo.lng)*frac,
-      kmMark:Math.round(distKm*frac),
-      showHotel:distKm>500&&(stopCount===1||i===Math.ceil(stopCount/2))
+      kmMark:Math.round(distKm*frac)
     });
   }
 
-  document.getElementById('rt-results-content').innerHTML=
-    buildRTHTML(origShort,destShort,distKm,durMin,fuelL,fuelCost,consumption,fuelPrice,stops,nearAnchor,destCity,venue);
+  // midpoint for overnight hotel booking links
+  const midLat=origGeo.lat+(destGeo.lat-origGeo.lat)*0.5;
+  const midLng=origGeo.lng+(destGeo.lng-origGeo.lng)*0.5;
+
+  _rtData={
+    origShort,destShort,distKm,durMin,fuelL,fuelCost,consumption,fuelPrice,
+    stops,nearAnchor,destCity,destState,destCountry,venue,
+    travelers,roundTrip,selectedTier:null,hotelCost:0,
+    midLat,midLng
+  };
+
+  document.getElementById('rt-results-content').innerHTML=buildRTHTML(_rtData);
 
   for(const s of stops){
     await rtSleep(1100);
@@ -583,466 +746,465 @@ async function calculateRoute(){
   }
 }
 
-function buildRTHTML(origShort,destShort,distKm,durMin,fuelL,fuelCost,consumption,fuelPrice,stops,nearAnchor,destCity,venue){
-  const hrs=Math.floor(durMin/60), mins=Math.round(durMin%60);
-  const time=hrs>0?`${hrs}h ${String(mins).padStart(2,'0')}min`:`${mins}min`;
+// ── COST BOX ──────────────────────────────────────────────────────────────────
+function costBoxContent(d){
+  const foodCost=d.stops.length*13*d.travelers;
+  const totalOW=d.fuelCost+foodCost+d.hotelCost;
+  const totalRT=totalOW*2;
+
+  let hotelHtml='';
+  if(d.distKm>500){
+    const bkHotel='https://www.booking.com/searchresults.html?latitude='+d.midLat.toFixed(4)+'&longitude='+d.midLng.toFixed(4)+'&radius=15';
+    const htHotel='https://www.hotels.com/search.do?q-destination=hotels+near+here&sort-order=PRICE';
+    const gmHotel='https://www.google.com/maps/search/hotels/@'+d.midLat.toFixed(5)+','+d.midLng.toFixed(5)+',12z';
+    const selectedHotel=d.hotelCost>0
+      ? '<div style="font-size:12px;color:rgba(255,255,255,.8);margin-bottom:8px">🏨 '+
+        d.selectedTier.charAt(0).toUpperCase()+d.selectedTier.slice(1)+' hotel added: <strong>$'+d.hotelCost.toFixed(2)+'</strong> — tap again to remove</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">'+
+        '<div class="sl sl-hotel" onclick="window.open(\''+gmHotel+'\',\'_blank\')" style="border-color:#d8b4fe;background:rgba(255,255,255,.1);padding:8px 6px"><span class="sl-ico">🗺️</span><div><div class="sl-name" style="color:#fff;font-size:11px">Maps</div></div></div>'+
+        '<div class="sl sl-hotel" onclick="window.open(\''+bkHotel+'\',\'_blank\')" style="border-color:#d8b4fe;background:rgba(255,255,255,.1);padding:8px 6px"><span class="sl-ico">🌐</span><div><div class="sl-name" style="color:#fff;font-size:11px">Booking</div></div></div>'+
+        '<div class="sl sl-hotel" onclick="window.open(\''+htHotel+'\',\'_blank\')" style="border-color:#d8b4fe;background:rgba(255,255,255,.1);padding:8px 6px"><span class="sl-ico">🏨</span><div><div class="sl-name" style="color:#fff;font-size:11px">Hotels.com</div></div></div>'+
+        '</div>'
+      : '';
+    hotelHtml=
+      '<div class="cost-hotel-sect">'+
+      '<div class="cost-hotel-title">🏨 Add Overnight Stay (optional)</div>'+
+      '<div class="htier-btns">'+
+      '<button class="htier-btn'+(d.selectedTier==='budget'?' htier-sel':'')+'" onclick="selectHotelTier(\'budget\',95)">🎒 Budget<br><small>~$95/night</small></button>'+
+      '<button class="htier-btn'+(d.selectedTier==='moderate'?' htier-sel':'')+'" onclick="selectHotelTier(\'moderate\',155)">🏨 Moderate<br><small>~$155/night</small></button>'+
+      '<button class="htier-btn'+(d.selectedTier==='luxury'?' htier-sel':'')+'" onclick="selectHotelTier(\'luxury\',225)">⭐ Luxury<br><small>~$225/night</small></button>'+
+      '</div>'+
+      selectedHotel+
+      '</div>';
+  }
+
+  return '<div class="cost-box-title">💰 Estimated Trip Costs</div>'+
+    '<div class="cost-rows">'+
+    '<div class="cost-row"><span class="cost-row-label">⛽ Fuel ('+d.fuelL.toFixed(1)+' L)</span><span class="cost-row-val">$'+d.fuelCost.toFixed(2)+'</span></div>'+
+    '<div class="cost-row"><span class="cost-row-label">🍔 Food est. ('+d.stops.length+' stops × '+d.travelers+(d.travelers===1?' person':' people')+')</span><span class="cost-row-val">~$'+foodCost.toFixed(2)+'</span></div>'+
+    (d.hotelCost>0?'<div class="cost-row"><span class="cost-row-label">🏨 Hotel</span><span class="cost-row-val">$'+d.hotelCost.toFixed(2)+'</span></div>':'')+
+    '</div>'+
+    hotelHtml+
+    '<div class="cost-totals">'+
+    '<div class="cost-total-item"><div class="cti-lbl">One-way total</div><div class="cti-val">$'+totalOW.toFixed(2)+'</div></div>'+
+    '<div class="cost-total-item rt-total"><div class="cti-lbl">🔄 Round trip</div><div class="cti-val">$'+totalRT.toFixed(2)+'</div></div>'+
+    '</div>'+
+    '<div class="cost-note">* Estimates. Food based on fast food (~$13/person per stop).</div>';
+}
+
+function selectHotelTier(tier, cost){
+  if(!_rtData) return;
+  if(_rtData.selectedTier===tier){
+    _rtData.selectedTier=null; _rtData.hotelCost=0;
+  } else {
+    _rtData.selectedTier=tier; _rtData.hotelCost=cost;
+  }
+  document.getElementById('rt-cost-box').innerHTML=costBoxContent(_rtData);
+}
+
+// ── BUILD RT HTML ─────────────────────────────────────────────────────────────
+function buildRTHTML(d){
+  const hrs=Math.floor(d.durMin/60), mins=Math.round(d.durMin%60);
+  const time=hrs>0?(hrs+'h '+String(mins).padStart(2,'0')+'min'):(mins+'min');
   let h='';
 
-  h+=`
-  <div class="route-sum">
-    <div class="rs-title">🚗 ${origShort} → ${destShort}</div>
-    <div class="rs-metrics">
-      <div class="rm"><div class="rm-val">${Math.round(distKm)} km</div><div class="rm-lbl">Total distance</div></div>
-      <div class="rm"><div class="rm-val">~${time}</div><div class="rm-lbl">Drive time</div></div>
-      <div class="rm"><div class="rm-val">${fuelL.toFixed(1)} L</div><div class="rm-lbl">Fuel (${consumption} L/100km)</div></div>
-      <div class="rm"><div class="rm-val">~$${fuelCost.toFixed(2)}</div><div class="rm-lbl">Cost @ $${fuelPrice.toFixed(2)}/L</div></div>
-    </div>
-  </div>`;
+  // Route summary
+  h+='<div class="route-sum">'+
+    '<div class="rs-title">🚗 '+d.origShort+' → '+d.destShort+'</div>'+
+    '<div class="rs-metrics">'+
+    '<div class="rm"><div class="rm-val">'+Math.round(d.distKm)+' km</div><div class="rm-lbl">Total distance</div></div>'+
+    '<div class="rm"><div class="rm-val">~'+time+'</div><div class="rm-lbl">Drive time</div></div>'+
+    '<div class="rm"><div class="rm-val">'+d.fuelL.toFixed(1)+' L</div><div class="rm-lbl">Fuel ('+d.consumption+' L/100km)</div></div>'+
+    '<div class="rm"><div class="rm-val">~$'+d.fuelCost.toFixed(2)+'</div><div class="rm-lbl">Fuel cost @ $'+d.fuelPrice.toFixed(2)+'/L</div></div>'+
+    '</div></div>';
 
-  if(stops.length){
-    h+=`<div class="sec"><div class="sec-header"><span class="sec-icon">🛑</span><span class="sec-title">Stops Along the Route</span><span class="sec-count">${stops.length}</span></div>`;
-    stops.forEach(s=>{
-      const gmGas=`https://www.google.com/maps/search/gas+stations/@${s.lat.toFixed(5)},${s.lng.toFixed(5)},13z`;
-      const gmFood=`https://www.google.com/maps/search/restaurants/@${s.lat.toFixed(5)},${s.lng.toFixed(5)},14z`;
-      const gmHotel=`https://www.google.com/maps/search/hotels/@${s.lat.toFixed(5)},${s.lng.toFixed(5)},13z`;
-      const bkHotel=`https://www.booking.com/searchresults.html?latitude=${s.lat.toFixed(4)}&longitude=${s.lng.toFixed(4)}&radius=15`;
-      const htHotel=`https://www.hotels.com/search.do?q-destination=${encodeURIComponent('hotels near here')}`;
-      h+=`
-      <div class="stop-card">
-        <div class="stop-hdr">
-          <span class="stop-badge">km ${s.kmMark}</span>
-          <span class="stop-city" id="${s.id}-city">Locating…</span>
-          ${s.showHotel?'<span class="stop-badge" style="background:#f3e8ff;color:#6b21a8;border-color:#d8b4fe">🏨 Overnight stop</span>':''}
-        </div>
-        <div class="stop-body">
-          <div class="sl" onclick="window.open('${gmGas}','_blank')"><span class="sl-ico">⛽</span><div><div class="sl-name">Gas Stations</div><div class="sl-sub">Google Maps</div></div></div>
-          <div class="sl" onclick="window.open('${gmFood}','_blank')"><span class="sl-ico">🍔</span><div><div class="sl-name">Restaurants</div><div class="sl-sub">Google Maps</div></div></div>
-          ${s.showHotel?`
-          <div class="sl sl-hotel sl-wide" onclick="window.open('${gmHotel}','_blank')"><span class="sl-ico">🗺️</span><div><div class="sl-name">Hotels on map</div><div class="sl-sub">Google Maps — overnight stop</div></div></div>
-          <div class="sl sl-hotel" onclick="window.open('${bkHotel}','_blank')"><span class="sl-ico">🌐</span><div><div class="sl-name">Booking.com</div><div class="sl-sub">Reserve in advance</div></div></div>
-          <div class="sl sl-hotel" onclick="window.open('${htHotel}','_blank')"><span class="sl-ico">🏨</span><div><div class="sl-name">Hotels.com</div><div class="sl-sub">Compare & book</div></div></div>`:''}
-        </div>
-      </div>`;
+  // Cost box
+  h+='<div class="cost-box" id="rt-cost-box">'+costBoxContent(d)+'</div>';
+
+  // Stops
+  if(d.stops.length){
+    h+='<div class="sec"><div class="sec-header"><span class="sec-icon">🛑</span><span class="sec-title">Stops Along the Route</span><span class="sec-count">'+d.stops.length+'</span></div>';
+    d.stops.forEach(function(s){
+      const lat5=s.lat.toFixed(5), lng5=s.lng.toFixed(5);
+      const gmGas='https://www.google.com/maps/search/gas+stations/@'+lat5+','+lng5+',13z';
+      const gmMcD='https://www.google.com/maps/search/McDonald%27s/@'+lat5+','+lng5+',14z';
+      const gmTH='https://www.google.com/maps/search/Tim+Hortons/@'+lat5+','+lng5+',14z';
+      const gmSub='https://www.google.com/maps/search/Subway+restaurant/@'+lat5+','+lng5+',14z';
+      const gmRest='https://www.google.com/maps/search/restaurants/@'+lat5+','+lng5+',14z';
+      const ffEst=(13*d.travelers);
+      const restEst=(25*d.travelers);
+      h+=
+        '<div class="stop-card">'+
+        '<div class="stop-hdr">'+
+        '<span class="stop-badge">km '+s.kmMark+'</span>'+
+        '<span class="stop-city" id="'+s.id+'-city">Locating…</span>'+
+        '</div>'+
+        '<div class="stop-body">'+
+        '<div class="sl-sect">⛽ Fuel</div>'+
+        '<div class="sl sl-wide" onclick="window.open(\''+gmGas+'\',\'_blank\')"><span class="sl-ico">⛽</span><div><div class="sl-name">Gas Stations</div><div class="sl-sub">Google Maps nearby</div></div></div>'+
+        '<div class="sl-sect">🍔 Fast Food &nbsp;<span style="font-size:10px;font-weight:400;color:var(--green)">~$'+ffEst+'/stop</span></div>'+
+        '<div class="sl" onclick="window.open(\''+gmMcD+'\',\'_blank\')"><span class="sl-ico">🍟</span><div><div class="sl-name">McDonald\'s</div><div class="sl-sub">~$9–14/person</div></div></div>'+
+        '<div class="sl" onclick="window.open(\''+gmTH+'\',\'_blank\')"><span class="sl-ico">☕</span><div><div class="sl-name">Tim Hortons</div><div class="sl-sub">~$7–12/person</div></div></div>'+
+        '<div class="sl sl-wide" onclick="window.open(\''+gmSub+'\',\'_blank\')"><span class="sl-ico">🥖</span><div><div class="sl-name">Subway</div><div class="sl-sub">~$10–14/person</div></div></div>'+
+        '<div class="sl-sect">🍽️ Restaurants &nbsp;<span style="font-size:10px;font-weight:400;color:var(--amber)">~$'+restEst+'/stop</span></div>'+
+        '<div class="sl sl-wide" onclick="window.open(\''+gmRest+'\',\'_blank\')"><span class="sl-ico">🍽️</span><div><div class="sl-name">Restaurants on Google Maps</div><div class="sl-sub">Browse all options nearby</div></div></div>'+
+        '</div></div>';
     });
-    h+=`</div>`;
+    h+='</div>';
   }
 
-  if(venue){
-    h+=`
-    <div class="event-box" style="margin-bottom:16px">
-      <div class="event-box-title">📍 Venue at Destination</div>
-      <div style="font-size:17px;font-weight:900;color:#4c1d95;margin-bottom:6px">${venue}</div>
-      <div style="display:flex;align-items:flex-start;gap:6px;font-size:13px;color:#6b21a8">
-        <span>🔍</span><span id="rt-venue-addr-text">Looking up address…</span>
-      </div>
-    </div>`;
+  // Venue
+  if(d.venue){
+    h+='<div class="event-box" style="margin-bottom:16px">'+
+      '<div class="event-box-title">📍 Venue at Destination</div>'+
+      '<div style="font-size:17px;font-weight:900;color:#4c1d95;margin-bottom:6px">'+d.venue+'</div>'+
+      '<div style="display:flex;align-items:flex-start;gap:6px;font-size:13px;color:#6b21a8">'+
+      '<span>🔍</span><span id="rt-venue-addr-text">Looking up address…</span></div></div>';
   }
 
-  const nearQ=encodeURIComponent(nearAnchor);
-  const gmPark=`https://www.google.com/maps/search/parking+near+${nearQ.replace(/%20/g,'+')}`;
-  h+=`
-  <div class="sec">
-    <div class="sec-header"><span class="sec-icon">🅿️</span><span class="sec-title">Parking in ${destCity}</span></div>
-    ${venue?`<div style="font-size:12px;color:var(--muted);margin:-6px 0 12px">📍 Near ${venue}</div>`:''}
-    <div class="park-direct">
-      <div class="pd-card" onclick="window.open('${gmPark}','_blank')">
-        <span class="pd-ico">🗺️</span>
-        <div><div class="pd-name">Google Maps</div><div class="pd-desc">All parking near venue with prices & availability</div><span class="pd-tag pd-free">Free</span></div>
-      </div>
-      <div class="pd-card" onclick="window.open('https://spothero.com/search?q=${nearQ}','_blank')">
-        <span class="pd-ico">🅿️</span>
-        <div><div class="pd-name">SpotHero</div><div class="pd-desc">Reserve ahead — up to 50% off drive-up rates</div><span class="pd-tag pd-pre">Pre-book</span></div>
-      </div>
-      <div class="pd-card" onclick="window.open('https://www.parkwhiz.com/search/?q=${nearQ}','_blank')">
-        <span class="pd-ico">🚗</span>
-        <div><div class="pd-name">ParkWhiz</div><div class="pd-desc">Compare garages & lots, book in advance</div><span class="pd-tag pd-pre">Pre-book</span></div>
-      </div>
-      <div class="pd-card" onclick="window.open('https://en.parkme.com/lot/search?q=${nearQ}','_blank')">
-        <span class="pd-ico">📱</span>
-        <div><div class="pd-name">ParkMe</div><div class="pd-desc">Real-time availability & price comparison</div><span class="pd-tag pd-live">Real-time</span></div>
-      </div>
-    </div>
-  </div>
-  <button class="btn-reset" onclick="resetRT()">← New Route</button>`;
+  // Parking
+  const nearQ=encodeURIComponent(d.nearAnchor);
+  const gmPark='https://www.google.com/maps/search/parking+near+'+nearQ.replace(/%20/g,'+');
+  h+='<div class="sec">'+
+    '<div class="sec-header"><span class="sec-icon">🅿️</span><span class="sec-title">Parking in '+d.destCity+'</span></div>'+
+    (d.venue?'<div style="font-size:12px;color:var(--muted);margin:-6px 0 12px">📍 Near '+d.venue+'</div>':'')+
+    '<div class="park-direct">'+
+    '<div class="pd-card" onclick="window.open(\''+gmPark+'\',\'_blank\')"><span class="pd-ico">🗺️</span><div><div class="pd-name">Google Maps</div><div class="pd-desc">All parking near venue with prices</div><div class="pd-cost">Free to search</div><span class="pd-tag pd-free">Free</span></div></div>'+
+    '<div class="pd-card" onclick="window.open(\'https://spothero.com/search?q='+nearQ+'\',\'_blank\')"><span class="pd-ico">🅿️</span><div><div class="pd-name">SpotHero</div><div class="pd-desc">Reserve ahead — up to 50% off</div><div class="pd-cost">From ~$5–20/day</div><span class="pd-tag pd-pre">Pre-book</span></div></div>'+
+    '<div class="pd-card" onclick="window.open(\'https://www.parkwhiz.com/search/?q='+nearQ+'\',\'_blank\')"><span class="pd-ico">🚗</span><div><div class="pd-name">ParkWhiz</div><div class="pd-desc">Compare garages & lots</div><div class="pd-cost">From ~$8–25/day</div><span class="pd-tag pd-pre">Pre-book</span></div></div>'+
+    '<div class="pd-card" onclick="window.open(\'https://en.parkme.com/lot/search?q='+nearQ+'\',\'_blank\')"><span class="pd-ico">📱</span><div><div class="pd-name">ParkMe</div><div class="pd-desc">Real-time availability</div><div class="pd-cost">Rates vary by location</div><span class="pd-tag pd-live">Real-time</span></div></div>'+
+    '</div></div>';
+
+  h+='<button class="btn-reset" onclick="resetRT()">← Edit Route</button>';
   return h;
 }
 
+// ── RESET / CLEAR ─────────────────────────────────────────────────────────────
 function resetRT(){
+  _rtView='form';
   document.getElementById('rt-results-section').classList.add('hidden');
   document.getElementById('rt-form-section').classList.remove('hidden');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// ── HELPERS ──────────────────────────────────────────────────────────────────
+function clearRT(){
+  ['rt-origin-city','rt-origin-state','rt-dest-city','rt-dest-state','rt-venue'].forEach(function(id){
+    document.getElementById(id).value='';
+  });
+  document.getElementById('rt-origin-country').value='Canada';
+  document.getElementById('rt-dest-country').value='Canada';
+  document.getElementById('rt-consumption').value='10.0';
+  document.getElementById('rt-fuelprice').value='1.65';
+  document.getElementById('rt-travelers').value='2';
+  document.getElementById('rt-roundtrip').checked=false;
+  _rtView='form'; _rtData=null;
+  document.getElementById('rt-results-section').classList.add('hidden');
+  document.getElementById('rt-results-content').innerHTML='';
+  document.getElementById('rt-form-section').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
 function qs(str){ return encodeURIComponent(str); }
-function qsMaps(str){ return encodeURIComponent(str).replace(/%20/g, '+'); }
+function qsMaps(str){ return encodeURIComponent(str).replace(/%20/g,'+'); }
 
 function calcDays(){
-  const ci = document.getElementById('f-checkin').value;
-  const co = document.getElementById('f-checkout').value;
-  const el = document.getElementById('days-display');
-  if(!ci || !co){ el.classList.add('hidden'); return; }
-  const d1 = new Date(ci), d2 = new Date(co);
-  const nights = Math.round((d2-d1)/86400000);
-  if(nights <= 0){ el.classList.add('hidden'); return; }
-  document.getElementById('days-num').textContent = nights;
-  document.getElementById('days-stay').textContent = nights+1;
+  const ci=document.getElementById('f-checkin').value;
+  const co=document.getElementById('f-checkout').value;
+  const el=document.getElementById('days-display');
+  if(!ci||!co){el.classList.add('hidden');return;}
+  const nights=Math.round((new Date(co)-new Date(ci))/86400000);
+  if(nights<=0){el.classList.add('hidden');return;}
+  document.getElementById('days-num').textContent=nights;
+  document.getElementById('days-stay').textContent=nights+1;
   el.classList.remove('hidden');
 }
 
 function onPurposeChange(){
-  const p = document.getElementById('f-purpose').value;
-  const eventPurposes = ['concert','sports','festival','conference'];
-  const ef = document.getElementById('event-name-field');
-  if(eventPurposes.includes(p)) ef.classList.remove('hidden');
+  const p=document.getElementById('f-purpose').value;
+  const ef=document.getElementById('event-name-field');
+  if(['concert','sports','festival','conference'].includes(p)) ef.classList.remove('hidden');
   else ef.classList.add('hidden');
 }
 
 function fmtDate(d){
   if(!d) return '';
-  const [y,m,day] = d.split('-');
-  const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return `${parseInt(day)} ${mo[parseInt(m)-1]} ${y}`;
+  const [y,m,day]=d.split('-');
+  const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return parseInt(day)+' '+mo[parseInt(m)-1]+' '+y;
 }
 
-// ── DATE FORMAT FOR URLs ──────────────────────────────────────────────────────
-function bookingDate(d){ return d; } // YYYY-MM-DD
 function expediaDate(d){
   if(!d) return '';
-  const [y,m,day] = d.split('-');
-  return `${m}/${day}/${y}`;
+  const [y,m,day]=d.split('-');
+  return m+'/'+day+'/'+y;
 }
 
-// ── NOMINATIM VENUE LOOKUP ────────────────────────────────────────────────────
-async function lookupVenueAddress(venue, city, state, country){
-  try {
-    const q = [venue, city, state, country !== 'Other' ? country : ''].filter(Boolean).join(', ');
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1&addressdetails=1&accept-language=en`;
-    const res = await fetch(url, { headers: { 'User-Agent': 'TripPlannerApp/1.0' } });
-    const data = await res.json();
-    if(!data || !data.length) return null;
-    const a = data[0].address || {};
-    const parts = [
-      (a.house_number ? a.house_number + ' ' : '') + (a.road || a.pedestrian || a.footway || ''),
-      a.suburb || a.neighbourhood || '',
-      a.city || a.town || a.village || a.county || '',
-      a.state || a.province || '',
-      a.postcode || ''
-    ].map(s => s.trim()).filter(Boolean);
-    return parts.length ? parts.join(', ') : data[0].display_name.split(',').slice(0,4).join(',').trim();
-  } catch(e) { return null; }
+// ── VENUE ADDRESS ─────────────────────────────────────────────────────────────
+async function lookupVenueAddress(venue,city,state,country){
+  try{
+    const q=[venue,city,state,country!=='Other'?country:''].filter(Boolean).join(', ');
+    const res=await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(q)+'&format=json&limit=1&addressdetails=1&accept-language=en',{headers:{'User-Agent':'TripPlannerApp/1.0'}});
+    const data=await res.json();
+    if(!data||!data.length) return null;
+    const a=data[0].address||{};
+    const parts=[
+      (a.house_number?a.house_number+' ':'')+(a.road||a.pedestrian||a.footway||''),
+      a.suburb||a.neighbourhood||'',
+      a.city||a.town||a.village||a.county||'',
+      a.state||a.province||'',
+      a.postcode||''
+    ].map(function(s){return s.trim();}).filter(Boolean);
+    return parts.length?parts.join(', '):data[0].display_name.split(',').slice(0,4).join(',').trim();
+  }catch(e){return null;}
 }
 
-// ── PLAN ─────────────────────────────────────────────────────────────────────
+// ── PLAN TRIP (DESTINATION TAB) ───────────────────────────────────────────────
 async function planTrip(){
-  const city    = document.getElementById('f-city').value.trim();
-  const state   = document.getElementById('f-state').value.trim();
-  const country = document.getElementById('f-country').value;
-  const venue   = document.getElementById('f-venue').value.trim();
-  const checkin = document.getElementById('f-checkin').value;
-  const checkout= document.getElementById('f-checkout').value;
-  const purpose = document.getElementById('f-purpose').value;
-  const evtName = document.getElementById('f-event-name').value.trim();
-  const budget  = document.querySelector('input[name="budget"]:checked').value;
+  const city=document.getElementById('f-city').value.trim();
+  const state=document.getElementById('f-state').value.trim();
+  const country=document.getElementById('f-country').value;
+  const venue=document.getElementById('f-venue').value.trim();
+  const checkin=document.getElementById('f-checkin').value;
+  const checkout=document.getElementById('f-checkout').value;
+  const purpose=document.getElementById('f-purpose').value;
+  const evtName=document.getElementById('f-event-name').value.trim();
+  const budget=document.querySelector('input[name="budget"]:checked').value;
 
-  if(!city){ alert('Please enter a city.'); return; }
-  if(!checkin || !checkout){ alert('Please select check-in and check-out dates.'); return; }
-  if(new Date(checkout) <= new Date(checkin)){ alert('Check-out must be after check-in.'); return; }
+  if(!city){alert('Please enter a city.');return;}
+  if(!checkin||!checkout){alert('Please select check-in and check-out dates.');return;}
+  if(new Date(checkout)<=new Date(checkin)){alert('Check-out must be after check-in.');return;}
 
-  const foods = [...document.querySelectorAll('.food-chip input:checked')].map(i => i.value);
+  const foods=[...document.querySelectorAll('.food-chip input:checked')].map(function(i){return i.value;});
+  const loc=city+(state?', '+state:'')+(country!=='Other'?', '+country:'');
+  const locShort=city+(state?', '+state:'');
+  const nights=Math.round((new Date(checkout)-new Date(checkin))/86400000);
+  const nearAnchor=venue?venue+', '+city:locShort;
 
-  const loc     = city + (state ? ', '+state : '') + (country !== 'Other' ? ', '+country : '');
-  const locShort= city + (state ? ', '+state : '');
-  const nights  = Math.round((new Date(checkout)-new Date(checkin))/86400000);
-
-  // Proximity anchor: if venue given, use "Venue, City" so all searches are near the venue
-  const nearAnchor = venue ? venue + ', ' + city : locShort;
-
-  // ── SUMMARY ──
-  const purposeLabels = {
+  const purposeLabels={
     leisure:'🌴 Leisure',business:'💼 Business',concert:'🎵 Concert',
     sports:'🏒 Sports Event',festival:'🎪 Festival',conference:'🎤 Conference',
     family:'👨‍👩‍👧 Family Visit',medical:'🏥 Medical',other:'✈️ Trip'
   };
-  document.getElementById('trip-summary').innerHTML = `
-    <div class="ts-left">
-      <div class="ts-dest">📍 ${locShort}</div>
-      ${venue ? `<div style="font-size:13px;color:rgba(255,255,255,.85);margin-top:2px;font-weight:700">🏟️ ${venue}</div>` : ''}
-      <div class="ts-dates">${fmtDate(checkin)} → ${fmtDate(checkout)} &nbsp;·&nbsp; ${purposeLabels[purpose]||'Trip'}</div>
-    </div>
-    <div class="ts-right">
-      <div class="ts-days">${nights}</div>
-      <div class="ts-days-lbl">night${nights!==1?'s':''}</div>
-    </div>`;
 
-  // ── VENUE / EVENT BOX ──
-  const evtBox = document.getElementById('event-box');
-  const eventPurposes = ['concert','sports','festival','conference'];
-  if(venue || evtName){
+  document.getElementById('trip-summary').innerHTML=
+    '<div class="ts-left">'+
+    '<div class="ts-dest">📍 '+locShort+'</div>'+
+    (venue?'<div style="font-size:13px;color:rgba(255,255,255,.85);margin-top:2px;font-weight:700">🏟️ '+venue+'</div>':'')+
+    '<div class="ts-dates">'+fmtDate(checkin)+' → '+fmtDate(checkout)+' &nbsp;·&nbsp; '+(purposeLabels[purpose]||'Trip')+'</div>'+
+    '</div>'+
+    '<div class="ts-right"><div class="ts-days">'+nights+'</div>'+
+    '<div class="ts-days-lbl">night'+(nights!==1?'s':'')+'</div></div>';
+
+  const evtBox=document.getElementById('event-box');
+  if(venue||evtName){
     evtBox.classList.remove('hidden');
-
-    // Event name line
-    const evtNameEl = document.getElementById('event-name-display');
-    if(evtName){ evtNameEl.textContent = evtName; evtNameEl.style.display = ''; }
-    else { evtNameEl.style.display = 'none'; }
-
-    // Venue name line
-    const venueNameEl = document.getElementById('venue-name-display');
-    venueNameEl.textContent = venue || '';
-    venueNameEl.style.display = venue ? '' : 'none';
-
-    // Box title
-    const isEvent = eventPurposes.includes(purpose);
-    document.getElementById('event-box-title').textContent = isEvent ? '🎉 Event & Venue' : '📍 Venue Details';
-
-    // Address: show spinner, then populate async
-    const addrWrap = document.getElementById('venue-address-display');
-    const addrText = document.getElementById('venue-addr-text');
-    if(venue){
-      addrWrap.style.display = 'flex';
-      addrText.textContent = 'Looking up address…';
-    } else {
-      addrWrap.style.display = 'none';
-    }
-
-    // Date line
-    document.getElementById('event-date-display').textContent =
-      fmtDate(checkin) + (checkin !== checkout ? ' – ' + fmtDate(checkout) : '') + ' · ' + locShort;
+    const evtNameEl=document.getElementById('event-name-display');
+    if(evtName){evtNameEl.textContent=evtName;evtNameEl.style.display='';}
+    else{evtNameEl.style.display='none';}
+    const venueNameEl=document.getElementById('venue-name-display');
+    venueNameEl.textContent=venue||'';
+    venueNameEl.style.display=venue?'':'none';
+    document.getElementById('event-box-title').textContent=
+      ['concert','sports','festival','conference'].includes(purpose)?'🎉 Event & Venue':'📍 Venue Details';
+    const addrWrap=document.getElementById('venue-address-display');
+    const addrText=document.getElementById('venue-addr-text');
+    if(venue){addrWrap.style.display='flex';addrText.textContent='Looking up address…';}
+    else{addrWrap.style.display='none';}
+    document.getElementById('event-date-display').textContent=
+      fmtDate(checkin)+(checkin!==checkout?' – '+fmtDate(checkout):'')+' · '+locShort;
   } else {
     evtBox.classList.add('hidden');
   }
 
-  // ── HOTELS ──
-  const hotelCards = buildHotelCards(loc, locShort, nearAnchor, city, state, country, checkin, checkout, nights, budget);
-  document.getElementById('hotel-links').innerHTML = hotelCards;
+  document.getElementById('hotel-links').innerHTML=buildHotelCards(loc,locShort,nearAnchor,city,state,country,checkin,checkout,nights,budget);
+  document.getElementById('food-links').innerHTML=buildFoodCards(foods,city,state,locShort,nearAnchor);
+  document.getElementById('dining-sec').style.display=foods.length?'':'none';
+  document.getElementById('event-links').innerHTML=buildEventCards(city,state,country,locShort,purpose,evtName,checkin);
+  document.getElementById('parking-links').innerHTML=buildParkingCards(city,state,locShort,nearAnchor);
 
-  // ── FOOD ──
-  const foodCards = buildFoodCards(foods, city, state, locShort, nearAnchor);
-  document.getElementById('food-links').innerHTML = foodCards;
-  document.getElementById('dining-sec').style.display = foods.length ? '' : 'none';
-
-  // ── EVENTS ──
-  const eventCards = buildEventCards(city, state, country, locShort, purpose, evtName, checkin);
-  document.getElementById('event-links').innerHTML = eventCards;
-
-  // ── PARKING ──
-  const parkCards = buildParkingCards(city, state, locShort, nearAnchor);
-  document.getElementById('parking-links').innerHTML = parkCards;
-
-  // ── SHOW RESULTS ──
+  _destView='results';
   document.getElementById('form-section').classList.add('hidden');
   document.getElementById('results-section').classList.remove('hidden');
   window.scrollTo({top:0,behavior:'smooth'});
 
-  // ── ASYNC: fetch venue address after results are shown ──
   if(venue){
-    const addr = await lookupVenueAddress(venue, city, state, country);
-    const addrText = document.getElementById('venue-addr-text');
+    const addr=await lookupVenueAddress(venue,city,state,country);
+    const addrText=document.getElementById('venue-addr-text');
     if(addr){
-      document.getElementById('venue-address-display').querySelector('span').textContent = '📌';
-      addrText.textContent = addr;
+      document.getElementById('venue-address-display').querySelector('span').textContent='📌';
+      addrText.textContent=addr;
     } else {
-      document.getElementById('venue-address-display').querySelector('span').textContent = '⚠️';
-      addrText.textContent = 'Address not found — try adding the full venue name';
+      document.getElementById('venue-address-display').querySelector('span').textContent='⚠️';
+      addrText.textContent='Address not found — try adding the full venue name';
     }
   }
 }
 
 // ── HOTEL CARDS ───────────────────────────────────────────────────────────────
-function buildHotelCards(loc, locShort, nearAnchor, city, state, country, ci, co, nights, budget){
-  const nearQ    = qs(nearAnchor);
-  const nearMaps = qsMaps(nearAnchor);
-  const locQ     = qs(loc);
-  const expDateCI = expediaDate(ci);
-  const expDateCO = expediaDate(co);
-  const airbnbCity = qs(nearAnchor);
-  const mapsLoc = qsMaps(nearAnchor);
-
-  let cards = [];
-
-  if(budget === 'budget'){
-    cards = [
-      { ico:'🌐', name:'Booking.com', tag:'tag-cheap', tagLbl:'Cheapest',
-        desc:`Sorted by lowest price — hotels near ${nearAnchor}`,
-        url:`https://www.booking.com/searchresults.html?ss=${nearQ}&checkin=${ci}&checkout=${co}&order=price&nflt=price%3D1-150` },
-      { ico:'🏠', name:'Airbnb', tag:'tag-best', tagLbl:'Popular',
-        desc:`Entire homes & private rooms near ${nearAnchor}`,
-        url:`https://www.airbnb.com/s/${airbnbCity}/homes?checkin=${ci}&checkout=${co}&price_max=120` },
-      { ico:'🎒', name:'Hostelworld', tag:'tag-free', tagLbl:'Budget',
-        desc:`Hostels, dorms & budget guesthouses near ${nearAnchor}`,
-        url:`https://www.hostelworld.com/s#q=${nearQ}&from=${ci}&to=${co}` },
-      { ico:'🏨', name:'Hotels.com', tag:'tag-cheap', tagLbl:'Deals',
-        desc:`Member discounts & free nights — near ${nearAnchor}`,
-        url:`https://www.hotels.com/search.do?q-destination=${nearQ}&q-check-in=${ci}&q-check-out=${co}&sort-order=PRICE` },
+function buildHotelCards(loc,locShort,nearAnchor,city,state,country,ci,co,nights,budget){
+  const nearQ=qs(nearAnchor), nearMaps=qsMaps(nearAnchor);
+  const expDateCI=expediaDate(ci), expDateCO=expediaDate(co);
+  let cards=[];
+  if(budget==='budget'){
+    cards=[
+      {ico:'🌐',name:'Booking.com',tag:'tag-cheap',tagLbl:'Cheapest',
+       desc:'Sorted by lowest price — near '+nearAnchor,
+       url:'https://www.booking.com/searchresults.html?ss='+nearQ+'&checkin='+ci+'&checkout='+co+'&order=price&nflt=price%3D1-150'},
+      {ico:'🏠',name:'Airbnb',tag:'tag-best',tagLbl:'Popular',
+       desc:'Entire homes & private rooms near '+nearAnchor,
+       url:'https://www.airbnb.com/s/'+nearQ+'/homes?checkin='+ci+'&checkout='+co+'&price_max=120'},
+      {ico:'🎒',name:'Hostelworld',tag:'tag-free',tagLbl:'Budget',
+       desc:'Hostels, dorms & budget guesthouses near '+nearAnchor,
+       url:'https://www.hostelworld.com/s#q='+nearQ+'&from='+ci+'&to='+co},
+      {ico:'🏨',name:'Hotels.com',tag:'tag-cheap',tagLbl:'Deals',
+       desc:'Member discounts & free nights — near '+nearAnchor,
+       url:'https://www.hotels.com/search.do?q-destination='+nearQ+'&q-check-in='+ci+'&q-check-out='+co+'&sort-order=PRICE'},
     ];
-  } else if(budget === 'moderate'){
-    cards = [
-      { ico:'🌐', name:'Booking.com', tag:'tag-best', tagLbl:'Best rated',
-        desc:`Mid-range hotels sorted by rating — near ${nearAnchor}`,
-        url:`https://www.booking.com/searchresults.html?ss=${nearQ}&checkin=${ci}&checkout=${co}&order=bayesian_review_score` },
-      { ico:'🏠', name:'Airbnb', tag:'tag-best', tagLbl:'Popular',
-        desc:`Entire homes & apartments near ${nearAnchor}`,
-        url:`https://www.airbnb.com/s/${airbnbCity}/homes?checkin=${ci}&checkout=${co}` },
-      { ico:'✈️', name:'Expedia', tag:'tag-cheap', tagLbl:'Bundles',
-        desc:`Bundle hotel + flight — near ${nearAnchor}`,
-        url:`https://www.expedia.com/Hotel-Search?destination=${nearQ}&startDate=${expDateCI}&endDate=${expDateCO}&sort=RECOMMENDED` },
-      { ico:'🏨', name:'Hotels.com', tag:'tag-best', tagLbl:'Rewards',
-        desc:`Earn free nights — near ${nearAnchor}`,
-        url:`https://www.hotels.com/search.do?q-destination=${nearQ}&q-check-in=${ci}&q-check-out=${co}` },
+  } else if(budget==='moderate'){
+    cards=[
+      {ico:'🌐',name:'Booking.com',tag:'tag-best',tagLbl:'Best rated',
+       desc:'Mid-range hotels sorted by rating — near '+nearAnchor,
+       url:'https://www.booking.com/searchresults.html?ss='+nearQ+'&checkin='+ci+'&checkout='+co+'&order=bayesian_review_score'},
+      {ico:'🏠',name:'Airbnb',tag:'tag-best',tagLbl:'Popular',
+       desc:'Entire homes & apartments near '+nearAnchor,
+       url:'https://www.airbnb.com/s/'+nearQ+'/homes?checkin='+ci+'&checkout='+co},
+      {ico:'✈️',name:'Expedia',tag:'tag-cheap',tagLbl:'Bundles',
+       desc:'Bundle hotel + flight — near '+nearAnchor,
+       url:'https://www.expedia.com/Hotel-Search?destination='+nearQ+'&startDate='+expDateCI+'&endDate='+expDateCO+'&sort=RECOMMENDED'},
+      {ico:'🏨',name:'Hotels.com',tag:'tag-best',tagLbl:'Rewards',
+       desc:'Earn free nights — near '+nearAnchor,
+       url:'https://www.hotels.com/search.do?q-destination='+nearQ+'&q-check-in='+ci+'&q-check-out='+co},
     ];
   } else {
-    cards = [
-      { ico:'⭐', name:'Booking.com', tag:'tag-best', tagLbl:'5-star',
-        desc:`Luxury hotels & resorts near ${nearAnchor}`,
-        url:`https://www.booking.com/searchresults.html?ss=${nearQ}&checkin=${ci}&checkout=${co}&nflt=class%3D5&order=bayesian_review_score` },
-      { ico:'🏠', name:'Airbnb Luxe', tag:'tag-best', tagLbl:'Premium',
-        desc:`Luxury homes & villas near ${nearAnchor}`,
-        url:`https://www.airbnb.com/s/${airbnbCity}/homes?checkin=${ci}&checkout=${co}&price_min=300` },
-      { ico:'✈️', name:'Expedia', tag:'tag-best', tagLbl:'Premium',
-        desc:`Premium hotels near ${nearAnchor}`,
-        url:`https://www.expedia.com/Hotel-Search?destination=${nearQ}&startDate=${expDateCI}&endDate=${expDateCO}&sort=PRICE_DESCENDING` },
-      { ico:'🗺️', name:'Google Hotels', tag:'tag-free', tagLbl:'Compare',
-        desc:`Compare all platforms — hotels near ${nearAnchor}`,
-        url:`https://www.google.com/travel/hotels/s/${mapsLoc}?q=hotels+near+${mapsLoc}&checkin=${ci}&checkout=${co}` },
+    cards=[
+      {ico:'⭐',name:'Booking.com',tag:'tag-best',tagLbl:'5-star',
+       desc:'Luxury hotels & resorts near '+nearAnchor,
+       url:'https://www.booking.com/searchresults.html?ss='+nearQ+'&checkin='+ci+'&checkout='+co+'&nflt=class%3D5&order=bayesian_review_score'},
+      {ico:'🏠',name:'Airbnb Luxe',tag:'tag-best',tagLbl:'Premium',
+       desc:'Luxury homes & villas near '+nearAnchor,
+       url:'https://www.airbnb.com/s/'+nearQ+'/homes?checkin='+ci+'&checkout='+co+'&price_min=300'},
+      {ico:'✈️',name:'Expedia',tag:'tag-best',tagLbl:'Premium',
+       desc:'Premium hotels near '+nearAnchor,
+       url:'https://www.expedia.com/Hotel-Search?destination='+nearQ+'&startDate='+expDateCI+'&endDate='+expDateCO+'&sort=PRICE_DESCENDING'},
+      {ico:'🗺️',name:'Google Hotels',tag:'tag-free',tagLbl:'Compare',
+       desc:'Compare all platforms — near '+nearAnchor,
+       url:'https://www.google.com/travel/hotels/s/'+nearMaps+'?q=hotels+near+'+nearMaps+'&checkin='+ci+'&checkout='+co},
     ];
   }
-
-  return cards.map(c => `
-    <div class="link-card" onclick="window.open('${c.url}','_blank')">
-      <div class="lc-top">
-        <span class="lc-ico">${c.ico}</span>
-        <div>
-          <div class="lc-name">${c.name}</div>
-          <span class="lc-tag ${c.tag}">${c.tagLbl}</span>
-        </div>
-      </div>
-      <div class="lc-desc">${c.desc}</div>
-      <button class="lc-btn" onclick="event.stopPropagation();window.open('${c.url}','_blank')">Open →</button>
-    </div>`).join('');
+  return cards.map(function(c){
+    return '<div class="link-card" onclick="window.open(\''+c.url+'\',\'_blank\')">'+
+      '<div class="lc-top"><span class="lc-ico">'+c.ico+'</span>'+
+      '<div><div class="lc-name">'+c.name+'</div><span class="lc-tag '+c.tag+'">'+c.tagLbl+'</span></div></div>'+
+      '<div class="lc-desc">'+c.desc+'</div>'+
+      '<button class="lc-btn" onclick="event.stopPropagation();window.open(\''+c.url+'\',\'_blank\')">Open →</button></div>';
+  }).join('');
 }
 
 // ── FOOD CARDS ────────────────────────────────────────────────────────────────
-function buildFoodCards(foods, city, state, locShort, nearAnchor){
+function buildFoodCards(foods,city,state,locShort,nearAnchor){
   if(!foods.length) return '';
-  const foodEmojis = {
+  const foodEmojis={
     'Italian':'🍝','Asian':'🍜','Sushi':'🍣','Mexican':'🌮','BBQ':'🥩',
     'Seafood':'🦞','Pizza':'🍕','Indian':'🍛','Vegan':'🥗',
     'Breakfast':'🥞','Fast Food':'🍔','Restaurants':'🍽️'
   };
-  const mapsBase = 'https://www.google.com/maps/search/';
-  const yelpBase = 'https://www.yelp.com/search?';
-  const taBase   = 'https://www.tripadvisor.com/Search?q=';
-
-  return foods.map(food => {
-    const ico = foodEmojis[food] || '🍽️';
-    const nearQ = qs(nearAnchor);
-    const mapsQ = qsMaps(food + ' restaurants near ' + nearAnchor);
-    const yelpQ = `find_desc=${qs(food+' restaurants')}&find_loc=${nearQ}`;
-    const taQ   = qs(food + ' restaurants near ' + nearAnchor);
-    const mapsFoodUrl  = mapsBase + mapsQ;
-    const yelpFoodUrl  = yelpBase + yelpQ;
-    const taFoodUrl    = taBase + taQ;
-
-    return `
-      <div class="link-card" onclick="window.open('${mapsFoodUrl}','_blank')">
-        <span class="lc-ico">${ico}</span>
-        <div class="lc-main">
-          <div class="lc-name">${food}</div>
-          <div class="lc-desc" style="margin-top:3px">
-            <a href="${mapsFoodUrl}" target="_blank" style="color:var(--teal);font-weight:700;text-decoration:none;margin-right:10px">🗺 Google Maps</a>
-            <a href="${yelpFoodUrl}" target="_blank" style="color:#d32323;font-weight:700;text-decoration:none;margin-right:10px">⭐ Yelp</a>
-            <a href="${taFoodUrl}" target="_blank" style="color:#00aa6c;font-weight:700;text-decoration:none">🌿 TripAdvisor</a>
-          </div>
-        </div>
-        <button class="lc-btn" onclick="event.stopPropagation();window.open('${mapsFoodUrl}','_blank')">Search →</button>
-      </div>`;
+  const foodCosts={
+    'Italian':'~$20–35/person','Asian':'~$15–25/person','Sushi':'~$25–45/person',
+    'Mexican':'~$15–25/person','BBQ':'~$20–35/person','Seafood':'~$25–50/person',
+    'Pizza':'~$12–20/person','Indian':'~$15–25/person','Vegan':'~$15–25/person',
+    'Breakfast':'~$12–20/person','Fast Food':'~$9–15/person','Restaurants':'~$20–40/person'
+  };
+  return foods.map(function(food){
+    const ico=foodEmojis[food]||'🍽️';
+    const cost=foodCosts[food]||'~$15–30/person';
+    const mapsQ=qsMaps(food+' restaurants near '+nearAnchor);
+    const yelpQ='find_desc='+qs(food+' restaurants')+'&find_loc='+qs(nearAnchor);
+    const taQ=qs(food+' restaurants near '+nearAnchor);
+    const mapsFoodUrl='https://www.google.com/maps/search/'+mapsQ;
+    const yelpFoodUrl='https://www.yelp.com/search?'+yelpQ;
+    const taFoodUrl='https://www.tripadvisor.com/Search?q='+taQ;
+    return '<div class="link-card" onclick="window.open(\''+mapsFoodUrl+'\',\'_blank\')">'+
+      '<span class="lc-ico">'+ico+'</span>'+
+      '<div class="lc-main">'+
+      '<div class="lc-name">'+food+'</div>'+
+      '<div class="lc-cost">'+cost+'</div>'+
+      '<div class="lc-desc" style="margin-top:3px">'+
+      '<span onclick="event.stopPropagation();window.open(\''+mapsFoodUrl+'\',\'_blank\')" style="color:var(--teal);font-weight:700;cursor:pointer;margin-right:10px">🗺 Maps</span>'+
+      '<span onclick="event.stopPropagation();window.open(\''+yelpFoodUrl+'\',\'_blank\')" style="color:#d32323;font-weight:700;cursor:pointer;margin-right:10px">⭐ Yelp</span>'+
+      '<span onclick="event.stopPropagation();window.open(\''+taFoodUrl+'\',\'_blank\')" style="color:#00aa6c;font-weight:700;cursor:pointer">🌿 TripAdvisor</span>'+
+      '</div></div>'+
+      '<button class="lc-btn" onclick="event.stopPropagation();window.open(\''+mapsFoodUrl+'\',\'_blank\')">Search →</button></div>';
   }).join('');
 }
 
 // ── EVENT CARDS ───────────────────────────────────────────────────────────────
-function buildEventCards(city, state, country, locShort, purpose, evtName, checkin){
-  const locQ = qs(locShort);
-  const mapsQ = qsMaps(locShort);
-  const countrySlug = country==='Canada' ? 'ca' : country==='USA' ? 'us' : 'gb';
-  const citySlug = city.toLowerCase().replace(/\s+/g,'-');
-  const stateSlug = (state||'').toLowerCase().replace(/\s+/g,'-');
-
-  let evtSearch = evtName || (purpose === 'concert' ? 'concerts' : purpose === 'sports' ? 'sports events' : 'events');
-
-  const cards = [
-    { ico:'🎟️', name:'Eventbrite', tag:'tag-event', tagLbl:'Free & Paid',
-      desc:`Browse all events happening in ${locShort}`,
-      url:`https://www.eventbrite.com/d/${stateSlug}--${citySlug}/events/` },
-    { ico:'🎵', name:'Ticketmaster', tag:'tag-event', tagLbl:'Concerts & Sports',
-      desc:`Concerts, sports, theatre & more in ${locShort}`,
-      url:`https://www.ticketmaster.com/search?q=${qs(locShort)}&type=event` },
-    { ico:'🔍', name:'Google Events', tag:'tag-free', tagLbl:'All events',
-      desc:`Search all events happening in ${locShort}`,
-      url:`https://www.google.com/search?q=events+in+${mapsQ}+${checkin ? checkin.slice(0,7) : ''}` },
-    { ico:'🎭', name:'StubHub', tag:'tag-event', tagLbl:'Resale tickets',
-      desc:`Find last-minute & resale tickets for events`,
-      url:`https://www.stubhub.com/find/s/?q=${qs(evtSearch+'  '+locShort)}` },
+function buildEventCards(city,state,country,locShort,purpose,evtName,checkin){
+  const locQ=qs(locShort), mapsQ=qsMaps(locShort);
+  const citySlug=city.toLowerCase().replace(/\s+/g,'-');
+  const stateSlug=(state||'').toLowerCase().replace(/\s+/g,'-');
+  const evtSearch=evtName||(purpose==='concert'?'concerts':purpose==='sports'?'sports events':'events');
+  const cards=[
+    {ico:'🎟️',name:'Eventbrite',tag:'tag-event',tagLbl:'Free & Paid',
+     desc:'Browse all events happening in '+locShort,
+     url:'https://www.eventbrite.com/d/'+stateSlug+'--'+citySlug+'/events/'},
+    {ico:'🎵',name:'Ticketmaster',tag:'tag-event',tagLbl:'Concerts & Sports',
+     desc:'Concerts, sports, theatre & more in '+locShort,
+     url:'https://www.ticketmaster.com/search?q='+locQ+'&type=event'},
+    {ico:'🔍',name:'Google Events',tag:'tag-free',tagLbl:'All events',
+     desc:'Search all events happening in '+locShort,
+     url:'https://www.google.com/search?q=events+in+'+mapsQ+(checkin?'+'+checkin.slice(0,7):'')},
+    {ico:'🎭',name:'StubHub',tag:'tag-event',tagLbl:'Resale tickets',
+     desc:'Find last-minute & resale tickets for events',
+     url:'https://www.stubhub.com/find/s/?q='+qs(evtSearch+'  '+locShort)},
   ];
-
   if(evtName){
     cards.unshift({
-      ico:'⭐', name:'Search: '+evtName, tag:'tag-best', tagLbl:'Your event',
-      desc:`Find tickets & info for "${evtName}" in ${locShort}`,
-      url:`https://www.google.com/search?q=${qs(evtName+' '+locShort+' tickets')}`
+      ico:'⭐',name:'Search: '+evtName,tag:'tag-best',tagLbl:'Your event',
+      desc:'Find tickets & info for "'+evtName+'" in '+locShort,
+      url:'https://www.google.com/search?q='+qs(evtName+' '+locShort+' tickets')
     });
   }
-
-  return cards.map(c => `
-    <div class="link-card" onclick="window.open('${c.url}','_blank')">
-      <div class="lc-top">
-        <span class="lc-ico">${c.ico}</span>
-        <div>
-          <div class="lc-name">${c.name}</div>
-          <span class="lc-tag ${c.tag}">${c.tagLbl}</span>
-        </div>
-      </div>
-      <div class="lc-desc">${c.desc}</div>
-      <button class="lc-btn" onclick="event.stopPropagation();window.open('${c.url}','_blank')">Open →</button>
-    </div>`).join('');
+  return cards.map(function(c){
+    return '<div class="link-card" onclick="window.open(\''+c.url+'\',\'_blank\')">'+
+      '<div class="lc-top"><span class="lc-ico">'+c.ico+'</span>'+
+      '<div><div class="lc-name">'+c.name+'</div><span class="lc-tag '+c.tag+'">'+c.tagLbl+'</span></div></div>'+
+      '<div class="lc-desc">'+c.desc+'</div>'+
+      '<button class="lc-btn" onclick="event.stopPropagation();window.open(\''+c.url+'\',\'_blank\')">Open →</button></div>';
+  }).join('');
 }
 
 // ── PARKING CARDS ─────────────────────────────────────────────────────────────
-function buildParkingCards(city, state, locShort, nearAnchor){
-  const mapsQ  = qsMaps('parking near ' + nearAnchor);
-  const nearQ  = qs(nearAnchor);
-  const cityQ  = qs(city + (state ? ', '+state : ''));
-
-  const cards = [
-    { ico:'🗺️', name:'Google Maps', tag:'tag-free', tagLbl:'Free',
-      desc:`Find all parking spots near ${nearAnchor} with prices & availability`,
-      url:`https://www.google.com/maps/search/${mapsQ}` },
-    { ico:'🅿️', name:'SpotHero', tag:'tag-cheap', tagLbl:'Discounted',
-      desc:`Reserve parking near ${nearAnchor} — up to 50% off drive-up rates`,
-      url:`https://spothero.com/search?q=${nearQ}` },
-    { ico:'🚗', name:'ParkWhiz', tag:'tag-cheap', tagLbl:'Reserve now',
-      desc:`Compare garages & lots near ${nearAnchor} — book ahead to save`,
-      url:`https://www.parkwhiz.com/search/?q=${nearQ}` },
-    { ico:'📱', name:'ParkMe', tag:'tag-free', tagLbl:'Real-time',
-      desc:`Real-time parking availability near ${nearAnchor}`,
-      url:`https://en.parkme.com/lot/search?q=${nearQ}` },
+function buildParkingCards(city,state,locShort,nearAnchor){
+  const mapsQ=qsMaps('parking near '+nearAnchor);
+  const nearQ=qs(nearAnchor);
+  const cards=[
+    {ico:'🗺️',name:'Google Maps',tag:'tag-free',tagLbl:'Free',cost:'Free to search',
+     desc:'Find all parking near '+nearAnchor+' with prices & availability',
+     url:'https://www.google.com/maps/search/'+mapsQ},
+    {ico:'🅿️',name:'SpotHero',tag:'tag-cheap',tagLbl:'Discounted',cost:'From ~$5–20/day',
+     desc:'Reserve parking near '+nearAnchor+' — up to 50% off drive-up rates',
+     url:'https://spothero.com/search?q='+nearQ},
+    {ico:'🚗',name:'ParkWhiz',tag:'tag-cheap',tagLbl:'Reserve now',cost:'From ~$8–25/day',
+     desc:'Compare garages & lots near '+nearAnchor+' — book ahead to save',
+     url:'https://www.parkwhiz.com/search/?q='+nearQ},
+    {ico:'📱',name:'ParkMe',tag:'tag-free',tagLbl:'Real-time',cost:'Rates vary by location',
+     desc:'Real-time parking availability near '+nearAnchor,
+     url:'https://en.parkme.com/lot/search?q='+nearQ},
   ];
-
-  return cards.map(c => `
-    <div class="link-card" onclick="window.open('${c.url}','_blank')">
-      <div class="lc-top">
-        <span class="lc-ico">${c.ico}</span>
-        <div>
-          <div class="lc-name">${c.name}</div>
-          <span class="lc-tag ${c.tag}">${c.tagLbl}</span>
-        </div>
-      </div>
-      <div class="lc-desc">${c.desc}</div>
-      <button class="lc-btn" onclick="event.stopPropagation();window.open('${c.url}','_blank')">Open →</button>
-    </div>`).join('');
+  return cards.map(function(c){
+    return '<div class="link-card" onclick="window.open(\''+c.url+'\',\'_blank\')">'+
+      '<div class="lc-top"><span class="lc-ico">'+c.ico+'</span>'+
+      '<div><div class="lc-name">'+c.name+'</div><span class="lc-tag '+c.tag+'">'+c.tagLbl+'</span></div></div>'+
+      '<div class="lc-cost">'+c.cost+'</div>'+
+      '<div class="lc-desc">'+c.desc+'</div>'+
+      '<button class="lc-btn" onclick="event.stopPropagation();window.open(\''+c.url+'\',\'_blank\')">Open →</button></div>';
+  }).join('');
 }
 
-// ── RESET ─────────────────────────────────────────────────────────────────────
+// ── RESET DESTINATION ─────────────────────────────────────────────────────────
 function resetForm(){
+  _destView='form';
   document.getElementById('results-section').classList.add('hidden');
   document.getElementById('form-section').classList.remove('hidden');
   window.scrollTo({top:0,behavior:'smooth'});
@@ -1050,10 +1212,10 @@ function resetForm(){
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 (function(){
-  const today = new Date().toISOString().slice(0,10);
-  const tomorrow = new Date(Date.now()+86400000).toISOString().slice(0,10);
-  document.getElementById('f-checkin').value  = today;
-  document.getElementById('f-checkout').value = tomorrow;
+  const today=new Date().toISOString().slice(0,10);
+  const tomorrow=new Date(Date.now()+86400000).toISOString().slice(0,10);
+  document.getElementById('f-checkin').value=today;
+  document.getElementById('f-checkout').value=tomorrow;
   calcDays();
   switchTab('rt');
 })();
