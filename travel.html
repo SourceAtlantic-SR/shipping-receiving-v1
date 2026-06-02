@@ -29,6 +29,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 
 /* ── HERO ── */
 .hero{background:linear-gradient(150deg,#0c4a6e 0%,#0891b2 60%,#06b6d4 100%);padding:calc(var(--sft) + 28px) 24px 36px;text-align:center;position:relative;overflow:hidden}
+.hero-back{position:absolute;top:calc(var(--sft) + 14px);left:16px;background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;z-index:2}
 .hero::before{content:'✈️';position:absolute;font-size:180px;opacity:.06;top:-20px;right:-30px;transform:rotate(25deg)}
 .hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:700;color:rgba(255,255,255,.9);letter-spacing:.8px;text-transform:uppercase;margin-bottom:14px}
 .hero-title{font-size:28px;font-weight:900;color:#fff;letter-spacing:-.5px;line-height:1.1}
@@ -259,6 +260,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 
 <!-- HERO -->
 <div class="hero">
+  <button class="hero-back" onclick="window.location.href='gastos-casa.html'">← Gastos Casa</button>
   <div class="hero-badge">✈️ &nbsp; Trip Planner</div>
   <div class="hero-title">Plan Your Next Trip</div>
   <div class="hero-sub">Hotels, restaurants, events & parking —<br>all in one place, in seconds.</div>
