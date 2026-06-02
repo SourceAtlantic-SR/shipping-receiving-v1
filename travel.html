@@ -800,7 +800,7 @@ async function calculateRoute(){
     origShort,destShort,distKm,durMin,fuelL,fuelCost,consumption,fuelPrice,
     stops,nearAnchor,destCity,destState,destCountry,venue,
     travelers,roundTrip,selectedTier:null,hotelCost:0,
-    midLat,midLng,mealRate:18,editOpen:false,expFormOpen:false
+    midLat,midLng,mealRate:18,editOpen:false
   };
 
   document.getElementById('rt-results-content').innerHTML=buildRTHTML(_rtData);
@@ -912,36 +912,10 @@ function getExpenses(){
 }
 function saveExpenses(arr){localStorage.setItem(EXPENSE_KEY,JSON.stringify(arr));}
 
-function submitExpenseForm(){
-  const date=document.getElementById('exp-date').value;
-  const cat=document.getElementById('exp-cat').value;
-  const amt=parseFloat(document.getElementById('exp-amount').value);
-  const desc=(document.getElementById('exp-desc').value||'').trim();
-  if(!date||!amt||amt<=0){alert('Preencha data e valor.');return;}
-  const arr=getExpenses();
-  arr.push({id:Date.now().toString(36),date,cat,amount:amt,desc});
-  saveExpenses(arr);
-  if(_rtData) _rtData.expFormOpen=false;
-  refreshExpenses();
-}
-
-function deleteExpense(id){
-  saveExpenses(getExpenses().filter(function(e){return e.id!==id;}));
-  refreshExpenses();
-}
-
-function toggleExpForm(){
-  if(!_rtData) return;
-  _rtData.expFormOpen=!_rtData.expFormOpen;
-  refreshExpenses();
-}
-
 function refreshExpenses(){
-  const el=document.getElementById('rt-expenses-section');
-  if(el) el.innerHTML=buildExpensesHTML(_rtData);
-  const el2=document.getElementById('exp-section-content');
-  if(el2&&!document.getElementById('exp-section').classList.contains('hidden'))
-    el2.innerHTML=buildExpensesHTML(_rtData);
+  const el=document.getElementById('exp-section-content');
+  if(el&&!document.getElementById('exp-section').classList.contains('hidden'))
+    el.innerHTML=buildExpensesHTML(_rtData);
 }
 
 function buildExpensesHTML(d){
@@ -951,7 +925,10 @@ function buildExpensesHTML(d){
   const filtered=ci&&co?all.filter(function(e){return e.date>=ci&&e.date<=co;}):all;
 
   const totals={gasolina:0,hotel:0,alimentacao:0,outros:0};
-  filtered.forEach(function(e){if(totals[e.cat]!==undefined)totals[e.cat]+=e.amount;});
+  filtered.forEach(function(e){
+    const mapped=['gasolina','hotel','alimentacao'].includes(e.cat)?e.cat:'outros';
+    totals[mapped]+=e.amount;
+  });
   const grandTotal=Object.values(totals).reduce(function(a,b){return a+b;},0);
 
   const mealRate=(d&&d.mealRate)||18;
@@ -992,7 +969,8 @@ function buildExpensesHTML(d){
     ?'<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--muted)">'+
       'Nenhum gasto registrado'+(ci&&co?' neste período':'')+'.</div>'
     :filtered.slice().sort(function(a,b){return b.date.localeCompare(a.date);}).map(function(e){
-      const info=CATS[e.cat]||{ico:'📦',label:'Outros'};
+      const mapped=['gasolina','hotel','alimentacao'].includes(e.cat)?e.cat:'outros';
+      const info=CATS[mapped];
       return '<div class="exp-entry">'+
         '<span class="exp-entry-ico">'+info.ico+'</span>'+
         '<div class="exp-entry-body">'+
@@ -1001,33 +979,8 @@ function buildExpensesHTML(d){
         (e.desc?'<div class="exp-entry-desc">'+e.desc+'</div>':'')+
         '</div>'+
         '<span class="exp-entry-amt">$'+e.amount.toFixed(2)+'</span>'+
-        '<button class="exp-del-btn" onclick="deleteExpense(\''+e.id+'\')">🗑</button>'+
         '</div>';
     }).join('');
-
-  const today=new Date().toISOString().slice(0,10);
-  const formHtml=(d&&d.expFormOpen)?
-    '<div class="exp-form">'+
-    '<div class="field-row" style="margin-bottom:8px">'+
-    '<div class="field" style="margin:0"><label style="font-size:11px">Data</label>'+
-    '<input type="date" id="exp-date" value="'+(ci||today)+'"></div>'+
-    '<div class="field" style="margin:0"><label style="font-size:11px">Categoria</label>'+
-    '<select id="exp-cat">'+
-    '<option value="gasolina">⛽ Gasolina</option>'+
-    '<option value="hotel">🏨 Hotel</option>'+
-    '<option value="alimentacao">🍔 Alimentação</option>'+
-    '<option value="outros">📦 Outros</option>'+
-    '</select></div></div>'+
-    '<div class="field-row" style="margin-bottom:10px">'+
-    '<div class="field" style="margin:0"><label style="font-size:11px">Valor ($)</label>'+
-    '<input type="number" id="exp-amount" placeholder="0.00" min="0" step="0.01" inputmode="decimal"></div>'+
-    '<div class="field" style="margin:0"><label style="font-size:11px">Descrição (opcional)</label>'+
-    '<input type="text" id="exp-desc" placeholder="ex: Shell, Restaurante..." autocorrect="off" autocapitalize="sentences"></div></div>'+
-    '<div style="display:flex;gap:8px">'+
-    '<button class="btn-plan" style="margin:0;flex:1;padding:12px;font-size:14px" onclick="submitExpenseForm()">💾 Salvar</button>'+
-    '<button class="btn-clear" style="margin:0;padding:12px 16px;font-size:14px" onclick="toggleExpForm()">✕</button>'+
-    '</div></div>'
-    :'';
 
   const dateLabel=ci&&co?ci+' → '+co:'Todos os períodos';
   const diffTotal=grandTotal-estTotal;
@@ -1036,9 +989,12 @@ function buildExpensesHTML(d){
     '<div class="exp-header">'+
     '<div><div class="exp-title">📋 Gastos Reais da Viagem</div>'+
     '<div class="exp-period">📅 '+dateLabel+'</div></div>'+
-    '<button class="exp-add-btn" onclick="toggleExpForm()">'+(d&&d.expFormOpen?'✕ Cancelar':'➕ Adicionar')+'</button>'+
     '</div>'+
-    formHtml+
+    '<div style="margin-bottom:14px">'+
+    '<button onclick="window.location.href=\'gastos-casa.html\'" style="display:flex;align-items:center;justify-content:space-between;width:100%;background:linear-gradient(135deg,#064e3b,#059669);color:#fff;border:none;border-radius:12px;padding:13px 16px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(5,150,105,.3)">'+
+    '<span>📝 Registrar gasto em Gastos Casa</span><span style="font-size:18px">›</span>'+
+    '</button>'+
+    '</div>'+
     '<div class="exp-cats">'+catRows+'</div>'+
     '<div class="exp-total-row">'+
     '<span>💰 Total real</span>'+

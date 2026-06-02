@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gastos Casa">
+<meta name="theme-color" content="#059669">
+<title>Gastos Casa</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --green:#059669;--green2:#047857;--green3:#6ee7b7;
+  --text:#0f172a;--muted:#64748b;--bg:#f0fdf4;
+  --border:#d1fae5;--shadow:0 2px 8px rgba(5,150,105,.12);
+  --sft:env(safe-area-inset-top,0px);--sfb:env(safe-area-inset-bottom,0px);
+}
+html,body{min-height:100%;background:var(--bg);color:var(--text)}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
+
+/* HEADER */
+.hero{background:linear-gradient(150deg,#064e3b 0%,#059669 60%,#10b981 100%);
+  padding:calc(var(--sft) + 24px) 20px 32px;position:relative;overflow:hidden}
+.hero::before{content:'💰';position:absolute;font-size:160px;opacity:.07;top:-10px;right:-20px}
+.hero-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.hero-back{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:20px;
+  padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.hero-title{font-size:26px;font-weight:900;color:#fff;letter-spacing:-.5px}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.65);margin-top:4px}
+.btn-add-hero{background:#fff;color:var(--green);border:none;border-radius:20px;
+  padding:9px 18px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);transition:all .15s;white-space:nowrap}
+.btn-add-hero:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+
+/* MONTH NAV */
+.month-nav{display:flex;align-items:center;justify-content:space-between;
+  max-width:680px;margin:-18px auto 0;padding:0 16px;position:relative;z-index:10}
+.month-card{background:#fff;border-radius:14px;box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:0;overflow:hidden;flex:1}
+.month-btn{background:none;border:none;padding:12px 16px;font-size:18px;cursor:pointer;
+  color:var(--green);transition:background .15s}
+.month-btn:hover{background:#f0fdf4}
+.month-label{flex:1;text-align:center;font-size:15px;font-weight:800;color:var(--text)}
+
+/* WRAP */
+.wrap{max-width:680px;margin:0 auto;padding:14px 16px 120px}
+
+/* ADD FORM */
+.form-card{background:#fff;border-radius:16px;box-shadow:var(--shadow);
+  border:1px solid var(--border);overflow:hidden;margin-bottom:16px}
+.form-card-title{padding:14px 16px 0;font-size:13px;font-weight:800;color:var(--green);
+  text-transform:uppercase;letter-spacing:.6px}
+.form-body{padding:14px 16px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--muted);
+  margin-bottom:4px;letter-spacing:.3px}
+.field input,.field select{width:100%;padding:11px 14px;border:1.5px solid #d1fae5;
+  border-radius:10px;font-size:16px;font-family:inherit;color:var(--text);
+  background:#fff;outline:none;transition:border-color .15s;
+  -webkit-appearance:none;appearance:none}
+.field input:focus,.field select:focus{border-color:var(--green);
+  box-shadow:0 0 0 3px rgba(5,150,105,.1)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-save{display:block;width:100%;padding:14px;background:linear-gradient(135deg,var(--green2),var(--green));
+  color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;
+  cursor:pointer;font-family:inherit;transition:all .15s;
+  box-shadow:0 4px 12px rgba(5,150,105,.3);margin-top:4px}
+.btn-save:active{opacity:.85}
+
+/* SUMMARY */
+.summary-card{background:#fff;border-radius:16px;box-shadow:var(--shadow);
+  border:1px solid var(--border);margin-bottom:16px;overflow:hidden}
+.summary-title{padding:14px 16px 0;font-size:13px;font-weight:800;
+  color:var(--green);text-transform:uppercase;letter-spacing:.6px}
+.summary-rows{padding:10px 16px}
+.sum-row{display:flex;align-items:center;gap:10px;padding:8px 0;
+  border-bottom:1px solid var(--border)}
+.sum-row:last-child{border-bottom:none}
+.sum-ico{font-size:20px;flex-shrink:0;width:26px;text-align:center}
+.sum-lbl{flex:1;font-size:14px;font-weight:600;color:var(--text)}
+.sum-val{font-size:15px;font-weight:900;color:var(--text)}
+.sum-total{background:linear-gradient(135deg,#064e3b,#059669);border-top:none;
+  margin:-1px -16px 0;padding:14px 16px;display:flex;justify-content:space-between;
+  align-items:center;color:#fff}
+.sum-total-lbl{font-size:13px;font-weight:700}
+.sum-total-val{font-size:22px;font-weight:900}
+
+/* ENTRIES */
+.entries-title{font-size:13px;font-weight:800;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}
+.day-group{margin-bottom:14px}
+.day-label{font-size:11px;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;padding-left:4px}
+.entry{background:#fff;border-radius:12px;box-shadow:var(--shadow);
+  border:1px solid var(--border);display:flex;align-items:center;
+  gap:10px;padding:12px 14px;margin-bottom:6px}
+.entry-ico{font-size:22px;flex-shrink:0}
+.entry-body{flex:1;min-width:0}
+.entry-cat{font-size:13px;font-weight:700;color:var(--text)}
+.entry-desc{font-size:11px;color:var(--muted);margin-top:1px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.entry-amt{font-size:15px;font-weight:900;color:var(--text);flex-shrink:0}
+.entry-del{background:none;border:none;font-size:18px;cursor:pointer;
+  opacity:.35;padding:4px;flex-shrink:0;transition:opacity .15s}
+.entry-del:hover{opacity:1}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px}
+.empty-ico{font-size:48px;margin-bottom:12px}
+
+/* TRIP LINK */
+.trip-link{display:flex;align-items:center;justify-content:space-between;
+  background:#fff;border-radius:14px;box-shadow:var(--shadow);border:1px solid var(--border);
+  padding:14px 16px;cursor:pointer;transition:all .15s}
+.trip-link:hover{border-color:var(--green);transform:translateY(-1px)}
+.trip-link-left{display:flex;align-items:center;gap:10px}
+.trip-link-ico{font-size:24px}
+.trip-link-lbl{font-size:14px;font-weight:800;color:var(--text)}
+.trip-link-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.trip-link-arr{font-size:18px;color:var(--green);font-weight:900}
+
+/* HIDDEN */
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hero">
+  <div class="hero-top">
+    <button class="hero-back" onclick="window.location.href='travel.html'">← Trip Planner</button>
+    <button class="btn-add-hero" id="btn-toggle-form" onclick="toggleForm()">➕ Adicionar</button>
+  </div>
+  <div class="hero-title">🏠 Gastos Casa</div>
+  <div class="hero-sub">Registre todos os seus gastos em um só lugar</div>
+</div>
+
+<!-- MONTH NAV -->
+<div class="month-nav">
+  <div class="month-card">
+    <button class="month-btn" onclick="changeMonth(-1)">‹</button>
+    <span class="month-label" id="month-label">—</span>
+    <button class="month-btn" onclick="changeMonth(1)">›</button>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="wrap">
+
+  <!-- ADD FORM -->
+  <div class="form-card hidden" id="add-form-card">
+    <div class="form-card-title">📝 Novo Gasto</div>
+    <div class="form-body">
+      <div class="field-row">
+        <div class="field">
+          <label>Data</label>
+          <input type="date" id="gc-date">
+        </div>
+        <div class="field">
+          <label>Categoria</label>
+          <select id="gc-cat">
+            <option value="gasolina">⛽ Gasolina</option>
+            <option value="alimentacao">🍔 Alimentação</option>
+            <option value="mercado">🛒 Supermercado</option>
+            <option value="hotel">🏨 Hotel / Hospedagem</option>
+            <option value="saude">💊 Saúde</option>
+            <option value="lazer">🎬 Lazer</option>
+            <option value="outros">📦 Outros</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Valor ($)</label>
+          <input type="number" id="gc-amount" placeholder="0.00" min="0" step="0.01"
+            inputmode="decimal" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>Descrição (opcional)</label>
+          <input type="text" id="gc-desc" placeholder="ex: Shell, Mercado..."
+            autocorrect="off" autocapitalize="sentences">
+        </div>
+      </div>
+      <button class="btn-save" onclick="saveEntry()">💾 Salvar</button>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary-card" id="summary-card"></div>
+
+  <!-- ENTRIES -->
+  <div class="entries-title">Lançamentos</div>
+  <div id="entries-list"></div>
+
+  <!-- LINK TO TRIP PLANNER -->
+  <div class="trip-link" onclick="window.location.href='travel.html'" style="margin-top:8px">
+    <div class="trip-link-left">
+      <span class="trip-link-ico">🚗</span>
+      <div>
+        <div class="trip-link-lbl">Ver no Trip Planner</div>
+        <div class="trip-link-sub">Gastos filtrados pelo período da viagem</div>
+      </div>
+    </div>
+    <span class="trip-link-arr">›</span>
+  </div>
+
+</div>
+
+<script>
+const KEY = 'trip_expenses';
+var currentMonth = new Date().toISOString().slice(0,7); // "YYYY-MM"
+var formOpen = false;
+
+const CATS = {
+  gasolina:   {ico:'⛽', label:'Gasolina'},
+  alimentacao:{ico:'🍔', label:'Alimentação'},
+  mercado:    {ico:'🛒', label:'Supermercado'},
+  hotel:      {ico:'🏨', label:'Hotel / Hospedagem'},
+  saude:      {ico:'💊', label:'Saúde'},
+  lazer:      {ico:'🎬', label:'Lazer'},
+  outros:     {ico:'📦', label:'Outros'},
+};
+
+function getAll(){ try{return JSON.parse(localStorage.getItem(KEY)||'[]');}catch(e){return[];} }
+function saveAll(arr){ localStorage.setItem(KEY, JSON.stringify(arr)); }
+
+function getMonthEntries(){
+  return getAll().filter(function(e){ return e.date.startsWith(currentMonth); });
+}
+
+function monthName(ym){
+  var parts = ym.split('-');
+  var d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, 1);
+  return d.toLocaleDateString('pt-BR', {month:'long', year:'numeric'})
+           .replace(/^\w/, function(c){ return c.toUpperCase(); });
+}
+
+function changeMonth(dir){
+  var parts = currentMonth.split('-');
+  var d = new Date(parseInt(parts[0]), parseInt(parts[1])-1+dir, 1);
+  currentMonth = d.toISOString().slice(0,7);
+  render();
+}
+
+function toggleForm(){
+  formOpen = !formOpen;
+  document.getElementById('add-form-card').classList.toggle('hidden', !formOpen);
+  document.getElementById('btn-toggle-form').textContent = formOpen ? '✕ Cancelar' : '➕ Adicionar';
+  if(formOpen) document.getElementById('gc-amount').focus();
+}
+
+function saveEntry(){
+  var date   = document.getElementById('gc-date').value;
+  var cat    = document.getElementById('gc-cat').value;
+  var amount = parseFloat(document.getElementById('gc-amount').value);
+  var desc   = (document.getElementById('gc-desc').value||'').trim();
+  if(!date || !amount || amount <= 0){ alert('Preencha a data e o valor.'); return; }
+  var arr = getAll();
+  arr.push({ id: Date.now().toString(36)+Math.random().toString(36).slice(2,5), date, cat, amount, desc });
+  saveAll(arr);
+  document.getElementById('gc-amount').value = '';
+  document.getElementById('gc-desc').value = '';
+  // keep form open, just update current month view
+  if(!date.startsWith(currentMonth)) currentMonth = date.slice(0,7);
+  formOpen = false;
+  toggleForm();
+  render();
+}
+
+function deleteEntry(id){
+  if(!confirm('Excluir este lançamento?')) return;
+  saveAll(getAll().filter(function(e){ return e.id !== id; }));
+  render();
+}
+
+function render(){
+  document.getElementById('month-label').textContent = monthName(currentMonth);
+
+  var entries = getMonthEntries();
+
+  // Summary
+  var totals = {};
+  Object.keys(CATS).forEach(function(k){ totals[k] = 0; });
+  entries.forEach(function(e){
+    var cat = CATS[e.cat] ? e.cat : 'outros';
+    totals[cat] += e.amount;
+  });
+  var grand = Object.values(totals).reduce(function(a,b){return a+b;},0);
+
+  var sumRows = Object.keys(CATS).map(function(cat){
+    if(totals[cat] === 0) return '';
+    return '<div class="sum-row">'+
+      '<span class="sum-ico">'+CATS[cat].ico+'</span>'+
+      '<span class="sum-lbl">'+CATS[cat].label+'</span>'+
+      '<span class="sum-val">$'+totals[cat].toFixed(2)+'</span>'+
+      '</div>';
+  }).join('');
+
+  if(grand === 0){
+    document.getElementById('summary-card').innerHTML =
+      '<div class="empty"><div class="empty-ico">📭</div>Nenhum gasto em '+monthName(currentMonth)+'</div>';
+  } else {
+    document.getElementById('summary-card').innerHTML =
+      '<div class="summary-title">📊 Resumo — '+monthName(currentMonth)+'</div>'+
+      '<div class="summary-rows">'+sumRows+
+      '<div class="sum-total"><span class="sum-total-lbl">Total do mês</span>'+
+      '<span class="sum-total-val">$'+grand.toFixed(2)+'</span></div>'+
+      '</div>';
+  }
+
+  // Entries grouped by date
+  if(entries.length === 0){
+    document.getElementById('entries-list').innerHTML =
+      '<div class="empty"><div class="empty-ico">✍️</div>'+
+      'Toque em <strong>➕ Adicionar</strong> para registrar um gasto.</div>';
+    return;
+  }
+
+  // Group by date
+  var byDate = {};
+  entries.forEach(function(e){
+    if(!byDate[e.date]) byDate[e.date] = [];
+    byDate[e.date].push(e);
+  });
+
+  var dates = Object.keys(byDate).sort(function(a,b){ return b.localeCompare(a); });
+  var html = dates.map(function(date){
+    var label = new Date(date+'T12:00:00').toLocaleDateString('pt-BR',
+      {weekday:'short', day:'numeric', month:'short'});
+    var rows = byDate[date].map(function(e){
+      var info = CATS[e.cat] || CATS.outros;
+      return '<div class="entry">'+
+        '<span class="entry-ico">'+info.ico+'</span>'+
+        '<div class="entry-body">'+
+        '<div class="entry-cat">'+info.label+'</div>'+
+        (e.desc?'<div class="entry-desc">'+e.desc+'</div>':'')+
+        '</div>'+
+        '<span class="entry-amt">$'+e.amount.toFixed(2)+'</span>'+
+        '<button class="entry-del" onclick="deleteEntry(\''+e.id+'\')">🗑</button>'+
+        '</div>';
+    }).join('');
+    return '<div class="day-group">'+
+      '<div class="day-label">'+label+'</div>'+rows+'</div>';
+  }).join('');
+
+  document.getElementById('entries-list').innerHTML = html;
+}
+
+// Init
+(function(){
+  document.getElementById('gc-date').value = new Date().toISOString().slice(0,10);
+  render();
+})();
+</script>
+</body>
+</html>
