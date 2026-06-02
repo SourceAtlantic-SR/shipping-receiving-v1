@@ -214,7 +214,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 <!-- TABS -->
 <div class="tab-bar">
   <button class="tab-top active" id="tab-rt" onclick="switchTab('rt')">🚗 Road Trip</button>
-  <button class="tab-top" id="tab-dest" onclick="switchTab('dest')">🗺️ Destination</button>
+  <button class="tab-top" id="tab-dest" onclick="switchTab('dest')">🏙️ Local Trip</button>
 </div>
 
 <!-- ═══ ROAD TRIP FORM ═══ -->
@@ -620,6 +620,10 @@ function switchTab(tab){
       document.getElementById('f-city').value = rtDest;
       document.getElementById('f-state').value = document.getElementById('rt-dest-state').value;
       document.getElementById('f-country').value = document.getElementById('rt-dest-country').value;
+      const rtVenue = document.getElementById('rt-venue').value.trim();
+      if(rtVenue && !document.getElementById('f-venue').value.trim()){
+        document.getElementById('f-venue').value = rtVenue;
+      }
     }
     if(_destView==='results') dtR.classList.remove('hidden');
     else dtF.classList.remove('hidden');
@@ -735,15 +739,6 @@ async function calculateRoute(){
     if(el&&name) el.textContent='Near '+name;
   }
 
-  if(venue){
-    await rtSleep(1100);
-    const addr=await lookupVenueAddress(venue,destCity,destState,destCountry);
-    const el=document.getElementById('rt-venue-addr-text');
-    if(el){
-      el.previousElementSibling.textContent=addr?'📌':'⚠️';
-      el.textContent=addr||'Address not found — try a more specific venue name';
-    }
-  }
 }
 
 // ── COST BOX ──────────────────────────────────────────────────────────────────
@@ -858,27 +853,8 @@ function buildRTHTML(d){
     h+='</div>';
   }
 
-  // Venue
-  if(d.venue){
-    h+='<div class="event-box" style="margin-bottom:16px">'+
-      '<div class="event-box-title">📍 Venue at Destination</div>'+
-      '<div style="font-size:17px;font-weight:900;color:#4c1d95;margin-bottom:6px">'+d.venue+'</div>'+
-      '<div style="display:flex;align-items:flex-start;gap:6px;font-size:13px;color:#6b21a8">'+
-      '<span>🔍</span><span id="rt-venue-addr-text">Looking up address…</span></div></div>';
-  }
-
-  // Parking
-  const nearQ=encodeURIComponent(d.nearAnchor);
-  const gmPark='https://www.google.com/maps/search/parking+near+'+nearQ.replace(/%20/g,'+');
-  h+='<div class="sec">'+
-    '<div class="sec-header"><span class="sec-icon">🅿️</span><span class="sec-title">Parking in '+d.destCity+'</span></div>'+
-    (d.venue?'<div style="font-size:12px;color:var(--muted);margin:-6px 0 12px">📍 Near '+d.venue+'</div>':'')+
-    '<div class="park-direct">'+
-    '<div class="pd-card" onclick="window.open(\''+gmPark+'\',\'_blank\')"><span class="pd-ico">🗺️</span><div><div class="pd-name">Google Maps</div><div class="pd-desc">All parking near venue with prices</div><div class="pd-cost">Free to search</div><span class="pd-tag pd-free">Free</span></div></div>'+
-    '<div class="pd-card" onclick="window.open(\'https://spothero.com/search?q='+nearQ+'\',\'_blank\')"><span class="pd-ico">🅿️</span><div><div class="pd-name">SpotHero</div><div class="pd-desc">Reserve ahead — up to 50% off</div><div class="pd-cost">From ~$5–20/day</div><span class="pd-tag pd-pre">Pre-book</span></div></div>'+
-    '<div class="pd-card" onclick="window.open(\'https://www.parkwhiz.com/search/?q='+nearQ+'\',\'_blank\')"><span class="pd-ico">🚗</span><div><div class="pd-name">ParkWhiz</div><div class="pd-desc">Compare garages & lots</div><div class="pd-cost">From ~$8–25/day</div><span class="pd-tag pd-pre">Pre-book</span></div></div>'+
-    '<div class="pd-card" onclick="window.open(\'https://en.parkme.com/lot/search?q='+nearQ+'\',\'_blank\')"><span class="pd-ico">📱</span><div><div class="pd-name">ParkMe</div><div class="pd-desc">Real-time availability</div><div class="pd-cost">Rates vary by location</div><span class="pd-tag pd-live">Real-time</span></div></div>'+
-    '</div></div>';
+  h+='<div style="background:#e0f2fe;border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--teal2)">'+
+    '💡 Para ver estacionamento e detalhes do local, acesse a aba <strong>🏙️ Local Trip</strong></div>';
 
   h+='<button class="btn-reset" onclick="resetRT()">← Edit Route</button>';
   return h;
