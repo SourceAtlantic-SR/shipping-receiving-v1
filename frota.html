@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Minha Frota">
+<title>Minha Frota</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --blue:#007AFF;--green:#34C759;--orange:#FF9500;--red:#FF3B30;
+  --bg:#F2F2F7;--card:#fff;--text:#1C1C1E;--text2:#3C3C43;--text3:#8E8E93;
+  --sep:rgba(60,60,67,.12);
+  --sft:env(safe-area-inset-top,0px);
+  --sfb:env(safe-area-inset-bottom,0px);
+  --tabh:calc(52px + env(safe-area-inset-bottom,0px));
+}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;color:var(--text)}
+
+/* ── SCREENS ── */
+.screen{display:none;position:fixed;top:0;left:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--tabh) + 8px)}
+.screen.active{display:block}
+
+/* ── CAR HEADER ── */
+.car-header{
+  background:linear-gradient(150deg,#0d1b2a 0%,#1b2838 45%,#0f3460 100%);
+  padding:calc(var(--sft) + 18px) 20px 22px;color:#fff;position:relative;overflow:hidden
+}
+.car-header::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;background:rgba(255,255,255,.04);border-radius:50%}
+.car-header::after{content:'';position:absolute;bottom:-80px;right:10px;width:180px;height:180px;background:rgba(255,255,255,.03);border-radius:50%}
+.car-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.13);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;margin-bottom:9px;letter-spacing:.6px;position:relative}
+.car-name{font-size:26px;font-weight:700;line-height:1.1;position:relative}
+.car-year{font-size:14px;color:rgba(255,255,255,.55);margin-top:4px;position:relative}
+.car-vin{font-size:10px;color:rgba(255,255,255,.35);margin-top:6px;font-family:monospace;letter-spacing:1.2px;position:relative}
+
+/* ── SECTION ── */
+.section{padding:16px}
+.section-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:8px;padding:0 4px}
+
+/* ── CARD ── */
+.card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.card-row{display:flex;align-items:center;padding:13px 16px;border-bottom:1px solid var(--sep);gap:12px;cursor:default}
+.card-row:last-child{border-bottom:none}
+.row-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.ico-blue{background:#E3F0FF}.ico-green{background:#E3F9EB}.ico-orange{background:#FFF3E0}.ico-red{background:#FFE9E9}
+.row-body{flex:1;min-width:0}
+.row-lbl{font-size:12px;color:var(--text3)}
+.row-val{font-size:15px;font-weight:600;color:var(--text);margin-top:1px}
+.row-right{text-align:right;flex-shrink:0}
+
+/* ── STATS GRID ── */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-card{background:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.stat-lbl{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.4px}
+.stat-val{font-size:22px;font-weight:700;margin-top:4px;color:var(--text)}
+.stat-unit{font-size:11px;color:var(--text3);margin-top:1px}
+
+/* ── ACTION GRID ── */
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.action-btn{background:#fff;border:none;border-radius:14px;padding:18px 14px;cursor:pointer;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:transform .1s}
+.action-btn:active{transform:scale(.96)}
+.action-btn .ai{font-size:26px;margin-bottom:7px}
+.action-btn .al{font-size:14px;font-weight:600;color:var(--text)}
+.action-btn .as{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* ── OIL PROGRESS ── */
+.oil-block{padding:14px 16px}
+.oil-top{display:flex;justify-content:space-between;margin-bottom:6px;font-size:14px;font-weight:600}
+.oil-bar{height:8px;background:#E5E5EA;border-radius:4px;overflow:hidden;margin-bottom:5px}
+.oil-fill{height:100%;border-radius:4px;transition:width .5s}
+.oil-sub{display:flex;justify-content:space-between;font-size:11px;color:var(--text3)}
+
+/* ── FAB ── */
+.fab{position:fixed;bottom:calc(var(--tabh) + 14px);right:18px;width:52px;height:52px;border-radius:26px;background:var(--blue);border:none;color:#fff;font-size:26px;cursor:pointer;box-shadow:0 4px 16px rgba(0,122,255,.45);display:flex;align-items:center;justify-content:center;z-index:50;transition:transform .1s}
+.fab:active{transform:scale(.92)}
+
+/* ── FUEL ITEMS ── */
+.fuel-item{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.fi-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.fi-date{font-size:14px;font-weight:600}
+.fi-km{font-size:12px;color:var(--text3);margin-top:2px}
+.fi-price .amount{font-size:17px;font-weight:700;color:var(--blue);text-align:right}
+.fi-price .sub{font-size:11px;color:var(--text3);text-align:right;margin-top:2px}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:3px;background:var(--bg);border-radius:7px;padding:4px 9px;font-size:12px;font-weight:500;color:var(--text2)}
+.chip.g{background:#E3F9EB;color:#1a7a3a}
+.chip.y{background:#FFF3E0;color:#a35800}
+.chip.r{background:#FFE9E9;color:#c0392b}
+
+/* ── TAB BAR ── */
+.tab-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--sep);display:flex;height:var(--tabh);z-index:100}
+.tab-btn{flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:9px;gap:3px;color:var(--text3);-webkit-user-select:none}
+.tab-btn.active{color:var(--blue)}
+.tab-ico{font-size:22px}
+.tab-lbl{font-size:10px;font-weight:500}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:flex-end}
+.modal-overlay.open{display:flex;animation:fadeIn .2s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-sheet{background:var(--bg);border-radius:20px 20px 0 0;width:100%;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--sfb) + 20px);animation:slideUp .28s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:rgba(0,0,0,.15);border-radius:2px;margin:10px auto 0}
+.modal-hdr{padding:13px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--sep)}
+.modal-title{font-size:17px;font-weight:600}
+.modal-close{background:#E5E5EA;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;color:var(--text2)}
+
+/* ── FORM ── */
+.form-card{background:#fff;border-radius:14px;margin:14px 16px;overflow:hidden}
+.form-row{display:flex;align-items:center;padding:0 16px;border-bottom:1px solid var(--sep);min-height:50px}
+.form-row:last-child{border-bottom:none}
+.form-lbl{font-size:15px;color:var(--text);width:140px;flex-shrink:0}
+.form-inp{flex:1;border:none;outline:none;font-size:15px;text-align:right;color:var(--blue);background:transparent;padding:14px 0;font-family:inherit;-webkit-appearance:none}
+.form-inp::placeholder{color:var(--text3)}
+.btn-main{display:block;width:calc(100% - 32px);margin:4px 16px 8px;background:var(--blue);color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-main:active{opacity:.8}
+
+/* ── RESULT ── */
+.result-big{text-align:center;background:#fff;border-radius:14px;padding:20px;margin:12px 16px 0}
+.result-big .rval{font-size:48px;font-weight:800;line-height:1}
+.result-big .runit{font-size:16px;color:var(--text3);margin-top:2px}
+.result-big .rlbl{font-size:12px;color:var(--text3);margin-top:4px}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 16px 0}
+.result-item{background:#fff;border-radius:12px;padding:14px;text-align:center}
+.ri-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:5px}
+.ri-val{font-size:20px;font-weight:700}
+.ri-unit{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* ── ALERT ── */
+.alert{display:flex;align-items:center;gap:10px;margin:14px 16px 0;padding:12px 14px;border-radius:12px;font-size:13px;font-weight:500}
+.alert.warn{background:#FFF3E0;color:#a35800}
+.alert.danger{background:#FFE9E9;color:#c0392b}
+.alert-ico{font-size:18px;flex-shrink:0}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:52px 24px;color:var(--text3)}
+.empty .ei{font-size:48px;margin-bottom:12px}
+.empty p{font-size:15px}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ SCREEN: HOME ═══════════════ -->
+<div id="screen-home" class="screen active">
+
+  <div class="car-header">
+    <div class="car-badge">🟢&nbsp; ATIVO</div>
+    <div class="car-name">Land Rover Evoque</div>
+    <div class="car-year">2020 &nbsp;·&nbsp; SUV Premium</div>
+    <div class="car-vin">VIN: SALZP2FX9LH088676</div>
+  </div>
+
+  <div id="home-alert"></div>
+
+  <div class="section">
+    <div class="section-title">Ultimo Abastecimento</div>
+    <div class="card" id="card-last-fuel"></div>
+  </div>
+
+  <div class="section" style="padding-top:0">
+    <div class="section-title">Oleo do Motor</div>
+    <div class="card" id="card-oil-status"></div>
+  </div>
+
+  <div class="section" style="padding-top:0">
+    <div class="section-title">Acoes Rapidas</div>
+    <div class="action-grid">
+      <button class="action-btn" onclick="openAddFuel()">
+        <div class="ai">⛽</div>
+        <div class="al">Abastecer</div>
+        <div class="as">Registrar abastecimento</div>
+      </button>
+      <button class="action-btn" onclick="openAddOil()">
+        <div class="ai">🔧</div>
+        <div class="al">Troca de Oleo</div>
+        <div class="as">Registrar troca</div>
+      </button>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top:0">
+    <div class="section-title">Estatisticas Gerais</div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-lbl">Consumo Medio</div>
+        <div class="stat-val" id="s-avg">—</div>
+        <div class="stat-unit">km/L</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Total Abastecido</div>
+        <div class="stat-val" id="s-liters">—</div>
+        <div class="stat-unit">litros</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Total Gasto</div>
+        <div class="stat-val" id="s-spent">—</div>
+        <div class="stat-unit">reais</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Registros</div>
+        <div class="stat-val" id="s-count">0</div>
+        <div class="stat-unit">abastecimentos</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: FUEL ═══════════════ -->
+<div id="screen-fuel" class="screen">
+  <div class="car-header" style="padding-bottom:18px">
+    <div class="car-name" style="font-size:20px">Historico de Abastecimentos</div>
+    <div class="car-year">Land Rover Evoque 2020</div>
+  </div>
+  <div class="section" id="fuel-list"></div>
+  <button class="fab" onclick="openAddFuel()">+</button>
+</div>
+
+<!-- ═══════════════ SCREEN: OIL ═══════════════ -->
+<div id="screen-oil" class="screen">
+  <div class="car-header" style="padding-bottom:18px">
+    <div class="car-name" style="font-size:20px">Controle de Oleo</div>
+    <div class="car-year">Land Rover Evoque 2020 &nbsp;·&nbsp; Troca a cada 10.000 km</div>
+  </div>
+
+  <div id="oil-alert"></div>
+
+  <div class="section">
+    <div class="section-title">Status Atual</div>
+    <div class="card">
+      <div class="oil-block" id="oil-progress-block">
+        <div class="oil-top">
+          <span>Uso desde ultima troca</span>
+          <span id="oil-pct" style="color:var(--green)">—</span>
+        </div>
+        <div class="oil-bar"><div class="oil-fill" id="oil-fill" style="width:0%;background:var(--green)"></div></div>
+        <div class="oil-sub">
+          <span id="oil-driven">Rodado: —</span>
+          <span id="oil-next-km">Proxima: —</span>
+        </div>
+      </div>
+      <div class="card-row" id="oil-next-row">
+        <div class="row-icon ico-green" id="oil-next-icon">📅</div>
+        <div class="row-body">
+          <div class="row-lbl">Proxima troca prevista</div>
+          <div class="row-val" id="oil-next-val">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top:0">
+    <div class="section-title">Historico de Trocas</div>
+    <div class="card" id="oil-history"></div>
+  </div>
+
+  <button class="fab" onclick="openAddOil()">+</button>
+</div>
+
+<!-- ═══════════════ TAB BAR ═══════════════ -->
+<nav class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('home',this)">
+    <span class="tab-ico">🏠</span><span class="tab-lbl">Inicio</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('fuel',this)">
+    <span class="tab-ico">⛽</span><span class="tab-lbl">Combustivel</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('oil',this)">
+    <span class="tab-ico">🔧</span><span class="tab-lbl">Oleo</span>
+  </button>
+</nav>
+
+<!-- ═══════════════ MODAL: ADD FUEL ═══════════════ -->
+<div class="modal-overlay" id="modal-fuel">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-hdr">
+      <span class="modal-title">⛽ Abastecer</span>
+      <button class="modal-close" onclick="closeModal('modal-fuel')">✕</button>
+    </div>
+    <form onsubmit="saveFuel(event)">
+      <div class="form-card">
+        <div class="form-row">
+          <label class="form-lbl">Data</label>
+          <input class="form-inp" type="date" id="f-date" required>
+        </div>
+        <div class="form-row">
+          <label class="form-lbl">Km Atual</label>
+          <input class="form-inp" type="number" id="f-km" placeholder="Ex: 45000" min="0" step="1" required>
+        </div>
+        <div class="form-row">
+          <label class="form-lbl">Litros</label>
+          <input class="form-inp" type="number" id="f-liters" placeholder="Ex: 42.5" min="0.01" step="0.01" oninput="calc('liters')" required>
+        </div>
+        <div class="form-row">
+          <label class="form-lbl">Valor Total (R$)</label>
+          <input class="form-inp" type="number" id="f-total" placeholder="Ex: 280.00" min="0.01" step="0.01" oninput="calc('total')" required>
+        </div>
+        <div class="form-row">
+          <label class="form-lbl">Preco/Litro (R$)</label>
+          <input class="form-inp" type="number" id="f-price" placeholder="Auto" min="0.01" step="0.001" oninput="calc('price')">
+        </div>
+      </div>
+      <button type="submit" class="btn-main">Salvar Abastecimento</button>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL: ADD OIL ═══════════════ -->
+<div class="modal-overlay" id="modal-oil">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-hdr">
+      <span class="modal-title">🔧 Registrar Troca de Oleo</span>
+      <button class="modal-close" onclick="closeModal('modal-oil')">✕</button>
+    </div>
+    <form onsubmit="saveOil(event)">
+      <div class="form-card">
+        <div class="form-row">
+          <label class="form-lbl">Data da Troca</label>
+          <input class="form-inp" type="date" id="o-date" required>
+        </div>
+        <div class="form-row">
+          <label class="form-lbl">Km no Momento</label>
+          <input class="form-inp" type="number" id="o-km" placeholder="Ex: 45000" min="0" step="1" required>
+        </div>
+        <div class="form-row">
+          <label class="form-lbl">Observacoes</label>
+          <input class="form-inp" type="text" id="o-notes" placeholder="Opcional" maxlength="80">
+        </div>
+      </div>
+      <button type="submit" class="btn-main">Salvar Troca de Oleo</button>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL: RESULT ═══════════════ -->
+<div class="modal-overlay" id="modal-result">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-hdr">
+      <span class="modal-title">📊 Relatorio do Trecho</span>
+      <button class="modal-close" onclick="closeModal('modal-result')">✕</button>
+    </div>
+    <div id="result-body"></div>
+    <button class="btn-main" onclick="closeModal('modal-result')" style="margin-top:8px">Fechar</button>
+  </div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────
+const KEY = 'frota_v1';
+
+function load() {
+  try { const d = JSON.parse(localStorage.getItem(KEY)); if (d) return d; } catch(e){}
+  return {
+    activeId: 'evoque',
+    cars: [{
+      id: 'evoque', name: 'Land Rover Evoque', year: 2020,
+      vin: 'SALZP2FX9LH088676', oilKm: 10000, oilMonths: 12,
+      fuels: [], oils: []
+    }]
+  };
+}
+
+function save(d) { localStorage.setItem(KEY, JSON.stringify(d)); }
+function car() { const d = load(); return d.cars.find(c => c.id === d.activeId); }
+function dataCar() { const d = load(); return { d, c: d.cars.find(c => c.id === d.activeId) }; }
+
+// ─── NAV ────────────────────────────────────────────
+function switchTab(tab, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + tab).classList.add('active');
+  btn.classList.add('active');
+  if (tab === 'home') renderHome();
+  if (tab === 'fuel') renderFuels();
+  if (tab === 'oil')  renderOil();
+}
+
+// ─── MODALS ─────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function openAddFuel() {
+  const c = car();
+  document.getElementById('f-date').value = today();
+  document.getElementById('f-km').value = '';
+  document.getElementById('f-liters').value = '';
+  document.getElementById('f-total').value = '';
+  document.getElementById('f-price').value = '';
+  if (c.fuels.length) {
+    const last = c.fuels[c.fuels.length - 1];
+    document.getElementById('f-km').placeholder = 'Ultimo: ' + n(last.km) + ' km';
+  } else {
+    document.getElementById('f-km').placeholder = 'Ex: 45000';
+  }
+  openModal('modal-fuel');
+}
+
+function openAddOil() {
+  const c = car();
+  document.getElementById('o-date').value = today();
+  document.getElementById('o-km').value = '';
+  document.getElementById('o-notes').value = '';
+  if (c.fuels.length) {
+    const lf = c.fuels[c.fuels.length - 1];
+    document.getElementById('o-km').placeholder = 'Ultimo: ' + n(lf.km) + ' km';
+  }
+  openModal('modal-oil');
+}
+
+// ─── AUTO CALC FUEL FORM ────────────────────────────
+function calc(changed) {
+  const L = pf('f-liters'), T = pf('f-total'), P = pf('f-price');
+  if (changed === 'liters' && L > 0) {
+    if (T > 0) set('f-price', (T / L).toFixed(3));
+    else if (P > 0) set('f-total', (L * P).toFixed(2));
+  } else if (changed === 'total' && T > 0) {
+    if (L > 0) set('f-price', (T / L).toFixed(3));
+    else if (P > 0) set('f-liters', (T / P).toFixed(2));
+  } else if (changed === 'price' && P > 0) {
+    if (L > 0) set('f-total', (L * P).toFixed(2));
+    else if (T > 0) set('f-liters', (T / P).toFixed(2));
+  }
+}
+function pf(id) { return parseFloat(document.getElementById(id).value) || 0; }
+function set(id, v) { if (!document.getElementById(id).value) document.getElementById(id).value = v; }
+
+// ─── SAVE FUEL ──────────────────────────────────────
+function saveFuel(e) {
+  e.preventDefault();
+  const { d, c } = dataCar();
+  const date   = document.getElementById('f-date').value;
+  const km     = parseInt(document.getElementById('f-km').value);
+  const liters = parseFloat(document.getElementById('f-liters').value);
+  const total  = parseFloat(document.getElementById('f-total').value);
+  const price  = parseFloat(document.getElementById('f-price').value) || +(total / liters).toFixed(3);
+
+  if (!date || !km || !liters || !total) return alert('Preencha Data, Km, Litros e Valor Total.');
+
+  if (c.fuels.length) {
+    const lastKm = c.fuels[c.fuels.length - 1].km;
+    if (km <= lastKm) return alert('Km deve ser maior que o ultimo registro (' + n(lastKm) + ' km).');
+  }
+
+  const rec = { id: Date.now(), date, km, liters, total, price };
+
+  let res = null;
+  if (c.fuels.length) {
+    const prev = c.fuels[c.fuels.length - 1];
+    const driven = km - prev.km;
+    if (driven > 0) {
+      rec.driven   = driven;
+      rec.kpl      = +(driven / liters).toFixed(2);
+      rec.l100     = +(liters / driven * 100).toFixed(2);
+      rec.cpkm     = +(total / driven).toFixed(4);
+      res = { driven, kpl: rec.kpl, l100: rec.l100, total, liters, cpkm: rec.cpkm };
+    }
+  }
+
+  c.fuels.push(rec);
+  save(d);
+  closeModal('modal-fuel');
+  renderHome();
+  renderFuels();
+
+  if (res) showResult(res);
+}
+
+// ─── SAVE OIL ───────────────────────────────────────
+function saveOil(e) {
+  e.preventDefault();
+  const { d, c } = dataCar();
+  const date  = document.getElementById('o-date').value;
+  const km    = parseInt(document.getElementById('o-km').value);
+  const notes = document.getElementById('o-notes').value.trim();
+
+  if (!date || !km) return alert('Preencha Data e Km.');
+
+  c.oils.push({ id: Date.now(), date, km, notes, nextKm: km + c.oilKm });
+  save(d);
+  closeModal('modal-oil');
+  renderHome();
+  renderOil();
+}
+
+// ─── SHOW RESULT ────────────────────────────────────
+function showResult(r) {
+  const good = r.kpl >= 10, bad = r.kpl < 7;
+  const color = good ? 'var(--green)' : bad ? 'var(--red)' : 'var(--orange)';
+  const msg   = good ? 'Otimo consumo!' : bad ? 'Consumo elevado' : 'Consumo normal';
+  document.getElementById('result-body').innerHTML =
+    `<div style="text-align:center;padding:10px 16px 0;font-size:14px;color:var(--text3)">${msg}</div>
+     <div class="result-big">
+       <div class="rval" style="color:${color}">${r.kpl.toFixed(1)}</div>
+       <div class="runit">km &nbsp;/&nbsp; litro</div>
+       <div class="rlbl">(${r.l100.toFixed(1)} L / 100 km)</div>
+     </div>
+     <div class="result-grid">
+       <div class="result-item">
+         <div class="ri-lbl">Km Percorridos</div>
+         <div class="ri-val">${n(r.driven)}</div>
+         <div class="ri-unit">km</div>
+       </div>
+       <div class="result-item">
+         <div class="ri-lbl">Litros Usados</div>
+         <div class="ri-val">${r.liters.toFixed(1)}</div>
+         <div class="ri-unit">L</div>
+       </div>
+       <div class="result-item">
+         <div class="ri-lbl">Gasto Total</div>
+         <div class="ri-val">R$${r.total.toFixed(2)}</div>
+         <div class="ri-unit">reais</div>
+       </div>
+       <div class="result-item">
+         <div class="ri-lbl">Custo por Km</div>
+         <div class="ri-val">R$${r.cpkm.toFixed(2)}</div>
+         <div class="ri-unit">por km</div>
+       </div>
+     </div>`;
+  openModal('modal-result');
+}
+
+// ─── RENDER HOME ────────────────────────────────────
+function renderHome() {
+  const c = car();
+
+  // Alert for oil
+  const oa = oilAlert(c);
+  document.getElementById('home-alert').innerHTML = oa
+    ? `<div class="alert ${oa.cls}"><span class="alert-ico">${oa.ico}</span><span>${oa.msg}</span></div>` : '';
+
+  // Last fuel card
+  const lf = document.getElementById('card-last-fuel');
+  if (c.fuels.length) {
+    const f = c.fuels[c.fuels.length - 1];
+    const cons = f.kpl ? `${f.kpl} km/L &nbsp;·&nbsp; R$${f.total.toFixed(2)}` : `R$${f.total.toFixed(2)} &nbsp;·&nbsp; ${f.liters.toFixed(1)} L`;
+    lf.innerHTML = `<div class="card-row">
+      <div class="row-icon ico-blue">⛽</div>
+      <div class="row-body"><div class="row-lbl">${fd(f.date)}</div><div class="row-val">${cons}</div></div>
+      <div class="row-right"><div class="row-lbl">Odometro</div><div class="row-val">${n(f.km)} km</div></div>
+    </div>`;
+  } else {
+    lf.innerHTML = `<div class="card-row"><div class="row-icon ico-blue">⛽</div>
+      <div class="row-body"><div class="row-lbl">Nenhum registro</div><div class="row-val">Toque em Abastecer</div></div></div>`;
+  }
+
+  // Oil status card
+  const os = document.getElementById('card-oil-status');
+  if (c.oils.length) {
+    const lo = c.oils[c.oils.length - 1];
+    const curKm = c.fuels.length ? c.fuels[c.fuels.length - 1].km : lo.km;
+    const rem = lo.nextKm - curKm;
+    const ico  = rem <= 0 ? '🚨' : rem <= 1000 ? '⚠️' : '✅';
+    const cls  = rem <= 0 ? 'ico-red' : rem <= 1000 ? 'ico-orange' : 'ico-green';
+    const txt  = rem <= 0 ? 'VENCIDO — Troque agora!'
+               : rem <= 1000 ? `Apenas ${n(rem)} km restantes`
+               : `${n(rem)} km para proxima troca`;
+    os.innerHTML = `<div class="card-row">
+      <div class="row-icon ${cls}">${ico}</div>
+      <div class="row-body"><div class="row-lbl">Ultima troca: ${n(lo.km)} km &nbsp;(${fd(lo.date)})</div>
+      <div class="row-val">${txt}</div></div></div>`;
+  } else {
+    os.innerHTML = `<div class="card-row"><div class="row-icon ico-orange">🔧</div>
+      <div class="row-body"><div class="row-lbl">Nenhuma troca registrada</div><div class="row-val">Registre a ultima troca</div></div></div>`;
+  }
+
+  // Stats
+  if (c.fuels.length) {
+    const tL = c.fuels.reduce((s, f) => s + f.liters, 0);
+    const tR = c.fuels.reduce((s, f) => s + f.total, 0);
+    const wk = c.fuels.filter(f => f.kpl);
+    const avg = wk.length ? (wk.reduce((s, f) => s + f.kpl, 0) / wk.length).toFixed(1) : '—';
+    document.getElementById('s-avg').textContent    = avg;
+    document.getElementById('s-liters').textContent = tL.toFixed(0);
+    document.getElementById('s-spent').textContent  = 'R$' + tR.toFixed(0);
+    document.getElementById('s-count').textContent  = c.fuels.length;
+  } else {
+    ['s-avg','s-liters','s-spent'].forEach(id => document.getElementById(id).textContent = '—');
+    document.getElementById('s-count').textContent = '0';
+  }
+}
+
+// ─── RENDER FUELS ───────────────────────────────────
+function renderFuels() {
+  const c = car();
+  const el = document.getElementById('fuel-list');
+  if (!c.fuels.length) {
+    el.innerHTML = `<div class="empty"><div class="ei">⛽</div><p>Nenhum abastecimento registrado</p></div>`;
+    return;
+  }
+  el.innerHTML = [...c.fuels].reverse().map(f => {
+    const cc = f.kpl ? (f.kpl >= 10 ? 'g' : f.kpl >= 7 ? 'y' : 'r') : '';
+    const chip1 = f.kpl
+      ? `<span class="chip ${cc}">${f.kpl} km/L &nbsp;|&nbsp; ${f.l100} L/100km</span>`
+      : `<span class="chip">1o abastecimento</span>`;
+    const chip2 = f.driven ? `<span class="chip">↑ ${n(f.driven)} km percorridos</span>` : '';
+    const chip3 = f.cpkm ? `<span class="chip">R$${f.cpkm.toFixed(2)}/km</span>` : '';
+    return `<div class="fuel-item">
+      <div class="fi-header">
+        <div><div class="fi-date">${fd(f.date)}</div><div class="fi-km">${n(f.km)} km</div></div>
+        <div class="fi-price">
+          <div class="amount">R$ ${f.total.toFixed(2)}</div>
+          <div class="sub">${f.liters.toFixed(2)} L &nbsp;·&nbsp; R$${f.price.toFixed(3)}/L</div>
+        </div>
+      </div>
+      <div class="chips">${chip1}${chip2}${chip3}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── RENDER OIL ─────────────────────────────────────
+function renderOil() {
+  const c = car();
+
+  // Alert
+  const oa = oilAlert(c);
+  document.getElementById('oil-alert').innerHTML = oa
+    ? `<div class="alert ${oa.cls}" style="margin-top:16px"><span class="alert-ico">${oa.ico}</span><span>${oa.msg}</span></div>` : '';
+
+  // Progress
+  if (c.oils.length) {
+    const lo    = c.oils[c.oils.length - 1];
+    const curKm = c.fuels.length ? c.fuels[c.fuels.length - 1].km : lo.km;
+    const driven= curKm - lo.km;
+    const rem   = lo.nextKm - curKm;
+    const pct   = Math.min(Math.max(driven / c.oilKm * 100, 0), 100);
+    const fc    = pct >= 90 ? 'var(--red)' : pct >= 70 ? 'var(--orange)' : 'var(--green)';
+
+    document.getElementById('oil-pct').textContent = pct.toFixed(0) + '%';
+    document.getElementById('oil-pct').style.color = fc;
+    document.getElementById('oil-fill').style.width = pct + '%';
+    document.getElementById('oil-fill').style.background = fc;
+    document.getElementById('oil-driven').textContent = `Rodado: ${n(driven)} km`;
+    document.getElementById('oil-next-km').textContent = `Proxima: ${n(lo.nextKm)} km`;
+
+    // Estimate next date
+    let estDate = '';
+    if (c.fuels.length >= 2 && rem > 0) {
+      const sl = c.fuels.slice(-Math.min(6, c.fuels.length));
+      const totalKm = sl[sl.length-1].km - sl[0].km;
+      const days = dbw(sl[0].date, sl[sl.length-1].date) || 1;
+      const kpd  = totalKm / days;
+      if (kpd > 0) {
+        const nd = new Date(); nd.setDate(nd.getDate() + rem / kpd);
+        estDate = ' &nbsp;·&nbsp; Aprox. ' + fd(nd.toISOString().slice(0,10));
+      }
+    }
+
+    const niTxt  = rem <= 0 ? '🚨 VENCIDO — Troque imediatamente!' : `${n(lo.nextKm)} km${estDate}`;
+    const niIco  = rem <= 0 ? '🚨' : rem <= 1000 ? '⚠️' : '📅';
+    const niCls  = rem <= 0 ? 'ico-red' : rem <= 1000 ? 'ico-orange' : 'ico-green';
+    document.getElementById('oil-next-val').innerHTML = niTxt;
+    document.getElementById('oil-next-icon').textContent = niIco;
+    document.getElementById('oil-next-icon').className = `row-icon ${niCls}`;
+  } else {
+    document.getElementById('oil-pct').textContent = '—';
+    document.getElementById('oil-fill').style.width = '0%';
+    document.getElementById('oil-driven').textContent = 'Sem registro';
+    document.getElementById('oil-next-km').textContent = '';
+    document.getElementById('oil-next-val').textContent = 'Registre a ultima troca de oleo';
+  }
+
+  // History
+  const oh = document.getElementById('oil-history');
+  if (c.oils.length) {
+    oh.innerHTML = [...c.oils].reverse().map(o =>
+      `<div class="card-row">
+        <div class="row-icon ico-orange">🔧</div>
+        <div class="row-body">
+          <div class="row-lbl">${fd(o.date)}${o.notes ? ' &nbsp;·&nbsp; ' + o.notes : ''}</div>
+          <div class="row-val">${n(o.km)} km</div>
+        </div>
+        <div class="row-right">
+          <div class="row-lbl">Proxima</div>
+          <div class="row-val" style="font-size:13px">${n(o.nextKm)} km</div>
+        </div>
+      </div>`
+    ).join('');
+  } else {
+    oh.innerHTML = `<div class="card-row"><div class="row-icon ico-orange">🔧</div>
+      <div class="row-body"><div class="row-lbl">Sem registros</div><div class="row-val">Adicione a ultima troca</div></div></div>`;
+  }
+}
+
+// ─── HELPERS ────────────────────────────────────────
+function oilAlert(c) {
+  if (!c.oils.length) return null;
+  const lo    = c.oils[c.oils.length - 1];
+  const curKm = c.fuels.length ? c.fuels[c.fuels.length - 1].km : lo.km;
+  const rem   = lo.nextKm - curKm;
+  if (rem <= 0)    return { cls:'danger', ico:'🚨', msg:`Troca de oleo VENCIDA ha ${n(Math.abs(rem))} km! Troque imediatamente.` };
+  if (rem <= 1000) return { cls:'warn',   ico:'⚠️', msg:`Troca de oleo em apenas ${n(rem)} km. Agende logo!` };
+  return null;
+}
+
+function today() { return new Date().toISOString().slice(0,10); }
+function n(v) { return v == null ? '—' : Number(v).toLocaleString('pt-BR'); }
+function fd(d) {
+  if (!d) return '—';
+  const ms = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const [y,m,day] = d.split('-'); return `${parseInt(day)} ${ms[m-1]} ${y}`;
+}
+function dbw(d1, d2) { return Math.round((new Date(d2) - new Date(d1)) / 86400000); }
+
+// ─── INIT ───────────────────────────────────────────
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) closeModal(o.id); });
+});
+renderHome();
+</script>
+</body>
+</html>
