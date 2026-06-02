@@ -749,8 +749,12 @@ async function calculateRoute(){
 // ── COST BOX ──────────────────────────────────────────────────────────────────
 function costBoxContent(d){
   const foodCost=d.stops.length*13*d.travelers;
-  const totalOW=d.fuelCost+foodCost+d.hotelCost;
+  const rooms=Math.ceil(d.travelers/2);
+  const hotelTotal=d.hotelCost*rooms;
+  const totalOW=d.fuelCost+foodCost+hotelTotal;
   const totalRT=totalOW*2;
+  const ppl=d.travelers===1?'1 person':d.travelers+' people';
+  const rmLabel=rooms===1?'1 room':rooms+' rooms';
 
   let hotelHtml='';
   if(d.distKm>500){
@@ -759,7 +763,8 @@ function costBoxContent(d){
     const gmHotel='https://www.google.com/maps/search/hotels/@'+d.midLat.toFixed(5)+','+d.midLng.toFixed(5)+',12z';
     const selectedHotel=d.hotelCost>0
       ? '<div style="font-size:12px;color:rgba(255,255,255,.8);margin-bottom:8px">🏨 '+
-        d.selectedTier.charAt(0).toUpperCase()+d.selectedTier.slice(1)+' hotel added: <strong>$'+d.hotelCost.toFixed(2)+'</strong> — tap again to remove</div>'+
+        d.selectedTier.charAt(0).toUpperCase()+d.selectedTier.slice(1)+
+        ': '+rmLabel+' × $'+d.hotelCost+'/quarto = <strong>$'+hotelTotal.toFixed(2)+'</strong> — toque para remover</div>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">'+
         '<div class="sl sl-hotel" onclick="window.open(\''+gmHotel+'\',\'_blank\')" style="border-color:#d8b4fe;background:rgba(255,255,255,.1);padding:8px 6px"><span class="sl-ico">🗺️</span><div><div class="sl-name" style="color:#fff;font-size:11px">Maps</div></div></div>'+
         '<div class="sl sl-hotel" onclick="window.open(\''+bkHotel+'\',\'_blank\')" style="border-color:#d8b4fe;background:rgba(255,255,255,.1);padding:8px 6px"><span class="sl-ico">🌐</span><div><div class="sl-name" style="color:#fff;font-size:11px">Booking</div></div></div>'+
@@ -768,28 +773,28 @@ function costBoxContent(d){
       : '';
     hotelHtml=
       '<div class="cost-hotel-sect">'+
-      '<div class="cost-hotel-title">🏨 Add Overnight Stay (optional)</div>'+
+      '<div class="cost-hotel-title">🏨 Pernoite opcional — '+ppl+' → '+rmLabel+'</div>'+
       '<div class="htier-btns">'+
-      '<button class="htier-btn'+(d.selectedTier==='budget'?' htier-sel':'')+'" onclick="selectHotelTier(\'budget\',95)">🎒 Budget<br><small>~$95/night</small></button>'+
-      '<button class="htier-btn'+(d.selectedTier==='moderate'?' htier-sel':'')+'" onclick="selectHotelTier(\'moderate\',155)">🏨 Moderate<br><small>~$155/night</small></button>'+
-      '<button class="htier-btn'+(d.selectedTier==='luxury'?' htier-sel':'')+'" onclick="selectHotelTier(\'luxury\',225)">⭐ Luxury<br><small>~$225/night</small></button>'+
+      '<button class="htier-btn'+(d.selectedTier==='budget'?' htier-sel':'')+'" onclick="selectHotelTier(\'budget\',95)">🎒 Budget<br><small>~$95/quarto</small></button>'+
+      '<button class="htier-btn'+(d.selectedTier==='moderate'?' htier-sel':'')+'" onclick="selectHotelTier(\'moderate\',155)">🏨 Moderate<br><small>~$155/quarto</small></button>'+
+      '<button class="htier-btn'+(d.selectedTier==='luxury'?' htier-sel':'')+'" onclick="selectHotelTier(\'luxury\',225)">⭐ Luxury<br><small>~$225/quarto</small></button>'+
       '</div>'+
       selectedHotel+
       '</div>';
   }
 
-  return '<div class="cost-box-title">💰 Estimated Trip Costs</div>'+
+  return '<div class="cost-box-title">💰 Custo Estimado da Viagem — '+ppl+'</div>'+
     '<div class="cost-rows">'+
-    '<div class="cost-row"><span class="cost-row-label">⛽ Fuel ('+d.fuelL.toFixed(1)+' L)</span><span class="cost-row-val">$'+d.fuelCost.toFixed(2)+'</span></div>'+
-    '<div class="cost-row"><span class="cost-row-label">🍔 Food est. ('+d.stops.length+' stops × '+d.travelers+(d.travelers===1?' person':' people')+')</span><span class="cost-row-val">~$'+foodCost.toFixed(2)+'</span></div>'+
-    (d.hotelCost>0?'<div class="cost-row"><span class="cost-row-label">🏨 Hotel</span><span class="cost-row-val">$'+d.hotelCost.toFixed(2)+'</span></div>':'')+
+    '<div class="cost-row"><span class="cost-row-label">⛽ Combustível ('+d.fuelL.toFixed(1)+' L)</span><span class="cost-row-val">$'+d.fuelCost.toFixed(2)+'</span></div>'+
+    '<div class="cost-row"><span class="cost-row-label">🍔 Alimentação ('+d.stops.length+' paradas × '+ppl+')</span><span class="cost-row-val">~$'+foodCost.toFixed(2)+'</span></div>'+
+    (hotelTotal>0?'<div class="cost-row"><span class="cost-row-label">🏨 Hotel ('+rmLabel+')</span><span class="cost-row-val">$'+hotelTotal.toFixed(2)+'</span></div>':'')+
     '</div>'+
     hotelHtml+
     '<div class="cost-totals">'+
-    '<div class="cost-total-item"><div class="cti-lbl">One-way total</div><div class="cti-val">$'+totalOW.toFixed(2)+'</div></div>'+
-    '<div class="cost-total-item rt-total"><div class="cti-lbl">🔄 Round trip</div><div class="cti-val">$'+totalRT.toFixed(2)+'</div></div>'+
+    '<div class="cost-total-item"><div class="cti-lbl">Só ida</div><div class="cti-val">$'+totalOW.toFixed(2)+'</div></div>'+
+    '<div class="cost-total-item rt-total"><div class="cti-lbl">🔄 Ida e volta</div><div class="cti-val">$'+totalRT.toFixed(2)+'</div></div>'+
     '</div>'+
-    '<div class="cost-note">* Estimates. Food based on fast food (~$13/person per stop).</div>';
+    '<div class="cost-note">* Estimativas. Alimentação: fast food ~$13/pessoa/parada. Hotel: 1 quarto para 2 pessoas.</div>';
 }
 
 function selectHotelTier(tier, cost){
