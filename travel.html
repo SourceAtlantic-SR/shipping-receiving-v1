@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Trip Planner">
+<title>Trip Planner</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --teal:#0891b2;--teal2:#0e7490;--teal3:#22d3ee;
+  --amber:#d97706;--amber2:#f59e0b;
+  --green:#059669;--red:#dc2626;
+  --bg:#f0f9ff;--card:#fff;--text:#0f172a;--muted:#64748b;--light:#94a3b8;
+  --border:#e0f2fe;--sep:rgba(8,145,178,.1);
+  --shadow:0 2px 8px rgba(8,145,178,.12);
+  --r:16px;
+  --sft:env(safe-area-inset-top,0px);
+  --sfb:env(safe-area-inset-bottom,0px);
+}
+html,body{min-height:100%;background:var(--bg);color:var(--text)}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(150deg,#0c4a6e 0%,#0891b2 60%,#06b6d4 100%);padding:calc(var(--sft) + 28px) 24px 36px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'✈️';position:absolute;font-size:180px;opacity:.06;top:-20px;right:-30px;transform:rotate(25deg)}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:700;color:rgba(255,255,255,.9);letter-spacing:.8px;text-transform:uppercase;margin-bottom:14px}
+.hero-title{font-size:28px;font-weight:900;color:#fff;letter-spacing:-.5px;line-height:1.1}
+.hero-sub{font-size:14px;color:rgba(255,255,255,.65);margin-top:8px;line-height:1.5}
+
+/* ── FORM CARD ── */
+.form-wrap{max-width:680px;margin:-20px auto 0;padding:0 16px 32px;position:relative;z-index:10}
+.form-card{background:#fff;border-radius:20px;box-shadow:0 8px 32px rgba(8,145,178,.18);overflow:hidden}
+.form-section{padding:20px 20px 0}
+.form-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--teal);margin-bottom:12px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;letter-spacing:.3px}
+.field input,.field select,.field textarea{width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:15px;font-family:inherit;color:var(--text);background:#fff;outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(8,145,178,.1)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.days-badge{display:inline-flex;align-items:center;gap:5px;background:#e0f2fe;color:var(--teal2);border-radius:8px;padding:5px 12px;font-size:13px;font-weight:700;margin-top:4px}
+
+/* ── FOOD CHIPS ── */
+.food-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.food-chip{position:relative}
+.food-chip input{position:absolute;opacity:0;pointer-events:none}
+.food-chip label{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:20px;border:1.5px solid #e2e8f0;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;background:#fff;user-select:none}
+.food-chip input:checked + label{background:#e0f2fe;border-color:var(--teal);color:var(--teal2)}
+
+/* ── BUDGET ── */
+.budget-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:6px}
+.budget-opt{position:relative}
+.budget-opt input{position:absolute;opacity:0;pointer-events:none}
+.budget-opt label{display:flex;flex-direction:column;align-items:center;padding:12px 8px;border-radius:12px;border:1.5px solid #e2e8f0;cursor:pointer;transition:all .15s;background:#fff;text-align:center}
+.budget-opt input:checked + label{background:#e0f2fe;border-color:var(--teal)}
+.budget-ico{font-size:22px;margin-bottom:4px}
+.budget-lbl{font-size:12px;font-weight:700;color:var(--text)}
+.budget-sub{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* ── SUBMIT ── */
+.btn-plan{display:block;width:calc(100% - 40px);margin:20px 20px;padding:16px;background:linear-gradient(135deg,var(--teal2),var(--teal));color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.3px;transition:all .18s;box-shadow:0 4px 16px rgba(8,145,178,.35)}
+.btn-plan:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(8,145,178,.45)}
+.btn-plan:active{transform:none}
+
+/* ── RESULTS ── */
+.results-wrap{max-width:680px;margin:0 auto;padding:0 16px 60px}
+.trip-summary{background:linear-gradient(135deg,#0c4a6e,#0891b2);border-radius:16px;padding:18px 20px;margin-bottom:20px;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.ts-left .ts-dest{font-size:20px;font-weight:900}
+.ts-left .ts-dates{font-size:13px;color:rgba(255,255,255,.7);margin-top:3px}
+.ts-right{text-align:right}
+.ts-days{font-size:32px;font-weight:900;line-height:1}
+.ts-days-lbl{font-size:11px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.5px}
+
+/* ── SECTION ── */
+.sec{margin-bottom:22px}
+.sec-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.sec-icon{font-size:22px}
+.sec-title{font-size:16px;font-weight:800;color:var(--text)}
+.sec-count{font-size:11px;font-weight:700;color:var(--teal);background:#e0f2fe;border-radius:10px;padding:2px 8px}
+
+/* ── LINK CARDS ── */
+.link-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.link-card{background:#fff;border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);border:1px solid var(--border);text-decoration:none;display:flex;flex-direction:column;gap:6px;transition:all .18s;cursor:pointer}
+.link-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(8,145,178,.2);border-color:var(--teal3)}
+.link-card:active{transform:none}
+.lc-top{display:flex;align-items:center;gap:8px}
+.lc-ico{font-size:24px;flex-shrink:0}
+.lc-name{font-size:14px;font-weight:800;color:var(--text)}
+.lc-tag{font-size:10px;font-weight:700;border-radius:6px;padding:2px 7px;align-self:flex-start}
+.tag-free{background:#dcfce7;color:#166534}
+.tag-cheap{background:#fef9c3;color:#854d0e}
+.tag-best{background:#dbeafe;color:#1e40af}
+.tag-event{background:#f3e8ff;color:#6b21a8}
+.lc-desc{font-size:11px;color:var(--muted);line-height:1.4}
+.lc-btn{margin-top:4px;padding:8px 14px;background:var(--teal);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;transition:background .15s}
+.lc-btn:hover{background:var(--teal2)}
+
+/* food cards: full width */
+.link-grid.food{grid-template-columns:1fr}
+.link-grid.food .link-card{flex-direction:row;align-items:center}
+.link-grid.food .lc-ico{font-size:28px}
+.link-grid.food .lc-main{flex:1}
+.link-grid.food .lc-btn{white-space:nowrap;flex-shrink:0}
+
+/* ── RESET BTN ── */
+.btn-reset{display:block;width:calc(100% - 32px);margin:8px 16px 0;padding:14px;background:#fff;color:var(--teal);border:2px solid var(--teal);border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;transition:all .15s}
+.btn-reset:hover{background:#e0f2fe}
+
+/* ── EVENT BOX ── */
+.event-box{background:#faf5ff;border:1.5px solid #d8b4fe;border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.event-box-title{font-size:13px;font-weight:800;color:#6b21a8;margin-bottom:8px}
+.event-name-display{font-size:18px;font-weight:900;color:#4c1d95}
+
+/* ── UTILITY ── */
+.hidden{display:none!important}
+.divider{height:1px;background:var(--border);margin:20px 0}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">✈️ &nbsp; Trip Planner</div>
+  <div class="hero-title">Plan Your Next Trip</div>
+  <div class="hero-sub">Hotels, restaurants, events & parking —<br>all in one place, in seconds.</div>
+</div>
+
+<!-- FORM -->
+<div class="form-wrap" id="form-section">
+  <div class="form-card">
+
+    <!-- Destination -->
+    <div class="form-section">
+      <div class="form-section-title">📍 Destination</div>
+      <div class="field">
+        <label>City</label>
+        <input type="text" id="f-city" placeholder="e.g. Toronto" autocomplete="off">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Province / State</label>
+          <input type="text" id="f-state" placeholder="e.g. Ontario">
+        </div>
+        <div class="field">
+          <label>Country</label>
+          <select id="f-country">
+            <option value="Canada">Canada</option>
+            <option value="USA">United States</option>
+            <option value="Brazil">Brazil</option>
+            <option value="UK">United Kingdom</option>
+            <option value="France">France</option>
+            <option value="Portugal">Portugal</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider" style="margin:14px 0 0"></div>
+
+    <!-- Dates -->
+    <div class="form-section">
+      <div class="form-section-title">📅 Dates</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Check-in</label>
+          <input type="date" id="f-checkin" oninput="calcDays()">
+        </div>
+        <div class="field">
+          <label>Check-out</label>
+          <input type="date" id="f-checkout" oninput="calcDays()">
+        </div>
+      </div>
+      <div id="days-display" class="hidden">
+        <span class="days-badge">🌙 <span id="days-num">0</span> nights &nbsp;·&nbsp; <span id="days-stay">0</span> days</span>
+      </div>
+    </div>
+
+    <div class="divider" style="margin:14px 0 0"></div>
+
+    <!-- Purpose -->
+    <div class="form-section">
+      <div class="form-section-title">🎯 Purpose of Travel</div>
+      <div class="field">
+        <label>Why are you traveling?</label>
+        <select id="f-purpose" onchange="onPurposeChange()">
+          <option value="leisure">🌴 Leisure / Vacation</option>
+          <option value="business">💼 Business</option>
+          <option value="concert">🎵 Concert / Music Event</option>
+          <option value="sports">🏒 Sports Event</option>
+          <option value="festival">🎪 Festival</option>
+          <option value="conference">🎤 Conference / Convention</option>
+          <option value="family">👨‍👩‍👧 Family Visit</option>
+          <option value="medical">🏥 Medical</option>
+          <option value="other">✈️ Other</option>
+        </select>
+      </div>
+      <div class="field hidden" id="event-name-field">
+        <label>Event Name <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+        <input type="text" id="f-event-name" placeholder="e.g. Taylor Swift — Eras Tour">
+      </div>
+    </div>
+
+    <div class="divider" style="margin:14px 0 0"></div>
+
+    <!-- Food -->
+    <div class="form-section">
+      <div class="form-section-title">🍽️ Food Preferences</div>
+      <div class="food-grid">
+        <div class="food-chip"><input type="checkbox" id="fc-italian" value="Italian"><label for="fc-italian">🍝 Italian</label></div>
+        <div class="food-chip"><input type="checkbox" id="fc-asian" value="Asian"><label for="fc-asian">🍜 Asian</label></div>
+        <div class="food-chip"><input type="checkbox" id="fc-sushi" value="Sushi"><label for="fc-sushi">🍣 Sushi</label></div>
+        <div class="food-chip"><input type="checkbox" id="fc-mexican" value="Mexican"><label for="fc-mexican">🌮 Mexican</label></div>
+        <div class="food-chip"><input type="checkbox" id="fc-bbq" value="BBQ"><label for="fc-bbq">🥩 BBQ / American</label></div>
+        <div class="food-chip"><input type="checkbox" id="fc-seafood" value="Seafood"><label for="fc-seafood">🦞 Seafood</label></div>
+        <div class="food-chip"><input type="checkbox" id="fc-pizza" value="Pizza"><label for="fc-pizza">🍕 Pizza</label></div>
+        <div class="food-chip"><input type="checkbox" id="fc-indian" value="Indian"><label for="fc-indian">🍛 Indian</label></div>
+        <div class="food-chip"><input type="checkbox" id="fc-vegan" value="Vegan"><label for="fc-vegan">🥗 Vegetarian / Vegan</label></div>
+        <div class="food-chip"><input type="checkbox" id="fc-breakfast" value="Breakfast"><label for="fc-breakfast">🥞 Breakfast / Brunch</label></div>
+        <div class="food-chip"><input type="checkbox" id="fc-fastfood" value="Fast Food"><label for="fc-fastfood">🍔 Fast Food</label></div>
+        <div class="food-chip"><input type="checkbox" id="fc-any" value="Restaurants"><label for="fc-any">🍽️ Any / Surprise me</label></div>
+      </div>
+    </div>
+
+    <div class="divider" style="margin:14px 0 0"></div>
+
+    <!-- Budget -->
+    <div class="form-section" style="padding-bottom:4px">
+      <div class="form-section-title">💰 Accommodation Budget</div>
+      <div class="budget-grid">
+        <div class="budget-opt">
+          <input type="radio" name="budget" id="b-budget" value="budget" checked>
+          <label for="b-budget">
+            <span class="budget-ico">🎒</span>
+            <span class="budget-lbl">Budget</span>
+            <span class="budget-sub">Hostels & cheap hotels</span>
+          </label>
+        </div>
+        <div class="budget-opt">
+          <input type="radio" name="budget" id="b-moderate" value="moderate">
+          <label for="b-moderate">
+            <span class="budget-ico">🏨</span>
+            <span class="budget-lbl">Moderate</span>
+            <span class="budget-sub">Mid-range hotels</span>
+          </label>
+        </div>
+        <div class="budget-opt">
+          <input type="radio" name="budget" id="b-luxury" value="luxury">
+          <label for="b-luxury">
+            <span class="budget-ico">⭐</span>
+            <span class="budget-lbl">Luxury</span>
+            <span class="budget-sub">Premium & resorts</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-plan" onclick="planTrip()">✈️ &nbsp; Plan My Trip</button>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="results-wrap hidden" id="results-section">
+
+  <!-- Summary -->
+  <div class="trip-summary" id="trip-summary"></div>
+
+  <!-- Event Box -->
+  <div class="event-box hidden" id="event-box">
+    <div class="event-box-title">🎉 Event Details</div>
+    <div class="event-name-display" id="event-name-display"></div>
+    <div style="font-size:12px;color:#7c3aed;margin-top:4px" id="event-date-display"></div>
+  </div>
+
+  <!-- Accommodation -->
+  <div class="sec">
+    <div class="sec-header">
+      <span class="sec-icon">🏨</span>
+      <span class="sec-title">Where to Stay</span>
+    </div>
+    <div class="link-grid" id="hotel-links"></div>
+  </div>
+
+  <!-- Dining -->
+  <div class="sec" id="dining-sec">
+    <div class="sec-header">
+      <span class="sec-icon">🍽️</span>
+      <span class="sec-title">Where to Eat</span>
+    </div>
+    <div class="link-grid food" id="food-links"></div>
+  </div>
+
+  <!-- Events -->
+  <div class="sec">
+    <div class="sec-header">
+      <span class="sec-icon">🎉</span>
+      <span class="sec-title">Events & Entertainment</span>
+    </div>
+    <div class="link-grid" id="event-links"></div>
+  </div>
+
+  <!-- Parking -->
+  <div class="sec">
+    <div class="sec-header">
+      <span class="sec-icon">🅿️</span>
+      <span class="sec-title">Parking</span>
+    </div>
+    <div class="link-grid" id="parking-links"></div>
+  </div>
+
+  <button class="btn-reset" onclick="resetForm()">← Plan Another Trip</button>
+</div>
+
+<script>
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function qs(str){ return encodeURIComponent(str); }
+function qsMaps(str){ return encodeURIComponent(str).replace(/%20/g, '+'); }
+
+function calcDays(){
+  const ci = document.getElementById('f-checkin').value;
+  const co = document.getElementById('f-checkout').value;
+  const el = document.getElementById('days-display');
+  if(!ci || !co){ el.classList.add('hidden'); return; }
+  const d1 = new Date(ci), d2 = new Date(co);
+  const nights = Math.round((d2-d1)/86400000);
+  if(nights <= 0){ el.classList.add('hidden'); return; }
+  document.getElementById('days-num').textContent = nights;
+  document.getElementById('days-stay').textContent = nights+1;
+  el.classList.remove('hidden');
+}
+
+function onPurposeChange(){
+  const p = document.getElementById('f-purpose').value;
+  const eventPurposes = ['concert','sports','festival','conference'];
+  const ef = document.getElementById('event-name-field');
+  if(eventPurposes.includes(p)) ef.classList.remove('hidden');
+  else ef.classList.add('hidden');
+}
+
+function fmtDate(d){
+  if(!d) return '';
+  const [y,m,day] = d.split('-');
+  const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${parseInt(day)} ${mo[parseInt(m)-1]} ${y}`;
+}
+
+// ── DATE FORMAT FOR URLs ──────────────────────────────────────────────────────
+function bookingDate(d){ return d; } // YYYY-MM-DD
+function expediaDate(d){
+  if(!d) return '';
+  const [y,m,day] = d.split('-');
+  return `${m}/${day}/${y}`;
+}
+
+// ── PLAN ─────────────────────────────────────────────────────────────────────
+function planTrip(){
+  const city    = document.getElementById('f-city').value.trim();
+  const state   = document.getElementById('f-state').value.trim();
+  const country = document.getElementById('f-country').value;
+  const checkin = document.getElementById('f-checkin').value;
+  const checkout= document.getElementById('f-checkout').value;
+  const purpose = document.getElementById('f-purpose').value;
+  const evtName = document.getElementById('f-event-name').value.trim();
+  const budget  = document.querySelector('input[name="budget"]:checked').value;
+
+  if(!city){ alert('Please enter a city.'); return; }
+  if(!checkin || !checkout){ alert('Please select check-in and check-out dates.'); return; }
+  if(new Date(checkout) <= new Date(checkin)){ alert('Check-out must be after check-in.'); return; }
+
+  const foods = [...document.querySelectorAll('.food-chip input:checked')].map(i => i.value);
+
+  const loc     = city + (state ? ', '+state : '') + (country !== 'Other' ? ', '+country : '');
+  const locShort= city + (state ? ', '+state : '');
+  const nights  = Math.round((new Date(checkout)-new Date(checkin))/86400000);
+
+  // ── SUMMARY ──
+  const purposeLabels = {
+    leisure:'🌴 Leisure',business:'💼 Business',concert:'🎵 Concert',
+    sports:'🏒 Sports Event',festival:'🎪 Festival',conference:'🎤 Conference',
+    family:'👨‍👩‍👧 Family Visit',medical:'🏥 Medical',other:'✈️ Trip'
+  };
+  document.getElementById('trip-summary').innerHTML = `
+    <div class="ts-left">
+      <div class="ts-dest">📍 ${locShort}</div>
+      <div class="ts-dates">${fmtDate(checkin)} → ${fmtDate(checkout)} &nbsp;·&nbsp; ${purposeLabels[purpose]||'Trip'}</div>
+    </div>
+    <div class="ts-right">
+      <div class="ts-days">${nights}</div>
+      <div class="ts-days-lbl">night${nights!==1?'s':''}</div>
+    </div>`;
+
+  // ── EVENT BOX ──
+  const evtBox = document.getElementById('event-box');
+  const eventPurposes = ['concert','sports','festival','conference'];
+  if(eventPurposes.includes(purpose) && evtName){
+    evtBox.classList.remove('hidden');
+    document.getElementById('event-name-display').textContent = evtName;
+    document.getElementById('event-date-display').textContent = fmtDate(checkin) + (checkin !== checkout ? ' – ' + fmtDate(checkout) : '') + ' · ' + locShort;
+  } else { evtBox.classList.add('hidden'); }
+
+  // ── HOTELS ──
+  const hotelCards = buildHotelCards(loc, locShort, city, state, country, checkin, checkout, nights, budget);
+  document.getElementById('hotel-links').innerHTML = hotelCards;
+
+  // ── FOOD ──
+  const foodCards = buildFoodCards(foods, city, state, locShort);
+  document.getElementById('food-links').innerHTML = foodCards;
+  document.getElementById('dining-sec').style.display = foods.length ? '' : 'none';
+
+  // ── EVENTS ──
+  const eventCards = buildEventCards(city, state, country, locShort, purpose, evtName, checkin);
+  document.getElementById('event-links').innerHTML = eventCards;
+
+  // ── PARKING ──
+  const parkCards = buildParkingCards(city, state, locShort);
+  document.getElementById('parking-links').innerHTML = parkCards;
+
+  // ── SHOW RESULTS ──
+  document.getElementById('form-section').classList.add('hidden');
+  document.getElementById('results-section').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── HOTEL CARDS ───────────────────────────────────────────────────────────────
+function buildHotelCards(loc, locShort, city, state, country, ci, co, nights, budget){
+  const locQ = qs(loc);
+  const expDateCI = expediaDate(ci);
+  const expDateCO = expediaDate(co);
+  const airbnbCity = qs(locShort);
+  const mapsLoc = qsMaps(loc);
+
+  let cards = [];
+
+  if(budget === 'budget'){
+    cards = [
+      { ico:'🌐', name:'Booking.com', tag:'tag-cheap', tagLbl:'Cheapest',
+        desc:'Sorted by lowest price — filter by budget hotels & guesthouses',
+        url:`https://www.booking.com/searchresults.html?ss=${locQ}&checkin=${ci}&checkout=${co}&order=price&nflt=price%3D1-150` },
+      { ico:'🏠', name:'Airbnb', tag:'tag-best', tagLbl:'Popular',
+        desc:'Entire homes & private rooms — often cheaper than hotels',
+        url:`https://www.airbnb.com/s/${airbnbCity}/homes?checkin=${ci}&checkout=${co}&price_max=120` },
+      { ico:'🎒', name:'Hostelworld', tag:'tag-free', tagLbl:'Budget',
+        desc:'Hostels, dorms & budget guesthouses worldwide',
+        url:`https://www.hostelworld.com/s#q=${qs(locShort)}&from=${ci}&to=${co}` },
+      { ico:'🏨', name:'Hotels.com', tag:'tag-cheap', tagLbl:'Deals',
+        desc:'Member discounts & free nights with Hotels.com Rewards',
+        url:`https://www.hotels.com/search.do?q-destination=${locQ}&q-check-in=${ci}&q-check-out=${co}&sort-order=PRICE` },
+    ];
+  } else if(budget === 'moderate'){
+    cards = [
+      { ico:'🌐', name:'Booking.com', tag:'tag-best', tagLbl:'Best rated',
+        desc:'Mid-range hotels sorted by guest rating & price',
+        url:`https://www.booking.com/searchresults.html?ss=${locQ}&checkin=${ci}&checkout=${co}&order=bayesian_review_score` },
+      { ico:'🏠', name:'Airbnb', tag:'tag-best', tagLbl:'Popular',
+        desc:'Entire homes & apartments — great value for multi-night stays',
+        url:`https://www.airbnb.com/s/${airbnbCity}/homes?checkin=${ci}&checkout=${co}` },
+      { ico:'✈️', name:'Expedia', tag:'tag-cheap', tagLbl:'Bundles',
+        desc:'Bundle hotel + flight for extra savings',
+        url:`https://www.expedia.com/Hotel-Search?destination=${locQ}&startDate=${expDateCI}&endDate=${expDateCO}&sort=RECOMMENDED` },
+      { ico:'🏨', name:'Hotels.com', tag:'tag-best', tagLbl:'Rewards',
+        desc:'Earn free nights — great loyalty program for frequent travelers',
+        url:`https://www.hotels.com/search.do?q-destination=${locQ}&q-check-in=${ci}&q-check-out=${co}` },
+    ];
+  } else {
+    cards = [
+      { ico:'⭐', name:'Booking.com', tag:'tag-best', tagLbl:'5-star',
+        desc:'Luxury hotels & resorts — filter by 5 stars & top amenities',
+        url:`https://www.booking.com/searchresults.html?ss=${locQ}&checkin=${ci}&checkout=${co}&nflt=class%3D5&order=bayesian_review_score` },
+      { ico:'🏠', name:'Airbnb Luxe', tag:'tag-best', tagLbl:'Premium',
+        desc:'Luxury homes, villas & unique properties',
+        url:`https://www.airbnb.com/s/${airbnbCity}/homes?checkin=${ci}&checkout=${co}&price_min=300` },
+      { ico:'✈️', name:'Expedia', tag:'tag-best', tagLbl:'Premium',
+        desc:'Premium hotels with exclusive bundle deals',
+        url:`https://www.expedia.com/Hotel-Search?destination=${locQ}&startDate=${expDateCI}&endDate=${expDateCO}&sort=PRICE_DESCENDING` },
+      { ico:'🗺️', name:'Google Hotels', tag:'tag-free', tagLbl:'Compare',
+        desc:'Compare all platforms in one place — find the best deal',
+        url:`https://www.google.com/travel/hotels/s/${mapsLoc}?q=hotels+in+${mapsLoc}&checkin=${ci}&checkout=${co}` },
+    ];
+  }
+
+  return cards.map(c => `
+    <div class="link-card" onclick="window.open('${c.url}','_blank')">
+      <div class="lc-top">
+        <span class="lc-ico">${c.ico}</span>
+        <div>
+          <div class="lc-name">${c.name}</div>
+          <span class="lc-tag ${c.tag}">${c.tagLbl}</span>
+        </div>
+      </div>
+      <div class="lc-desc">${c.desc}</div>
+      <button class="lc-btn" onclick="event.stopPropagation();window.open('${c.url}','_blank')">Open →</button>
+    </div>`).join('');
+}
+
+// ── FOOD CARDS ────────────────────────────────────────────────────────────────
+function buildFoodCards(foods, city, state, locShort){
+  if(!foods.length) return '';
+  const foodEmojis = {
+    'Italian':'🍝','Asian':'🍜','Sushi':'🍣','Mexican':'🌮','BBQ':'🥩',
+    'Seafood':'🦞','Pizza':'🍕','Indian':'🍛','Vegan':'🥗',
+    'Breakfast':'🥞','Fast Food':'🍔','Restaurants':'🍽️'
+  };
+  const mapsBase = 'https://www.google.com/maps/search/';
+  const yelpBase = 'https://www.yelp.com/search?';
+  const taBase   = 'https://www.tripadvisor.com/Search?q=';
+
+  return foods.map(food => {
+    const ico = foodEmojis[food] || '🍽️';
+    const locQ = qs(locShort);
+    const mapsQ = qsMaps(food + ' restaurants near ' + locShort);
+    const yelpQ = `find_desc=${qs(food+' restaurants')}&find_loc=${locQ}`;
+    const taQ   = qs(food + ' restaurants ' + locShort);
+    const mapsFoodUrl  = mapsBase + mapsQ;
+    const yelpFoodUrl  = yelpBase + yelpQ;
+    const taFoodUrl    = taBase + taQ;
+
+    return `
+      <div class="link-card" onclick="window.open('${mapsFoodUrl}','_blank')">
+        <span class="lc-ico">${ico}</span>
+        <div class="lc-main">
+          <div class="lc-name">${food}</div>
+          <div class="lc-desc" style="margin-top:3px">
+            <a href="${mapsFoodUrl}" target="_blank" style="color:var(--teal);font-weight:700;text-decoration:none;margin-right:10px">🗺 Google Maps</a>
+            <a href="${yelpFoodUrl}" target="_blank" style="color:#d32323;font-weight:700;text-decoration:none;margin-right:10px">⭐ Yelp</a>
+            <a href="${taFoodUrl}" target="_blank" style="color:#00aa6c;font-weight:700;text-decoration:none">🌿 TripAdvisor</a>
+          </div>
+        </div>
+        <button class="lc-btn" onclick="event.stopPropagation();window.open('${mapsFoodUrl}','_blank')">Search →</button>
+      </div>`;
+  }).join('');
+}
+
+// ── EVENT CARDS ───────────────────────────────────────────────────────────────
+function buildEventCards(city, state, country, locShort, purpose, evtName, checkin){
+  const locQ = qs(locShort);
+  const mapsQ = qsMaps(locShort);
+  const countrySlug = country==='Canada' ? 'ca' : country==='USA' ? 'us' : 'gb';
+  const citySlug = city.toLowerCase().replace(/\s+/g,'-');
+  const stateSlug = (state||'').toLowerCase().replace(/\s+/g,'-');
+
+  let evtSearch = evtName || (purpose === 'concert' ? 'concerts' : purpose === 'sports' ? 'sports events' : 'events');
+
+  const cards = [
+    { ico:'🎟️', name:'Eventbrite', tag:'tag-event', tagLbl:'Free & Paid',
+      desc:`Browse all events happening in ${locShort}`,
+      url:`https://www.eventbrite.com/d/${stateSlug}--${citySlug}/events/` },
+    { ico:'🎵', name:'Ticketmaster', tag:'tag-event', tagLbl:'Concerts & Sports',
+      desc:`Concerts, sports, theatre & more in ${locShort}`,
+      url:`https://www.ticketmaster.com/search?q=${qs(locShort)}&type=event` },
+    { ico:'🔍', name:'Google Events', tag:'tag-free', tagLbl:'All events',
+      desc:`Search all events happening in ${locShort}`,
+      url:`https://www.google.com/search?q=events+in+${mapsQ}+${checkin ? checkin.slice(0,7) : ''}` },
+    { ico:'🎭', name:'StubHub', tag:'tag-event', tagLbl:'Resale tickets',
+      desc:`Find last-minute & resale tickets for events`,
+      url:`https://www.stubhub.com/find/s/?q=${qs(evtSearch+'  '+locShort)}` },
+  ];
+
+  if(evtName){
+    cards.unshift({
+      ico:'⭐', name:'Search: '+evtName, tag:'tag-best', tagLbl:'Your event',
+      desc:`Find tickets & info for "${evtName}" in ${locShort}`,
+      url:`https://www.google.com/search?q=${qs(evtName+' '+locShort+' tickets')}`
+    });
+  }
+
+  return cards.map(c => `
+    <div class="link-card" onclick="window.open('${c.url}','_blank')">
+      <div class="lc-top">
+        <span class="lc-ico">${c.ico}</span>
+        <div>
+          <div class="lc-name">${c.name}</div>
+          <span class="lc-tag ${c.tag}">${c.tagLbl}</span>
+        </div>
+      </div>
+      <div class="lc-desc">${c.desc}</div>
+      <button class="lc-btn" onclick="event.stopPropagation();window.open('${c.url}','_blank')">Open →</button>
+    </div>`).join('');
+}
+
+// ── PARKING CARDS ─────────────────────────────────────────────────────────────
+function buildParkingCards(city, state, locShort){
+  const mapsQ  = qsMaps('parking near ' + locShort);
+  const locQ   = qs(locShort);
+  const cityQ  = qs(city + (state ? ', '+state : ''));
+
+  const cards = [
+    { ico:'🗺️', name:'Google Maps', tag:'tag-free', tagLbl:'Free',
+      desc:`Find all parking spots near ${locShort} with prices & availability`,
+      url:`https://www.google.com/maps/search/${mapsQ}` },
+    { ico:'🅿️', name:'SpotHero', tag:'tag-cheap', tagLbl:'Discounted',
+      desc:`Reserve parking in advance — up to 50% off drive-up rates`,
+      url:`https://spothero.com/search?q=${locQ}` },
+    { ico:'🚗', name:'ParkWhiz', tag:'tag-cheap', tagLbl:'Reserve now',
+      desc:`Compare parking garages & lots — book ahead to save`,
+      url:`https://www.parkwhiz.com/search/?q=${locQ}` },
+    { ico:'📱', name:'ParkMe', tag:'tag-free', tagLbl:'Real-time',
+      desc:`Real-time parking availability with price comparison`,
+      url:`https://en.parkme.com/lot/search?q=${cityQ}` },
+  ];
+
+  return cards.map(c => `
+    <div class="link-card" onclick="window.open('${c.url}','_blank')">
+      <div class="lc-top">
+        <span class="lc-ico">${c.ico}</span>
+        <div>
+          <div class="lc-name">${c.name}</div>
+          <span class="lc-tag ${c.tag}">${c.tagLbl}</span>
+        </div>
+      </div>
+      <div class="lc-desc">${c.desc}</div>
+      <button class="lc-btn" onclick="event.stopPropagation();window.open('${c.url}','_blank')">Open →</button>
+    </div>`).join('');
+}
+
+// ── RESET ─────────────────────────────────────────────────────────────────────
+function resetForm(){
+  document.getElementById('results-section').classList.add('hidden');
+  document.getElementById('form-section').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+(function(){
+  const today = new Date().toISOString().slice(0,10);
+  const tomorrow = new Date(Date.now()+86400000).toISOString().slice(0,10);
+  document.getElementById('f-checkin').value  = today;
+  document.getElementById('f-checkout').value = tomorrow;
+  calcDays();
+})();
+</script>
+</body>
+</html>
