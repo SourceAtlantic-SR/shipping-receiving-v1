@@ -31,7 +31,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 .hero-sub{font-size:14px;color:rgba(255,255,255,.65);margin-top:8px;line-height:1.5}
 
 /* ── FORM CARD ── */
-.form-wrap{max-width:680px;margin:-20px auto 0;padding:0 16px 32px;position:relative;z-index:10}
+.form-wrap{max-width:680px;margin:0 auto;padding:0 16px 32px;position:relative;z-index:10}
 .form-card{background:#fff;border-radius:20px;box-shadow:0 8px 32px rgba(8,145,178,.18);overflow:hidden}
 .form-section{padding:20px 20px 0}
 .form-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--teal);margin-bottom:12px}
@@ -117,6 +117,56 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 /* ── UTILITY ── */
 .hidden{display:none!important}
 .divider{height:1px;background:var(--border);margin:20px 0}
+
+/* ── TABS ── */
+.tab-bar{max-width:680px;margin:-20px auto 0;padding:0 16px;position:relative;z-index:11;display:flex}
+.tab-top{flex:1;padding:13px 8px;border:none;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:background .15s}
+.tab-top:first-child{border-radius:14px 0 0 0}
+.tab-top:last-child{border-radius:0 14px 0 0}
+.tab-top.active{background:#fff;color:var(--teal2)}
+.tab-top:not(.active){background:rgba(255,255,255,.22);color:rgba(255,255,255,.95)}
+.rt-form-wrap{max-width:680px;margin:0 auto;padding:0 16px 32px;position:relative;z-index:10}
+.rt-form-card{background:#fff;border-radius:0 20px 20px 20px;box-shadow:0 8px 32px rgba(8,145,178,.18);overflow:hidden}
+.form-card{border-radius:20px 0 20px 20px!important}
+
+/* ── ROUTE SUMMARY ── */
+.route-sum{background:linear-gradient(135deg,#0c4a6e,#0891b2);border-radius:16px;padding:18px 20px;margin-bottom:16px;color:#fff}
+.rs-title{font-size:16px;font-weight:900;margin-bottom:14px}
+.rs-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rm{background:rgba(255,255,255,.15);border-radius:10px;padding:12px 14px}
+.rm-val{font-size:22px;font-weight:900;line-height:1}
+.rm-lbl{font-size:10px;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+
+/* ── STOP CARD ── */
+.stop-card{background:#fff;border-radius:14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px;overflow:hidden}
+.stop-hdr{background:linear-gradient(90deg,#f0f9ff,#e0f2fe);padding:11px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.stop-badge{font-size:10px;font-weight:700;color:var(--teal2);background:#fff;border:1px solid var(--teal3);border-radius:8px;padding:3px 8px;white-space:nowrap;flex-shrink:0}
+.stop-city{font-size:13px;font-weight:700;color:var(--text);flex:1}
+.stop-body{padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sl{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1.5px solid #e2e8f0;text-decoration:none;transition:all .15s}
+.sl:hover{border-color:var(--teal);background:#f0f9ff}
+.sl.sl-hotel{border-color:#d8b4fe;background:#faf5ff}
+.sl.sl-hotel:hover{border-color:#9333ea}
+.sl.sl-wide{grid-column:span 2}
+.sl-ico{font-size:20px;flex-shrink:0}
+.sl-name{font-size:12px;font-weight:800;color:var(--text)}
+.sl-sub{font-size:10px;color:var(--muted);margin-top:1px}
+
+/* ── PARKING DIRECT ── */
+.park-direct{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pd-card{background:#fff;border-radius:14px;padding:14px 12px;box-shadow:var(--shadow);border:2px solid #e2e8f0;text-decoration:none;display:flex;align-items:flex-start;gap:10px;transition:all .18s;cursor:pointer}
+.pd-card:hover{border-color:var(--teal);transform:translateY(-2px);box-shadow:0 6px 20px rgba(8,145,178,.2)}
+.pd-ico{font-size:24px;flex-shrink:0;margin-top:2px}
+.pd-name{font-size:13px;font-weight:800;color:var(--text)}
+.pd-desc{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
+.pd-tag{font-size:10px;font-weight:700;border-radius:6px;padding:2px 7px;margin-top:5px;display:inline-block}
+.pd-pre{background:#dbeafe;color:#1e40af}
+.pd-free{background:#dcfce7;color:#166534}
+.pd-live{background:#fef9c3;color:#854d0e}
+
+/* ── RT SPINNER ── */
+@keyframes rtSpin{to{transform:rotate(360deg)}}
+.rt-spin{display:inline-block;animation:rtSpin 1s linear infinite}
 </style>
 </head>
 <body>
@@ -128,8 +178,85 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
   <div class="hero-sub">Hotels, restaurants, events & parking —<br>all in one place, in seconds.</div>
 </div>
 
+<!-- TABS -->
+<div class="tab-bar">
+  <button class="tab-top active" id="tab-rt" onclick="switchTab('rt')">🚗 Road Trip</button>
+  <button class="tab-top" id="tab-dest" onclick="switchTab('dest')">🗺️ Destination</button>
+</div>
+
+<!-- ROAD TRIP FORM -->
+<div class="rt-form-wrap" id="rt-form-section">
+  <div class="rt-form-card">
+
+    <div class="form-section">
+      <div class="form-section-title">🏠 Origin</div>
+      <div class="field-row">
+        <div class="field"><label>City</label><input type="text" id="rt-origin-city" placeholder="e.g. Saint John" autocomplete="off"></div>
+        <div class="field"><label>Province / State</label><input type="text" id="rt-origin-state" placeholder="e.g. NB" autocomplete="off"></div>
+      </div>
+      <div class="field">
+        <label>Country</label>
+        <select id="rt-origin-country">
+          <option value="Canada">Canada</option><option value="USA">United States</option>
+          <option value="Brazil">Brazil</option><option value="UK">United Kingdom</option>
+          <option value="France">France</option><option value="Portugal">Portugal</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="divider" style="margin:0"></div>
+
+    <div class="form-section">
+      <div class="form-section-title">📍 Destination</div>
+      <div class="field-row">
+        <div class="field"><label>City</label><input type="text" id="rt-dest-city" placeholder="e.g. Quebec City" autocomplete="off"></div>
+        <div class="field"><label>Province / State</label><input type="text" id="rt-dest-state" placeholder="e.g. QC" autocomplete="off"></div>
+      </div>
+      <div class="field">
+        <label>Country</label>
+        <select id="rt-dest-country">
+          <option value="Canada">Canada</option><option value="USA">United States</option>
+          <option value="Brazil">Brazil</option><option value="UK">United Kingdom</option>
+          <option value="France">France</option><option value="Portugal">Portugal</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Venue / Event <span style="color:var(--muted);font-weight:400">(optional — for parking & address)</span></label>
+        <input type="text" id="rt-venue" placeholder="e.g. Rogers Centre · Bell Centre · Scotia Arena" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="divider" style="margin:0"></div>
+
+    <div class="form-section" style="padding-bottom:4px">
+      <div class="form-section-title">⛽ Vehicle & Fuel</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Fuel Efficiency</label>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input type="number" id="rt-consumption" value="10.0" min="2" max="40" step="0.5" style="flex:1">
+            <span style="font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap">L/100km</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Fuel Price</label>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:13px;font-weight:700;color:var(--muted)">$</span>
+            <input type="number" id="rt-fuelprice" value="1.65" min="0.50" max="5.00" step="0.01" style="flex:1">
+            <span style="font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap">/ litre</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-plan" onclick="calculateRoute()">🚗 &nbsp; Calculate Route & Costs</button>
+  </div>
+</div>
+
 <!-- FORM -->
-<div class="form-wrap" id="form-section">
+<div class="form-wrap hidden" id="form-section">
   <div class="form-card">
 
     <!-- Destination -->
@@ -322,7 +449,228 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
   <button class="btn-reset" onclick="resetForm()">← Plan Another Trip</button>
 </div>
 
+<!-- ROAD TRIP RESULTS -->
+<div class="results-wrap hidden" id="rt-results-section">
+  <div id="rt-results-content"></div>
+</div>
+
 <script>
+// ── ROAD TRIP ─────────────────────────────────────────────────────────────────
+
+function switchTab(tab){
+  document.getElementById('tab-rt').classList.toggle('active', tab==='rt');
+  document.getElementById('tab-dest').classList.toggle('active', tab==='dest');
+  const rtF=document.getElementById('rt-form-section'), rtR=document.getElementById('rt-results-section');
+  const dtF=document.getElementById('form-section'),    dtR=document.getElementById('results-section');
+  if(tab==='rt'){
+    dtF.classList.add('hidden'); dtR.classList.add('hidden');
+    if(!rtR.classList.contains('hidden')) rtF.classList.add('hidden');
+    else rtF.classList.remove('hidden');
+  } else {
+    rtF.classList.add('hidden'); rtR.classList.add('hidden');
+    if(!dtR.classList.contains('hidden')) dtF.classList.add('hidden');
+    else dtF.classList.remove('hidden');
+  }
+}
+
+async function geocodePlace(query){
+  try{
+    const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`,{headers:{'Accept-Language':'en'}});
+    const d=await r.json();
+    return d&&d.length?{lat:parseFloat(d[0].lat),lng:parseFloat(d[0].lon)}:null;
+  }catch(e){return null;}
+}
+
+async function getOSRMRoute(lng1,lat1,lng2,lat2){
+  try{
+    const r=await fetch(`https://router.project-osrm.org/route/v1/driving/${lng1},${lat1};${lng2},${lat2}?overview=false`);
+    const d=await r.json();
+    return(d.routes&&d.routes.length)?{distance:d.routes[0].distance,duration:d.routes[0].duration}:null;
+  }catch(e){return null;}
+}
+
+async function reverseCity(lat,lng){
+  try{
+    const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=en`,{headers:{'Accept-Language':'en'}});
+    const d=await r.json(); const a=d.address||{};
+    return a.city||a.town||a.village||a.county||'';
+  }catch(e){return '';}
+}
+
+function rtSleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+function showRTError(msg){
+  document.getElementById('rt-results-content').innerHTML=`
+    <div style="text-align:center;padding:48px 20px">
+      <div style="font-size:40px;margin-bottom:12px">⚠️</div>
+      <div style="font-size:15px;font-weight:700;color:var(--text)">${msg}</div>
+      <button class="btn-reset" style="margin-top:20px" onclick="resetRT()">← Try Again</button>
+    </div>`;
+}
+
+async function calculateRoute(){
+  const origCity=document.getElementById('rt-origin-city').value.trim();
+  const origState=document.getElementById('rt-origin-state').value.trim();
+  const origCountry=document.getElementById('rt-origin-country').value;
+  const destCity=document.getElementById('rt-dest-city').value.trim();
+  const destState=document.getElementById('rt-dest-state').value.trim();
+  const destCountry=document.getElementById('rt-dest-country').value;
+  const venue=document.getElementById('rt-venue').value.trim();
+  const consumption=parseFloat(document.getElementById('rt-consumption').value)||10;
+  const fuelPrice=parseFloat(document.getElementById('rt-fuelprice').value)||1.65;
+
+  if(!origCity){alert('Please enter your origin city.');return;}
+  if(!destCity){alert('Please enter your destination city.');return;}
+
+  document.getElementById('rt-form-section').classList.add('hidden');
+  document.getElementById('rt-results-section').classList.remove('hidden');
+  document.getElementById('rt-results-content').innerHTML=`
+    <div style="text-align:center;padding:48px 20px">
+      <div class="rt-spin" style="font-size:40px">⚙️</div>
+      <div style="font-size:15px;font-weight:700;color:var(--text);margin-top:14px">Calculating your route…</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:6px">Locating origin and destination</div>
+    </div>`;
+  window.scrollTo({top:0,behavior:'smooth'});
+
+  const origQ=[origCity,origState,origCountry!=='Other'?origCountry:''].filter(Boolean).join(', ');
+  const destQ=[destCity,destState,destCountry!=='Other'?destCountry:''].filter(Boolean).join(', ');
+  const[origGeo,destGeo]=await Promise.all([geocodePlace(origQ),geocodePlace(destQ)]);
+  if(!origGeo){showRTError('Could not locate: '+origCity+(origState?', '+origState:''));return;}
+  if(!destGeo){showRTError('Could not locate: '+destCity+(destState?', '+destState:''));return;}
+
+  const route=await getOSRMRoute(origGeo.lng,origGeo.lat,destGeo.lng,destGeo.lat);
+  if(!route){showRTError('Could not calculate route. Please try again.');return;}
+
+  const distKm=route.distance/1000, durMin=route.duration/60;
+  const fuelL=(distKm/100)*consumption, fuelCost=fuelL*fuelPrice;
+  const origShort=origCity+(origState?', '+origState:'');
+  const destShort=destCity+(destState?', '+destState:'');
+  const nearAnchor=venue?venue+', '+destCity:destShort;
+
+  const stopCount=Math.min(3,Math.floor(distKm/250));
+  const stops=[];
+  for(let i=1;i<=stopCount;i++){
+    const frac=i/(stopCount+1);
+    stops.push({
+      id:'rts-'+i,
+      lat:origGeo.lat+(destGeo.lat-origGeo.lat)*frac,
+      lng:origGeo.lng+(destGeo.lng-origGeo.lng)*frac,
+      kmMark:Math.round(distKm*frac),
+      showHotel:distKm>500&&(stopCount===1||i===Math.ceil(stopCount/2))
+    });
+  }
+
+  document.getElementById('rt-results-content').innerHTML=
+    buildRTHTML(origShort,destShort,distKm,durMin,fuelL,fuelCost,consumption,fuelPrice,stops,nearAnchor,destCity,venue);
+
+  for(const s of stops){
+    await rtSleep(1100);
+    const name=await reverseCity(s.lat,s.lng);
+    const el=document.getElementById(s.id+'-city');
+    if(el&&name) el.textContent='Near '+name;
+  }
+
+  if(venue){
+    await rtSleep(1100);
+    const addr=await lookupVenueAddress(venue,destCity,destState,destCountry);
+    const el=document.getElementById('rt-venue-addr-text');
+    if(el){
+      el.previousElementSibling.textContent=addr?'📌':'⚠️';
+      el.textContent=addr||'Address not found — try a more specific venue name';
+    }
+  }
+}
+
+function buildRTHTML(origShort,destShort,distKm,durMin,fuelL,fuelCost,consumption,fuelPrice,stops,nearAnchor,destCity,venue){
+  const hrs=Math.floor(durMin/60), mins=Math.round(durMin%60);
+  const time=hrs>0?`${hrs}h ${String(mins).padStart(2,'0')}min`:`${mins}min`;
+  let h='';
+
+  h+=`
+  <div class="route-sum">
+    <div class="rs-title">🚗 ${origShort} → ${destShort}</div>
+    <div class="rs-metrics">
+      <div class="rm"><div class="rm-val">${Math.round(distKm)} km</div><div class="rm-lbl">Total distance</div></div>
+      <div class="rm"><div class="rm-val">~${time}</div><div class="rm-lbl">Drive time</div></div>
+      <div class="rm"><div class="rm-val">${fuelL.toFixed(1)} L</div><div class="rm-lbl">Fuel (${consumption} L/100km)</div></div>
+      <div class="rm"><div class="rm-val">~$${fuelCost.toFixed(2)}</div><div class="rm-lbl">Cost @ $${fuelPrice.toFixed(2)}/L</div></div>
+    </div>
+  </div>`;
+
+  if(stops.length){
+    h+=`<div class="sec"><div class="sec-header"><span class="sec-icon">🛑</span><span class="sec-title">Stops Along the Route</span><span class="sec-count">${stops.length}</span></div>`;
+    stops.forEach(s=>{
+      const gmGas=`https://www.google.com/maps/search/gas+stations/@${s.lat.toFixed(5)},${s.lng.toFixed(5)},13z`;
+      const gmFood=`https://www.google.com/maps/search/restaurants/@${s.lat.toFixed(5)},${s.lng.toFixed(5)},14z`;
+      const gmHotel=`https://www.google.com/maps/search/hotels/@${s.lat.toFixed(5)},${s.lng.toFixed(5)},13z`;
+      const bkHotel=`https://www.booking.com/searchresults.html?latitude=${s.lat.toFixed(4)}&longitude=${s.lng.toFixed(4)}&radius=15`;
+      const htHotel=`https://www.hotels.com/search.do?q-destination=${encodeURIComponent('hotels near here')}`;
+      h+=`
+      <div class="stop-card">
+        <div class="stop-hdr">
+          <span class="stop-badge">km ${s.kmMark}</span>
+          <span class="stop-city" id="${s.id}-city">Locating…</span>
+          ${s.showHotel?'<span class="stop-badge" style="background:#f3e8ff;color:#6b21a8;border-color:#d8b4fe">🏨 Overnight stop</span>':''}
+        </div>
+        <div class="stop-body">
+          <a class="sl" href="${gmGas}" target="_blank"><span class="sl-ico">⛽</span><div><div class="sl-name">Gas Stations</div><div class="sl-sub">Google Maps</div></div></a>
+          <a class="sl" href="${gmFood}" target="_blank"><span class="sl-ico">🍔</span><div><div class="sl-name">Restaurants</div><div class="sl-sub">Google Maps</div></div></a>
+          ${s.showHotel?`
+          <a class="sl sl-hotel sl-wide" href="${gmHotel}" target="_blank"><span class="sl-ico">🗺️</span><div><div class="sl-name">Hotels on map</div><div class="sl-sub">Google Maps — overnight stop</div></div></a>
+          <a class="sl sl-hotel" href="${bkHotel}" target="_blank"><span class="sl-ico">🌐</span><div><div class="sl-name">Booking.com</div><div class="sl-sub">Reserve in advance</div></div></a>
+          <a class="sl sl-hotel" href="${htHotel}" target="_blank"><span class="sl-ico">🏨</span><div><div class="sl-name">Hotels.com</div><div class="sl-sub">Compare & book</div></div></a>`:''}
+        </div>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+
+  if(venue){
+    h+=`
+    <div class="event-box" style="margin-bottom:16px">
+      <div class="event-box-title">📍 Venue at Destination</div>
+      <div style="font-size:17px;font-weight:900;color:#4c1d95;margin-bottom:6px">${venue}</div>
+      <div style="display:flex;align-items:flex-start;gap:6px;font-size:13px;color:#6b21a8">
+        <span>🔍</span><span id="rt-venue-addr-text">Looking up address…</span>
+      </div>
+    </div>`;
+  }
+
+  const nearQ=encodeURIComponent(nearAnchor);
+  const gmPark=`https://www.google.com/maps/search/parking+near+${nearQ.replace(/%20/g,'+')}`;
+  h+=`
+  <div class="sec">
+    <div class="sec-header"><span class="sec-icon">🅿️</span><span class="sec-title">Parking in ${destCity}</span></div>
+    ${venue?`<div style="font-size:12px;color:var(--muted);margin:-6px 0 12px">📍 Near ${venue}</div>`:''}
+    <div class="park-direct">
+      <a class="pd-card" href="${gmPark}" target="_blank">
+        <span class="pd-ico">🗺️</span>
+        <div><div class="pd-name">Google Maps</div><div class="pd-desc">All parking near venue with prices & availability</div><span class="pd-tag pd-free">Free</span></div>
+      </a>
+      <a class="pd-card" href="https://spothero.com/search?q=${nearQ}" target="_blank">
+        <span class="pd-ico">🅿️</span>
+        <div><div class="pd-name">SpotHero</div><div class="pd-desc">Reserve ahead — up to 50% off drive-up rates</div><span class="pd-tag pd-pre">Pre-book</span></div>
+      </a>
+      <a class="pd-card" href="https://www.parkwhiz.com/search/?q=${nearQ}" target="_blank">
+        <span class="pd-ico">🚗</span>
+        <div><div class="pd-name">ParkWhiz</div><div class="pd-desc">Compare garages & lots, book in advance</div><span class="pd-tag pd-pre">Pre-book</span></div>
+      </a>
+      <a class="pd-card" href="https://en.parkme.com/lot/search?q=${nearQ}" target="_blank">
+        <span class="pd-ico">📱</span>
+        <div><div class="pd-name">ParkMe</div><div class="pd-desc">Real-time availability & price comparison</div><span class="pd-tag pd-live">Real-time</span></div>
+      </a>
+    </div>
+  </div>
+  <button class="btn-reset" onclick="resetRT()">← New Route</button>`;
+  return h;
+}
+
+function resetRT(){
+  document.getElementById('rt-results-section').classList.add('hidden');
+  document.getElementById('rt-form-section').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
 // ── HELPERS ──────────────────────────────────────────────────────────────────
 function qs(str){ return encodeURIComponent(str); }
 function qsMaps(str){ return encodeURIComponent(str).replace(/%20/g, '+'); }
@@ -705,6 +1053,7 @@ function resetForm(){
   document.getElementById('f-checkin').value  = today;
   document.getElementById('f-checkout').value = tomorrow;
   calcDays();
+  switchTab('rt');
 })();
 </script>
 </body>
