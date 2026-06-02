@@ -143,11 +143,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 .stop-badge{font-size:10px;font-weight:700;color:var(--teal2);background:#fff;border:1px solid var(--teal3);border-radius:8px;padding:3px 8px;white-space:nowrap;flex-shrink:0}
 .stop-city{font-size:13px;font-weight:700;color:var(--text);flex:1}
 .stop-body{padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.sl{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1.5px solid #e2e8f0;text-decoration:none;transition:all .15s}
-.sl:hover{border-color:var(--teal);background:#f0f9ff}
+.sl{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1.5px solid #e2e8f0;text-decoration:none;transition:all .15s;cursor:pointer}
+.sl:hover,.sl:active{border-color:var(--teal);background:#f0f9ff}
+.sl:active{opacity:.75}
 .sl.sl-hotel{border-color:#d8b4fe;background:#faf5ff}
-.sl.sl-hotel:hover{border-color:#9333ea}
+.sl.sl-hotel:hover,.sl.sl-hotel:active{border-color:#9333ea}
 .sl.sl-wide{grid-column:span 2}
+.pd-card:active{opacity:.75}
 .sl-ico{font-size:20px;flex-shrink:0}
 .sl-name{font-size:12px;font-weight:800;color:var(--text)}
 .sl-sub{font-size:10px;color:var(--muted);margin-top:1px}
@@ -613,12 +615,12 @@ function buildRTHTML(origShort,destShort,distKm,durMin,fuelL,fuelCost,consumptio
           ${s.showHotel?'<span class="stop-badge" style="background:#f3e8ff;color:#6b21a8;border-color:#d8b4fe">🏨 Overnight stop</span>':''}
         </div>
         <div class="stop-body">
-          <a class="sl" href="${gmGas}" target="_blank"><span class="sl-ico">⛽</span><div><div class="sl-name">Gas Stations</div><div class="sl-sub">Google Maps</div></div></a>
-          <a class="sl" href="${gmFood}" target="_blank"><span class="sl-ico">🍔</span><div><div class="sl-name">Restaurants</div><div class="sl-sub">Google Maps</div></div></a>
+          <div class="sl" onclick="window.open('${gmGas}','_blank')"><span class="sl-ico">⛽</span><div><div class="sl-name">Gas Stations</div><div class="sl-sub">Google Maps</div></div></div>
+          <div class="sl" onclick="window.open('${gmFood}','_blank')"><span class="sl-ico">🍔</span><div><div class="sl-name">Restaurants</div><div class="sl-sub">Google Maps</div></div></div>
           ${s.showHotel?`
-          <a class="sl sl-hotel sl-wide" href="${gmHotel}" target="_blank"><span class="sl-ico">🗺️</span><div><div class="sl-name">Hotels on map</div><div class="sl-sub">Google Maps — overnight stop</div></div></a>
-          <a class="sl sl-hotel" href="${bkHotel}" target="_blank"><span class="sl-ico">🌐</span><div><div class="sl-name">Booking.com</div><div class="sl-sub">Reserve in advance</div></div></a>
-          <a class="sl sl-hotel" href="${htHotel}" target="_blank"><span class="sl-ico">🏨</span><div><div class="sl-name">Hotels.com</div><div class="sl-sub">Compare & book</div></div></a>`:''}
+          <div class="sl sl-hotel sl-wide" onclick="window.open('${gmHotel}','_blank')"><span class="sl-ico">🗺️</span><div><div class="sl-name">Hotels on map</div><div class="sl-sub">Google Maps — overnight stop</div></div></div>
+          <div class="sl sl-hotel" onclick="window.open('${bkHotel}','_blank')"><span class="sl-ico">🌐</span><div><div class="sl-name">Booking.com</div><div class="sl-sub">Reserve in advance</div></div></div>
+          <div class="sl sl-hotel" onclick="window.open('${htHotel}','_blank')"><span class="sl-ico">🏨</span><div><div class="sl-name">Hotels.com</div><div class="sl-sub">Compare & book</div></div></div>`:''}
         </div>
       </div>`;
     });
@@ -643,22 +645,22 @@ function buildRTHTML(origShort,destShort,distKm,durMin,fuelL,fuelCost,consumptio
     <div class="sec-header"><span class="sec-icon">🅿️</span><span class="sec-title">Parking in ${destCity}</span></div>
     ${venue?`<div style="font-size:12px;color:var(--muted);margin:-6px 0 12px">📍 Near ${venue}</div>`:''}
     <div class="park-direct">
-      <a class="pd-card" href="${gmPark}" target="_blank">
+      <div class="pd-card" onclick="window.open('${gmPark}','_blank')">
         <span class="pd-ico">🗺️</span>
         <div><div class="pd-name">Google Maps</div><div class="pd-desc">All parking near venue with prices & availability</div><span class="pd-tag pd-free">Free</span></div>
-      </a>
-      <a class="pd-card" href="https://spothero.com/search?q=${nearQ}" target="_blank">
+      </div>
+      <div class="pd-card" onclick="window.open('https://spothero.com/search?q=${nearQ}','_blank')">
         <span class="pd-ico">🅿️</span>
         <div><div class="pd-name">SpotHero</div><div class="pd-desc">Reserve ahead — up to 50% off drive-up rates</div><span class="pd-tag pd-pre">Pre-book</span></div>
-      </a>
-      <a class="pd-card" href="https://www.parkwhiz.com/search/?q=${nearQ}" target="_blank">
+      </div>
+      <div class="pd-card" onclick="window.open('https://www.parkwhiz.com/search/?q=${nearQ}','_blank')">
         <span class="pd-ico">🚗</span>
         <div><div class="pd-name">ParkWhiz</div><div class="pd-desc">Compare garages & lots, book in advance</div><span class="pd-tag pd-pre">Pre-book</span></div>
-      </a>
-      <a class="pd-card" href="https://en.parkme.com/lot/search?q=${nearQ}" target="_blank">
+      </div>
+      <div class="pd-card" onclick="window.open('https://en.parkme.com/lot/search?q=${nearQ}','_blank')">
         <span class="pd-ico">📱</span>
         <div><div class="pd-name">ParkMe</div><div class="pd-desc">Real-time availability & price comparison</div><span class="pd-tag pd-live">Real-time</span></div>
-      </a>
+      </div>
     </div>
   </div>
   <button class="btn-reset" onclick="resetRT()">← New Route</button>`;
