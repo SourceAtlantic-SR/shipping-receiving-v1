@@ -217,6 +217,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 /* ── RT SPINNER ── */
 @keyframes rtSpin{to{transform:rotate(360deg)}}
 .rt-spin{display:inline-block;animation:rtSpin 1s linear infinite}
+
+/* ── REAL EXPENSES ── */
+.exp-box{background:#fff;border-radius:16px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:16px;overflow:hidden}
+.exp-header{background:linear-gradient(90deg,#f0fdf4,#dcfce7);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #bbf7d0}
+.exp-title{font-size:15px;font-weight:900;color:#166534}
+.exp-period{font-size:11px;color:#16a34a;margin-top:2px}
+.exp-add-btn{background:#16a34a;color:#fff;border:none;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;transition:background .15s;white-space:nowrap}
+.exp-add-btn:hover{background:#15803d}
+.exp-form{padding:14px 16px;background:#f0fdf4;border-bottom:1px solid #bbf7d0}
+.exp-cats{padding:12px 16px;display:flex;flex-direction:column;gap:6px}
+.exp-cat-row{display:grid;grid-template-columns:22px 1fr auto auto auto;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--border)}
+.exp-cat-row:last-child{border-bottom:none}
+.exp-cat-ico{font-size:18px}
+.exp-cat-lbl{font-size:13px;font-weight:700;color:var(--text)}
+.exp-cat-est{font-size:10px;color:var(--muted)}
+.exp-cat-real{font-size:14px;font-weight:900;color:var(--text);text-align:right}
+.exp-cat-diff{font-size:10px;font-weight:700;text-align:right}
+.exp-total-row{display:flex;align-items:center;gap:8px;padding:12px 16px;background:#f8fafc;border-top:2px solid var(--border);font-size:13px;font-weight:700;color:var(--text)}
+.exp-total-row>span:first-child{flex:1}
+.exp-entries{padding:0 16px 12px}
+.exp-entry{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--border)}
+.exp-entry:last-child{border-bottom:none}
+.exp-entry-ico{font-size:20px;flex-shrink:0}
+.exp-entry-body{flex:1;min-width:0}
+.exp-entry-top{display:flex;align-items:center;gap:6px}
+.exp-entry-cat{font-size:12px;font-weight:700;color:var(--text)}
+.exp-entry-date{font-size:10px;color:var(--muted)}
+.exp-entry-desc{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exp-entry-amt{font-size:14px;font-weight:900;color:var(--text);flex-shrink:0}
+.exp-del-btn{background:none;border:none;font-size:16px;cursor:pointer;opacity:.45;padding:4px;flex-shrink:0}
+.exp-del-btn:hover{opacity:1}
 </style>
 </head>
 <body>
@@ -751,7 +782,7 @@ async function calculateRoute(){
     origShort,destShort,distKm,durMin,fuelL,fuelCost,consumption,fuelPrice,
     stops,nearAnchor,destCity,destState,destCountry,venue,
     travelers,roundTrip,selectedTier:null,hotelCost:0,
-    midLat,midLng,mealRate:18,editOpen:false
+    midLat,midLng,mealRate:18,editOpen:false,expFormOpen:false
   };
 
   document.getElementById('rt-results-content').innerHTML=buildRTHTML(_rtData);
@@ -855,6 +886,150 @@ function applyRTEdits(){
   document.getElementById('rt-cost-box').innerHTML=costBoxContent(_rtData);
 }
 
+// ── REAL EXPENSES ────────────────────────────────────────────────────────────
+const EXPENSE_KEY='trip_expenses';
+
+function getExpenses(){
+  try{return JSON.parse(localStorage.getItem(EXPENSE_KEY)||'[]');}catch(e){return[];}
+}
+function saveExpenses(arr){localStorage.setItem(EXPENSE_KEY,JSON.stringify(arr));}
+
+function submitExpenseForm(){
+  const date=document.getElementById('exp-date').value;
+  const cat=document.getElementById('exp-cat').value;
+  const amt=parseFloat(document.getElementById('exp-amount').value);
+  const desc=(document.getElementById('exp-desc').value||'').trim();
+  if(!date||!amt||amt<=0){alert('Preencha data e valor.');return;}
+  const arr=getExpenses();
+  arr.push({id:Date.now().toString(36),date,cat,amount:amt,desc});
+  saveExpenses(arr);
+  if(_rtData) _rtData.expFormOpen=false;
+  refreshExpenses();
+}
+
+function deleteExpense(id){
+  saveExpenses(getExpenses().filter(function(e){return e.id!==id;}));
+  refreshExpenses();
+}
+
+function toggleExpForm(){
+  if(!_rtData) return;
+  _rtData.expFormOpen=!_rtData.expFormOpen;
+  refreshExpenses();
+}
+
+function refreshExpenses(){
+  const el=document.getElementById('rt-expenses-section');
+  if(el) el.innerHTML=buildExpensesHTML(_rtData);
+}
+
+function buildExpensesHTML(d){
+  const ci=document.getElementById('f-checkin').value;
+  const co=document.getElementById('f-checkout').value;
+  let all=getExpenses();
+  const filtered=ci&&co?all.filter(function(e){return e.date>=ci&&e.date<=co;}):all;
+
+  const totals={gasolina:0,hotel:0,alimentacao:0,outros:0};
+  filtered.forEach(function(e){if(totals[e.cat]!==undefined)totals[e.cat]+=e.amount;});
+  const grandTotal=Object.values(totals).reduce(function(a,b){return a+b;},0);
+
+  const mealRate=(d&&d.mealRate)||18;
+  const stops=(d&&d.stops)?d.stops.length:0;
+  const travelers=(d&&d.travelers)||1;
+  const rooms=Math.ceil(travelers/2);
+  const hotelCost=(d&&d.hotelCost)||0;
+  const estGas=(d&&d.fuelCost)||0;
+  const estFood=stops*mealRate*travelers;
+  const estHotel=hotelCost*rooms;
+  const estTotal=estGas+estFood+estHotel;
+
+  const CATS={
+    gasolina:{ico:'⛽',label:'Gasolina',est:estGas},
+    hotel:{ico:'🏨',label:'Hotel',est:estHotel},
+    alimentacao:{ico:'🍔',label:'Alimentação',est:estFood},
+    outros:{ico:'📦',label:'Outros',est:0}
+  };
+
+  let catRows='';
+  Object.keys(CATS).forEach(function(cat){
+    const info=CATS[cat];
+    const real=totals[cat];
+    const diff=real-info.est;
+    const hasDiff=info.est>0||real>0;
+    catRows+=
+      '<div class="exp-cat-row">'+
+      '<span class="exp-cat-ico">'+info.ico+'</span>'+
+      '<span class="exp-cat-lbl">'+info.label+'</span>'+
+      '<span class="exp-cat-est">'+(info.est>0?'est $'+info.est.toFixed(2):'')+'</span>'+
+      '<span class="exp-cat-real">$'+real.toFixed(2)+'</span>'+
+      (hasDiff&&diff!==0?'<span class="exp-cat-diff" style="color:'+(diff>0?'#dc2626':'#16a34a')+'">'+
+        (diff>0?'▲':'▼')+' $'+Math.abs(diff).toFixed(2)+'</span>':'<span></span>')+
+      '</div>';
+  });
+
+  const entryList=filtered.length===0
+    ?'<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--muted)">'+
+      'Nenhum gasto registrado'+(ci&&co?' neste período':'')+'.</div>'
+    :filtered.slice().sort(function(a,b){return b.date.localeCompare(a.date);}).map(function(e){
+      const info=CATS[e.cat]||{ico:'📦',label:'Outros'};
+      return '<div class="exp-entry">'+
+        '<span class="exp-entry-ico">'+info.ico+'</span>'+
+        '<div class="exp-entry-body">'+
+        '<div class="exp-entry-top"><span class="exp-entry-cat">'+info.label+'</span>'+
+        '<span class="exp-entry-date">'+e.date+'</span></div>'+
+        (e.desc?'<div class="exp-entry-desc">'+e.desc+'</div>':'')+
+        '</div>'+
+        '<span class="exp-entry-amt">$'+e.amount.toFixed(2)+'</span>'+
+        '<button class="exp-del-btn" onclick="deleteExpense(\''+e.id+'\')">🗑</button>'+
+        '</div>';
+    }).join('');
+
+  const today=new Date().toISOString().slice(0,10);
+  const formHtml=(d&&d.expFormOpen)?
+    '<div class="exp-form">'+
+    '<div class="field-row" style="margin-bottom:8px">'+
+    '<div class="field" style="margin:0"><label style="font-size:11px">Data</label>'+
+    '<input type="date" id="exp-date" value="'+(ci||today)+'"></div>'+
+    '<div class="field" style="margin:0"><label style="font-size:11px">Categoria</label>'+
+    '<select id="exp-cat">'+
+    '<option value="gasolina">⛽ Gasolina</option>'+
+    '<option value="hotel">🏨 Hotel</option>'+
+    '<option value="alimentacao">🍔 Alimentação</option>'+
+    '<option value="outros">📦 Outros</option>'+
+    '</select></div></div>'+
+    '<div class="field-row" style="margin-bottom:10px">'+
+    '<div class="field" style="margin:0"><label style="font-size:11px">Valor ($)</label>'+
+    '<input type="number" id="exp-amount" placeholder="0.00" min="0" step="0.01" inputmode="decimal"></div>'+
+    '<div class="field" style="margin:0"><label style="font-size:11px">Descrição (opcional)</label>'+
+    '<input type="text" id="exp-desc" placeholder="ex: Shell, Restaurante..." autocorrect="off" autocapitalize="sentences"></div></div>'+
+    '<div style="display:flex;gap:8px">'+
+    '<button class="btn-plan" style="margin:0;flex:1;padding:12px;font-size:14px" onclick="submitExpenseForm()">💾 Salvar</button>'+
+    '<button class="btn-clear" style="margin:0;padding:12px 16px;font-size:14px" onclick="toggleExpForm()">✕</button>'+
+    '</div></div>'
+    :'';
+
+  const dateLabel=ci&&co?ci+' → '+co:'Todos os períodos';
+  const diffTotal=grandTotal-estTotal;
+
+  return '<div class="exp-box">'+
+    '<div class="exp-header">'+
+    '<div><div class="exp-title">📋 Gastos Reais da Viagem</div>'+
+    '<div class="exp-period">📅 '+dateLabel+'</div></div>'+
+    '<button class="exp-add-btn" onclick="toggleExpForm()">'+(d&&d.expFormOpen?'✕ Cancelar':'➕ Adicionar')+'</button>'+
+    '</div>'+
+    formHtml+
+    '<div class="exp-cats">'+catRows+'</div>'+
+    '<div class="exp-total-row">'+
+    '<span>💰 Total real</span>'+
+    '<span style="font-size:17px">$'+grandTotal.toFixed(2)+'</span>'+
+    (estTotal>0?'<span style="font-size:11px;color:'+(diffTotal>0?'#dc2626':diffTotal<0?'#16a34a':'var(--muted)')+'">'+
+      (diffTotal>0?'▲ $'+diffTotal.toFixed(2)+' acima do est.':(diffTotal<0?'▼ $'+Math.abs(diffTotal).toFixed(2)+' abaixo do est.':'Dentro do estimado'))+
+      '</span>':'')+
+    '</div>'+
+    '<div class="exp-entries">'+entryList+'</div>'+
+    '</div>';
+}
+
 // ── BUILD RT HTML ─────────────────────────────────────────────────────────────
 function buildRTHTML(d){
   const hrs=Math.floor(d.durMin/60), mins=Math.round(d.durMin%60);
@@ -908,6 +1083,8 @@ function buildRTHTML(d){
 
   h+='<div style="background:#e0f2fe;border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--teal2)">'+
     '💡 Para ver estacionamento e detalhes do local, acesse a aba <strong>🏙️ Local Trip</strong></div>';
+
+  h+='<div id="rt-expenses-section">'+buildExpensesHTML(d)+'</div>';
 
   h+='<button class="btn-reset" onclick="resetRT()">← Edit Route</button>';
   return h;
