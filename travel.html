@@ -754,7 +754,7 @@ async function calculateRoute(){
 
 // ── COST BOX ──────────────────────────────────────────────────────────────────
 function costBoxContent(d){
-  const foodCost=d.stops.length*13*d.travelers;
+  const foodCost=d.stops.length*18*d.travelers;
   const rooms=Math.ceil(d.travelers/2);
   const hotelTotal=d.hotelCost*rooms;
   const totalOW=d.fuelCost+foodCost+hotelTotal;
@@ -800,7 +800,7 @@ function costBoxContent(d){
     '<div class="cost-total-item"><div class="cti-lbl">Só ida</div><div class="cti-val">$'+totalOW.toFixed(2)+'</div></div>'+
     '<div class="cost-total-item rt-total"><div class="cti-lbl">🔄 Ida e volta</div><div class="cti-val">$'+totalRT.toFixed(2)+'</div></div>'+
     '</div>'+
-    '<div class="cost-note">* Estimativas. Alimentação: fast food ~$13/pessoa/parada. Hotel: 1 quarto para 2 pessoas.</div>';
+    '<div class="cost-note">* Estimativas. Alimentação: fast food ~$18/pessoa/parada. Hotel: 1 quarto para 2 pessoas.</div>';
 }
 
 function selectHotelTier(tier, cost){
@@ -842,7 +842,7 @@ function buildRTHTML(d){
       const gmTH='https://www.google.com/maps/search/Tim+Hortons/@'+lat5+','+lng5+',14z';
       const gmSub='https://www.google.com/maps/search/Subway+restaurant/@'+lat5+','+lng5+',14z';
       const gmRest='https://www.google.com/maps/search/restaurants/@'+lat5+','+lng5+',14z';
-      const ffEst=(13*d.travelers);
+      const ffEst=(18*d.travelers);
       const restEst=(25*d.travelers);
       h+=
         '<div class="stop-card">'+
