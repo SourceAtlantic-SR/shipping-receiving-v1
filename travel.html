@@ -6,6 +6,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Trip Planner">
+<meta name="theme-color" content="#0891b2">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.svg">
 <title>Trip Planner</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -37,7 +41,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 .form-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--teal);margin-bottom:12px}
 .field{margin-bottom:14px}
 .field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;letter-spacing:.3px}
-.field input,.field select,.field textarea{width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:15px;font-family:inherit;color:var(--text);background:#fff;outline:none;transition:border-color .15s}
+.field input,.field select,.field textarea{width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:16px;font-family:inherit;color:var(--text);background:#fff;outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none}
 .field input:focus,.field select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(8,145,178,.1)}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .field-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
@@ -227,11 +231,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
         <div class="field">
           <label>City</label>
           <input type="text" id="rt-origin-city" placeholder="e.g. Saint John" autocomplete="off"
+            autocorrect="off" autocapitalize="words" inputmode="text"
             onblur="autofillProvince('rt-origin-city','rt-origin-state','rt-origin-country')">
         </div>
         <div class="field">
           <label>Province / State</label>
-          <input type="text" id="rt-origin-state" placeholder="e.g. NB" autocomplete="off">
+          <input type="text" id="rt-origin-state" placeholder="e.g. NB" autocomplete="off"
+            autocorrect="off" autocapitalize="characters" inputmode="text">
         </div>
       </div>
       <div class="field">
@@ -253,11 +259,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
         <div class="field">
           <label>City</label>
           <input type="text" id="rt-dest-city" placeholder="e.g. Quebec City" autocomplete="off"
+            autocorrect="off" autocapitalize="words" inputmode="text"
             onblur="autofillProvince('rt-dest-city','rt-dest-state','rt-dest-country')">
         </div>
         <div class="field">
           <label>Province / State</label>
-          <input type="text" id="rt-dest-state" placeholder="e.g. QC" autocomplete="off">
+          <input type="text" id="rt-dest-state" placeholder="e.g. QC" autocomplete="off"
+            autocorrect="off" autocapitalize="characters" inputmode="text">
         </div>
       </div>
       <div class="field">
@@ -271,7 +279,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
       </div>
       <div class="field">
         <label>Venue / Event <span style="color:var(--muted);font-weight:400">(optional — for parking & address)</span></label>
-        <input type="text" id="rt-venue" placeholder="e.g. Rogers Centre · Bell Centre · Scotia Arena" autocomplete="off">
+        <input type="text" id="rt-venue" placeholder="e.g. Rogers Centre · Bell Centre · Scotia Arena" autocomplete="off"
+          autocorrect="off" autocapitalize="words" inputmode="text">
       </div>
     </div>
 
@@ -283,7 +292,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
         <div class="field">
           <label>Fuel Efficiency</label>
           <div style="display:flex;align-items:center;gap:6px">
-            <input type="number" id="rt-consumption" value="10.0" min="2" max="40" step="0.5" style="flex:1">
+            <input type="number" id="rt-consumption" value="10.0" min="2" max="40" step="0.5" style="flex:1" inputmode="decimal">
             <span style="font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap">L/100km</span>
           </div>
         </div>
@@ -291,7 +300,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
           <label>Fuel Price</label>
           <div style="display:flex;align-items:center;gap:6px">
             <span style="font-size:13px;font-weight:700;color:var(--muted)">$</span>
-            <input type="number" id="rt-fuelprice" value="1.65" min="0.50" max="5.00" step="0.01" style="flex:1">
+            <input type="number" id="rt-fuelprice" value="1.65" min="0.50" max="5.00" step="0.01" style="flex:1" inputmode="decimal">
             <span style="font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap">/ litre</span>
           </div>
         </div>
@@ -331,12 +340,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
       <div class="field">
         <label>City</label>
         <input type="text" id="f-city" placeholder="e.g. Toronto" autocomplete="off"
+          autocorrect="off" autocapitalize="words" inputmode="text"
           onblur="autofillProvince('f-city','f-state','f-country')">
       </div>
       <div class="field-row">
         <div class="field">
           <label>Province / State</label>
-          <input type="text" id="f-state" placeholder="e.g. Ontario">
+          <input type="text" id="f-state" placeholder="e.g. Ontario" autocorrect="off" autocapitalize="characters" inputmode="text">
         </div>
         <div class="field">
           <label>Country</label>
@@ -353,7 +363,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
       </div>
       <div class="field">
         <label>Venue / Specific Area <span style="color:var(--muted);font-weight:400">(optional — hotels, food & parking will be shown near here)</span></label>
-        <input type="text" id="f-venue" placeholder="e.g. Rogers Centre · Air Canada Centre · Downtown Core" autocomplete="off">
+        <input type="text" id="f-venue" placeholder="e.g. Rogers Centre · Air Canada Centre · Downtown Core" autocomplete="off"
+          autocorrect="off" autocapitalize="words" inputmode="text">
       </div>
     </div>
 
@@ -1199,6 +1210,26 @@ function resetForm(){
   document.getElementById('f-checkout').value=tomorrow;
   calcDays();
   switchTab('rt');
+
+  // Register service worker for offline / PWA
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('./sw.js').catch(function(){});
+  }
+
+  // Show "Add to Home Screen" hint on iOS Safari (not standalone, not dismissed)
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = ('standalone' in navigator) && navigator.standalone;
+  const dismissed = sessionStorage.getItem('iosHintDismissed');
+  if(isIOS && !isStandalone && !dismissed){
+    const hint = document.createElement('div');
+    hint.id = 'ios-hint';
+    hint.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#0c4a6e;color:#fff;padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:10px;font-family:inherit;box-shadow:0 -4px 20px rgba(0,0,0,.3)';
+    hint.innerHTML =
+      '<span style="font-size:26px;flex-shrink:0">📲</span>'+
+      '<div style="flex:1;font-size:13px;line-height:1.4"><strong>Instalar no iPhone</strong><br>Toque em <strong>Compartilhar</strong> ⬆️ depois <strong>"Adicionar à Tela de Início"</strong></div>'+
+      '<button onclick="sessionStorage.setItem(\'iosHintDismissed\',\'1\');this.closest(\'#ios-hint\').remove()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:20px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0">✕</button>';
+    document.body.appendChild(hint);
+  }
 })();
 </script>
 </body>
