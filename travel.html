@@ -201,6 +201,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
 .pd-free{background:#dcfce7;color:#166534}
 .pd-live{background:#fef9c3;color:#854d0e}
 
+/* ── COST EDIT PANEL ── */
+.cost-edit-btn{background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.35);color:#fff;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;float:right;transition:background .15s}
+.cost-edit-btn:hover{background:rgba(255,255,255,.28)}
+.cost-edit-panel{background:rgba(0,0,0,.2);border-radius:12px;padding:14px;margin-bottom:12px}
+.cost-edit-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.7);margin-bottom:10px}
+.cost-edit-row{margin-bottom:10px}
+.cost-edit-row label{display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,.75);margin-bottom:4px}
+.cost-edit-row input{width:100%;padding:9px 12px;border:1.5px solid rgba(255,255,255,.3);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:16px;font-family:inherit;outline:none}
+.cost-edit-row input::placeholder{color:rgba(255,255,255,.4)}
+.cost-edit-row input:focus{border-color:rgba(255,255,255,.7);background:rgba(255,255,255,.22)}
+.cost-apply-btn{width:100%;padding:11px;background:#fff;color:#059669;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .15s}
+.cost-apply-btn:hover{background:#f0fdf4}
+
 /* ── RT SPINNER ── */
 @keyframes rtSpin{to{transform:rotate(360deg)}}
 .rt-spin{display:inline-block;animation:rtSpin 1s linear infinite}
@@ -738,7 +751,7 @@ async function calculateRoute(){
     origShort,destShort,distKm,durMin,fuelL,fuelCost,consumption,fuelPrice,
     stops,nearAnchor,destCity,destState,destCountry,venue,
     travelers,roundTrip,selectedTier:null,hotelCost:0,
-    midLat,midLng
+    midLat,midLng,mealRate:18,editOpen:false
   };
 
   document.getElementById('rt-results-content').innerHTML=buildRTHTML(_rtData);
@@ -754,7 +767,8 @@ async function calculateRoute(){
 
 // ── COST BOX ──────────────────────────────────────────────────────────────────
 function costBoxContent(d){
-  const foodCost=d.stops.length*18*d.travelers;
+  const mealRate=d.mealRate||18;
+  const foodCost=d.stops.length*mealRate*d.travelers;
   const rooms=Math.ceil(d.travelers/2);
   const hotelTotal=d.hotelCost*rooms;
   const totalOW=d.fuelCost+foodCost+hotelTotal;
@@ -789,10 +803,22 @@ function costBoxContent(d){
       '</div>';
   }
 
-  return '<div class="cost-box-title">💰 Custo Estimado da Viagem — '+ppl+'</div>'+
+  const editPanel=d.editOpen
+    ? '<div class="cost-edit-panel">'+
+      '<div class="cost-edit-title">✏️ Atualizar valores reais</div>'+
+      '<div class="cost-edit-row"><label>⛽ Combustível ($/L)</label>'+
+      '<input type="number" id="rt-edit-fuel" value="'+d.fuelPrice.toFixed(2)+'" min="0.50" max="5.00" step="0.01" inputmode="decimal" placeholder="ex: 1.75"></div>'+
+      '<div class="cost-edit-row"><label>🍔 Refeição média ($/pessoa/parada)</label>'+
+      '<input type="number" id="rt-edit-meal" value="'+mealRate+'" min="5" max="300" step="1" inputmode="decimal" placeholder="ex: 25"></div>'+
+      '<button class="cost-apply-btn" onclick="applyRTEdits()">✓ Aplicar e recalcular</button>'+
+      '</div>'
+    : '';
+
+  return '<div class="cost-box-title">💰 Custo Estimado — '+ppl+'<button class="cost-edit-btn" onclick="toggleRTEdit()">'+(d.editOpen?'✕ Fechar':'✏️ Editar')+'</button></div>'+
+    editPanel+
     '<div class="cost-rows">'+
-    '<div class="cost-row"><span class="cost-row-label">⛽ Combustível ('+d.fuelL.toFixed(1)+' L)</span><span class="cost-row-val">$'+d.fuelCost.toFixed(2)+'</span></div>'+
-    '<div class="cost-row"><span class="cost-row-label">🍔 Alimentação ('+d.stops.length+' paradas × '+ppl+')</span><span class="cost-row-val">~$'+foodCost.toFixed(2)+'</span></div>'+
+    '<div class="cost-row"><span class="cost-row-label">⛽ Combustível ('+d.fuelL.toFixed(1)+' L @ $'+d.fuelPrice.toFixed(2)+'/L)</span><span class="cost-row-val">$'+d.fuelCost.toFixed(2)+'</span></div>'+
+    '<div class="cost-row"><span class="cost-row-label">🍔 Alimentação ('+d.stops.length+' paradas × $'+mealRate+'/pp × '+d.travelers+(d.travelers===1?' pessoa':' pessoas')+')</span><span class="cost-row-val">~$'+foodCost.toFixed(2)+'</span></div>'+
     (hotelTotal>0?'<div class="cost-row"><span class="cost-row-label">🏨 Hotel ('+rmLabel+')</span><span class="cost-row-val">$'+hotelTotal.toFixed(2)+'</span></div>':'')+
     '</div>'+
     hotelHtml+
@@ -810,6 +836,22 @@ function selectHotelTier(tier, cost){
   } else {
     _rtData.selectedTier=tier; _rtData.hotelCost=cost;
   }
+  document.getElementById('rt-cost-box').innerHTML=costBoxContent(_rtData);
+}
+
+function toggleRTEdit(){
+  if(!_rtData) return;
+  _rtData.editOpen=!_rtData.editOpen;
+  document.getElementById('rt-cost-box').innerHTML=costBoxContent(_rtData);
+}
+
+function applyRTEdits(){
+  if(!_rtData) return;
+  const newFuel=parseFloat(document.getElementById('rt-edit-fuel').value);
+  const newMeal=parseFloat(document.getElementById('rt-edit-meal').value);
+  if(!isNaN(newFuel)&&newFuel>0){ _rtData.fuelPrice=newFuel; _rtData.fuelCost=_rtData.fuelL*newFuel; }
+  if(!isNaN(newMeal)&&newMeal>0){ _rtData.mealRate=newMeal; }
+  _rtData.editOpen=false;
   document.getElementById('rt-cost-box').innerHTML=costBoxContent(_rtData);
 }
 
