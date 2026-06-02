@@ -157,6 +157,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif}
           </select>
         </div>
       </div>
+      <div class="field">
+        <label>Venue / Specific Area <span style="color:var(--muted);font-weight:400">(optional — hotels, food & parking will be shown near here)</span></label>
+        <input type="text" id="f-venue" placeholder="e.g. Rogers Centre · Air Canada Centre · Downtown Core" autocomplete="off">
+      </div>
     </div>
 
     <div class="divider" style="margin:14px 0 0"></div>
@@ -360,6 +364,7 @@ function planTrip(){
   const city    = document.getElementById('f-city').value.trim();
   const state   = document.getElementById('f-state').value.trim();
   const country = document.getElementById('f-country').value;
+  const venue   = document.getElementById('f-venue').value.trim();
   const checkin = document.getElementById('f-checkin').value;
   const checkout= document.getElementById('f-checkout').value;
   const purpose = document.getElementById('f-purpose').value;
@@ -376,6 +381,9 @@ function planTrip(){
   const locShort= city + (state ? ', '+state : '');
   const nights  = Math.round((new Date(checkout)-new Date(checkin))/86400000);
 
+  // Proximity anchor: if venue given, use "Venue, City" so all searches are near the venue
+  const nearAnchor = venue ? venue + ', ' + city : locShort;
+
   // ── SUMMARY ──
   const purposeLabels = {
     leisure:'🌴 Leisure',business:'💼 Business',concert:'🎵 Concert',
@@ -385,6 +393,7 @@ function planTrip(){
   document.getElementById('trip-summary').innerHTML = `
     <div class="ts-left">
       <div class="ts-dest">📍 ${locShort}</div>
+      ${venue ? `<div style="font-size:13px;color:rgba(255,255,255,.85);margin-top:2px;font-weight:700">🏟️ ${venue}</div>` : ''}
       <div class="ts-dates">${fmtDate(checkin)} → ${fmtDate(checkout)} &nbsp;·&nbsp; ${purposeLabels[purpose]||'Trip'}</div>
     </div>
     <div class="ts-right">
@@ -402,11 +411,11 @@ function planTrip(){
   } else { evtBox.classList.add('hidden'); }
 
   // ── HOTELS ──
-  const hotelCards = buildHotelCards(loc, locShort, city, state, country, checkin, checkout, nights, budget);
+  const hotelCards = buildHotelCards(loc, locShort, nearAnchor, city, state, country, checkin, checkout, nights, budget);
   document.getElementById('hotel-links').innerHTML = hotelCards;
 
   // ── FOOD ──
-  const foodCards = buildFoodCards(foods, city, state, locShort);
+  const foodCards = buildFoodCards(foods, city, state, locShort, nearAnchor);
   document.getElementById('food-links').innerHTML = foodCards;
   document.getElementById('dining-sec').style.display = foods.length ? '' : 'none';
 
@@ -415,7 +424,7 @@ function planTrip(){
   document.getElementById('event-links').innerHTML = eventCards;
 
   // ── PARKING ──
-  const parkCards = buildParkingCards(city, state, locShort);
+  const parkCards = buildParkingCards(city, state, locShort, nearAnchor);
   document.getElementById('parking-links').innerHTML = parkCards;
 
   // ── SHOW RESULTS ──
@@ -425,59 +434,61 @@ function planTrip(){
 }
 
 // ── HOTEL CARDS ───────────────────────────────────────────────────────────────
-function buildHotelCards(loc, locShort, city, state, country, ci, co, nights, budget){
-  const locQ = qs(loc);
+function buildHotelCards(loc, locShort, nearAnchor, city, state, country, ci, co, nights, budget){
+  const nearQ    = qs(nearAnchor);
+  const nearMaps = qsMaps(nearAnchor);
+  const locQ     = qs(loc);
   const expDateCI = expediaDate(ci);
   const expDateCO = expediaDate(co);
-  const airbnbCity = qs(locShort);
-  const mapsLoc = qsMaps(loc);
+  const airbnbCity = qs(nearAnchor);
+  const mapsLoc = qsMaps(nearAnchor);
 
   let cards = [];
 
   if(budget === 'budget'){
     cards = [
       { ico:'🌐', name:'Booking.com', tag:'tag-cheap', tagLbl:'Cheapest',
-        desc:'Sorted by lowest price — filter by budget hotels & guesthouses',
-        url:`https://www.booking.com/searchresults.html?ss=${locQ}&checkin=${ci}&checkout=${co}&order=price&nflt=price%3D1-150` },
+        desc:`Sorted by lowest price — hotels near ${nearAnchor}`,
+        url:`https://www.booking.com/searchresults.html?ss=${nearQ}&checkin=${ci}&checkout=${co}&order=price&nflt=price%3D1-150` },
       { ico:'🏠', name:'Airbnb', tag:'tag-best', tagLbl:'Popular',
-        desc:'Entire homes & private rooms — often cheaper than hotels',
+        desc:`Entire homes & private rooms near ${nearAnchor}`,
         url:`https://www.airbnb.com/s/${airbnbCity}/homes?checkin=${ci}&checkout=${co}&price_max=120` },
       { ico:'🎒', name:'Hostelworld', tag:'tag-free', tagLbl:'Budget',
-        desc:'Hostels, dorms & budget guesthouses worldwide',
-        url:`https://www.hostelworld.com/s#q=${qs(locShort)}&from=${ci}&to=${co}` },
+        desc:`Hostels, dorms & budget guesthouses near ${nearAnchor}`,
+        url:`https://www.hostelworld.com/s#q=${nearQ}&from=${ci}&to=${co}` },
       { ico:'🏨', name:'Hotels.com', tag:'tag-cheap', tagLbl:'Deals',
-        desc:'Member discounts & free nights with Hotels.com Rewards',
-        url:`https://www.hotels.com/search.do?q-destination=${locQ}&q-check-in=${ci}&q-check-out=${co}&sort-order=PRICE` },
+        desc:`Member discounts & free nights — near ${nearAnchor}`,
+        url:`https://www.hotels.com/search.do?q-destination=${nearQ}&q-check-in=${ci}&q-check-out=${co}&sort-order=PRICE` },
     ];
   } else if(budget === 'moderate'){
     cards = [
       { ico:'🌐', name:'Booking.com', tag:'tag-best', tagLbl:'Best rated',
-        desc:'Mid-range hotels sorted by guest rating & price',
-        url:`https://www.booking.com/searchresults.html?ss=${locQ}&checkin=${ci}&checkout=${co}&order=bayesian_review_score` },
+        desc:`Mid-range hotels sorted by rating — near ${nearAnchor}`,
+        url:`https://www.booking.com/searchresults.html?ss=${nearQ}&checkin=${ci}&checkout=${co}&order=bayesian_review_score` },
       { ico:'🏠', name:'Airbnb', tag:'tag-best', tagLbl:'Popular',
-        desc:'Entire homes & apartments — great value for multi-night stays',
+        desc:`Entire homes & apartments near ${nearAnchor}`,
         url:`https://www.airbnb.com/s/${airbnbCity}/homes?checkin=${ci}&checkout=${co}` },
       { ico:'✈️', name:'Expedia', tag:'tag-cheap', tagLbl:'Bundles',
-        desc:'Bundle hotel + flight for extra savings',
-        url:`https://www.expedia.com/Hotel-Search?destination=${locQ}&startDate=${expDateCI}&endDate=${expDateCO}&sort=RECOMMENDED` },
+        desc:`Bundle hotel + flight — near ${nearAnchor}`,
+        url:`https://www.expedia.com/Hotel-Search?destination=${nearQ}&startDate=${expDateCI}&endDate=${expDateCO}&sort=RECOMMENDED` },
       { ico:'🏨', name:'Hotels.com', tag:'tag-best', tagLbl:'Rewards',
-        desc:'Earn free nights — great loyalty program for frequent travelers',
-        url:`https://www.hotels.com/search.do?q-destination=${locQ}&q-check-in=${ci}&q-check-out=${co}` },
+        desc:`Earn free nights — near ${nearAnchor}`,
+        url:`https://www.hotels.com/search.do?q-destination=${nearQ}&q-check-in=${ci}&q-check-out=${co}` },
     ];
   } else {
     cards = [
       { ico:'⭐', name:'Booking.com', tag:'tag-best', tagLbl:'5-star',
-        desc:'Luxury hotels & resorts — filter by 5 stars & top amenities',
-        url:`https://www.booking.com/searchresults.html?ss=${locQ}&checkin=${ci}&checkout=${co}&nflt=class%3D5&order=bayesian_review_score` },
+        desc:`Luxury hotels & resorts near ${nearAnchor}`,
+        url:`https://www.booking.com/searchresults.html?ss=${nearQ}&checkin=${ci}&checkout=${co}&nflt=class%3D5&order=bayesian_review_score` },
       { ico:'🏠', name:'Airbnb Luxe', tag:'tag-best', tagLbl:'Premium',
-        desc:'Luxury homes, villas & unique properties',
+        desc:`Luxury homes & villas near ${nearAnchor}`,
         url:`https://www.airbnb.com/s/${airbnbCity}/homes?checkin=${ci}&checkout=${co}&price_min=300` },
       { ico:'✈️', name:'Expedia', tag:'tag-best', tagLbl:'Premium',
-        desc:'Premium hotels with exclusive bundle deals',
-        url:`https://www.expedia.com/Hotel-Search?destination=${locQ}&startDate=${expDateCI}&endDate=${expDateCO}&sort=PRICE_DESCENDING` },
+        desc:`Premium hotels near ${nearAnchor}`,
+        url:`https://www.expedia.com/Hotel-Search?destination=${nearQ}&startDate=${expDateCI}&endDate=${expDateCO}&sort=PRICE_DESCENDING` },
       { ico:'🗺️', name:'Google Hotels', tag:'tag-free', tagLbl:'Compare',
-        desc:'Compare all platforms in one place — find the best deal',
-        url:`https://www.google.com/travel/hotels/s/${mapsLoc}?q=hotels+in+${mapsLoc}&checkin=${ci}&checkout=${co}` },
+        desc:`Compare all platforms — hotels near ${nearAnchor}`,
+        url:`https://www.google.com/travel/hotels/s/${mapsLoc}?q=hotels+near+${mapsLoc}&checkin=${ci}&checkout=${co}` },
     ];
   }
 
@@ -496,7 +507,7 @@ function buildHotelCards(loc, locShort, city, state, country, ci, co, nights, bu
 }
 
 // ── FOOD CARDS ────────────────────────────────────────────────────────────────
-function buildFoodCards(foods, city, state, locShort){
+function buildFoodCards(foods, city, state, locShort, nearAnchor){
   if(!foods.length) return '';
   const foodEmojis = {
     'Italian':'🍝','Asian':'🍜','Sushi':'🍣','Mexican':'🌮','BBQ':'🥩',
@@ -509,10 +520,10 @@ function buildFoodCards(foods, city, state, locShort){
 
   return foods.map(food => {
     const ico = foodEmojis[food] || '🍽️';
-    const locQ = qs(locShort);
-    const mapsQ = qsMaps(food + ' restaurants near ' + locShort);
-    const yelpQ = `find_desc=${qs(food+' restaurants')}&find_loc=${locQ}`;
-    const taQ   = qs(food + ' restaurants ' + locShort);
+    const nearQ = qs(nearAnchor);
+    const mapsQ = qsMaps(food + ' restaurants near ' + nearAnchor);
+    const yelpQ = `find_desc=${qs(food+' restaurants')}&find_loc=${nearQ}`;
+    const taQ   = qs(food + ' restaurants near ' + nearAnchor);
     const mapsFoodUrl  = mapsBase + mapsQ;
     const yelpFoodUrl  = yelpBase + yelpQ;
     const taFoodUrl    = taBase + taQ;
@@ -581,24 +592,24 @@ function buildEventCards(city, state, country, locShort, purpose, evtName, check
 }
 
 // ── PARKING CARDS ─────────────────────────────────────────────────────────────
-function buildParkingCards(city, state, locShort){
-  const mapsQ  = qsMaps('parking near ' + locShort);
-  const locQ   = qs(locShort);
+function buildParkingCards(city, state, locShort, nearAnchor){
+  const mapsQ  = qsMaps('parking near ' + nearAnchor);
+  const nearQ  = qs(nearAnchor);
   const cityQ  = qs(city + (state ? ', '+state : ''));
 
   const cards = [
     { ico:'🗺️', name:'Google Maps', tag:'tag-free', tagLbl:'Free',
-      desc:`Find all parking spots near ${locShort} with prices & availability`,
+      desc:`Find all parking spots near ${nearAnchor} with prices & availability`,
       url:`https://www.google.com/maps/search/${mapsQ}` },
     { ico:'🅿️', name:'SpotHero', tag:'tag-cheap', tagLbl:'Discounted',
-      desc:`Reserve parking in advance — up to 50% off drive-up rates`,
-      url:`https://spothero.com/search?q=${locQ}` },
+      desc:`Reserve parking near ${nearAnchor} — up to 50% off drive-up rates`,
+      url:`https://spothero.com/search?q=${nearQ}` },
     { ico:'🚗', name:'ParkWhiz', tag:'tag-cheap', tagLbl:'Reserve now',
-      desc:`Compare parking garages & lots — book ahead to save`,
-      url:`https://www.parkwhiz.com/search/?q=${locQ}` },
+      desc:`Compare garages & lots near ${nearAnchor} — book ahead to save`,
+      url:`https://www.parkwhiz.com/search/?q=${nearQ}` },
     { ico:'📱', name:'ParkMe', tag:'tag-free', tagLbl:'Real-time',
-      desc:`Real-time parking availability with price comparison`,
-      url:`https://en.parkme.com/lot/search?q=${cityQ}` },
+      desc:`Real-time parking availability near ${nearAnchor}`,
+      url:`https://en.parkme.com/lot/search?q=${nearQ}` },
   ];
 
   return cards.map(c => `
