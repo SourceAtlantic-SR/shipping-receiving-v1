@@ -90,6 +90,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue'
 .chip.y{background:#FFF3E0;color:#a35800}
 .chip.r{background:#FFE9E9;color:#c0392b}
 
+/* ── DELETE BUTTON ── */
+.btn-delete{background:none;border:none;cursor:pointer;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:8px;background:#FFE9E9;transition:transform .1s}
+.btn-delete:active{transform:scale(.88)}
+.btn-delete svg{width:15px;height:15px;fill:#FF3B30}
+
 /* ── TAB BAR ── */
 .tab-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--sep);display:flex;height:var(--tabh);z-index:100}
 .tab-btn{flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:9px;gap:3px;color:var(--text3);-webkit-user-select:none}
@@ -352,6 +357,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue'
 <script>
 const KEY = 'pilot_v1';
 
+const trashIcon = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 3h6l1 1h4v2H4V4h4L9 3zm-4 5h14l-1 13H6L5 8zm5 2v9h1v-9h-1zm4 0v9h1v-9h-1z"/></svg>`;
+
 function load() {
   try { const d = JSON.parse(localStorage.getItem(KEY)); if (d) return d; } catch(e){}
   return {
@@ -367,6 +374,24 @@ function load() {
 function save(d) { localStorage.setItem(KEY, JSON.stringify(d)); }
 function car() { const d = load(); return d.cars.find(c => c.id === d.activeId); }
 function dataCar() { const d = load(); return { d, c: d.cars.find(c => c.id === d.activeId) }; }
+
+function deleteFuel(id) {
+  if (!confirm('Excluir este abastecimento?')) return;
+  const { d, c } = dataCar();
+  c.fuels = c.fuels.filter(f => f.id !== id);
+  save(d);
+  renderHome();
+  renderFuels();
+}
+
+function deleteOil(id) {
+  if (!confirm('Excluir esta troca de oleo?')) return;
+  const { d, c } = dataCar();
+  c.oils = c.oils.filter(o => o.id !== id);
+  save(d);
+  renderHome();
+  renderOil();
+}
 
 function switchTab(tab, btn) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -571,9 +596,12 @@ function renderFuels() {
     return `<div class="fuel-item">
       <div class="fi-header">
         <div><div class="fi-date">${fd(f.date)}</div><div class="fi-km">${n(f.km)} km</div></div>
-        <div class="fi-price">
-          <div class="amount">R$ ${f.total.toFixed(2)}</div>
-          <div class="sub">${f.liters.toFixed(2)} L &nbsp;·&nbsp; R$${f.price.toFixed(3)}/L</div>
+        <div style="display:flex;align-items:flex-start;gap:8px">
+          <div class="fi-price">
+            <div class="amount">R$ ${f.total.toFixed(2)}</div>
+            <div class="sub">${f.liters.toFixed(2)} L &nbsp;·&nbsp; R$${f.price.toFixed(3)}/L</div>
+          </div>
+          <button class="btn-delete" onclick="deleteFuel(${f.id})" title="Excluir">${trashIcon}</button>
         </div>
       </div>
       <div class="chips">${chip1}${chip2}${chip3}</div>
@@ -637,9 +665,12 @@ function renderOil() {
           <div class="row-lbl">${fd(o.date)}${o.notes ? ' &nbsp;·&nbsp; ' + o.notes : ''}</div>
           <div class="row-val">${n(o.km)} km</div>
         </div>
-        <div class="row-right">
-          <div class="row-lbl">Proxima</div>
-          <div class="row-val" style="font-size:13px">${n(o.nextKm)} km</div>
+        <div class="row-right" style="display:flex;align-items:center;gap:8px">
+          <div>
+            <div class="row-lbl">Proxima</div>
+            <div class="row-val" style="font-size:13px">${n(o.nextKm)} km</div>
+          </div>
+          <button class="btn-delete" onclick="deleteOil(${o.id})" title="Excluir">${trashIcon}</button>
         </div>
       </div>`
     ).join('');
