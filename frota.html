@@ -139,6 +139,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue'
 .empty{text-align:center;padding:52px 24px;color:var(--text3)}
 .empty .ei{font-size:48px;margin-bottom:12px}
 .empty p{font-size:15px}
+
+/* ── ITEM ACTIONS ── */
+.item-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--sep)}
+.btn-act{background:none;border:1.5px solid var(--sep);border-radius:9px;padding:6px 12px;font-size:13px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;font-weight:600;transition:background .15s}
+.btn-act.edit{border-color:#bfdbfe;color:var(--blue)}
+.btn-act.edit:active{background:#E3F0FF}
+.btn-act.del{border-color:#fecaca;color:var(--red)}
+.btn-act.del:active{background:#FFE9E9}
+.oil-row-actions{display:flex;gap:6px;flex-shrink:0}
+.btn-ico{background:none;border:1.5px solid var(--sep);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center}
+.btn-ico.edit{border-color:#bfdbfe}
+.btn-ico.del{border-color:#fecaca}
 </style>
 </head>
 <body>
@@ -382,9 +394,15 @@ function switchTab(tab, btn) {
 
 // ─── MODALS ─────────────────────────────────────────
 function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  if (id === 'modal-fuel') _resetFuelModal && _resetFuelModal();
+  if (id === 'modal-oil')  _resetOilModal  && _resetOilModal();
+}
 
 function openAddFuel() {
+  _editingFuelId = null;
+  _resetFuelModal && _resetFuelModal();
   const c = car();
   document.getElementById('f-date').value = today();
   document.getElementById('f-km').value = '';
@@ -401,6 +419,8 @@ function openAddFuel() {
 }
 
 function openAddOil() {
+  _editingOilId = null;
+  _resetOilModal && _resetOilModal();
   const c = car();
   document.getElementById('o-date').value = today();
   document.getElementById('o-km').value = '';
@@ -430,6 +450,12 @@ function pf(id) { return parseFloat(document.getElementById(id).value) || 0; }
 function set(id, v) { if (!document.getElementById(id).value) document.getElementById(id).value = v; }
 
 // ─── SAVE FUEL ──────────────────────────────────────
+function _resetFuelModal() {
+  document.querySelector('#modal-fuel .modal-title').textContent = '⛽ Abastecer';
+  document.querySelector('#modal-fuel .btn-main').textContent    = 'Salvar Abastecimento';
+  _editingFuelId = null;
+}
+
 function saveFuel(e) {
   e.preventDefault();
   const { d, c } = dataCar();
@@ -441,6 +467,21 @@ function saveFuel(e) {
 
   if (!date || !km || !liters || !total) return alert('Preencha Data, Km, Litros e Valor Total.');
 
+  if (_editingFuelId) {
+    // Edit existing record
+    const idx = c.fuels.findIndex(f => f.id === _editingFuelId);
+    if (idx >= 0) {
+      c.fuels[idx] = { ...c.fuels[idx], date, km, liters, total, price };
+      recalcFuels(c);
+    }
+    save(d);
+    closeModal('modal-fuel');
+    _resetFuelModal();
+    renderHome(); renderFuels();
+    return;
+  }
+
+  // New record
   if (c.fuels.length) {
     const lastKm = c.fuels[c.fuels.length - 1].km;
     if (km <= lastKm) return alert('Km deve ser maior que o ultimo registro (' + n(lastKm) + ' km).');
@@ -464,6 +505,7 @@ function saveFuel(e) {
   c.fuels.push(rec);
   save(d);
   closeModal('modal-fuel');
+  _resetFuelModal();
   renderHome();
   renderFuels();
 
@@ -471,6 +513,12 @@ function saveFuel(e) {
 }
 
 // ─── SAVE OIL ───────────────────────────────────────
+function _resetOilModal() {
+  document.querySelector('#modal-oil .modal-title').textContent = '🔧 Registrar Troca de Oleo';
+  document.querySelector('#modal-oil .btn-main').textContent    = 'Salvar Troca de Oleo';
+  _editingOilId = null;
+}
+
 function saveOil(e) {
   e.preventDefault();
   const { d, c } = dataCar();
@@ -480,9 +528,22 @@ function saveOil(e) {
 
   if (!date || !km) return alert('Preencha Data e Km.');
 
+  if (_editingOilId) {
+    const idx = c.oils.findIndex(o => o.id === _editingOilId);
+    if (idx >= 0) {
+      c.oils[idx] = { ...c.oils[idx], date, km, notes, nextKm: km + c.oilKm };
+    }
+    save(d);
+    closeModal('modal-oil');
+    _resetOilModal();
+    renderHome(); renderOil();
+    return;
+  }
+
   c.oils.push({ id: Date.now(), date, km, notes, nextKm: km + c.oilKm });
   save(d);
   closeModal('modal-oil');
+  _resetOilModal();
   renderHome();
   renderOil();
 }
@@ -608,6 +669,10 @@ function renderFuels() {
         </div>
       </div>
       <div class="chips">${chip1}${chip2}${chip3}</div>
+      <div class="item-actions">
+        <button class="btn-act edit" onclick="editFuel(${f.id})">✏️ Editar</button>
+        <button class="btn-act del"  onclick="deleteFuel(${f.id})">🗑️ Excluir</button>
+      </div>
     </div>`;
   }).join('');
 }
@@ -674,9 +739,15 @@ function renderOil() {
           <div class="row-lbl">${fd(o.date)}${o.notes ? ' &nbsp;·&nbsp; ' + o.notes : ''}</div>
           <div class="row-val">${n(o.km)} km</div>
         </div>
-        <div class="row-right">
-          <div class="row-lbl">Proxima</div>
-          <div class="row-val" style="font-size:13px">${n(o.nextKm)} km</div>
+        <div class="row-right" style="display:flex;align-items:center;gap:8px">
+          <div style="text-align:right">
+            <div class="row-lbl">Proxima</div>
+            <div class="row-val" style="font-size:13px">${n(o.nextKm)} km</div>
+          </div>
+          <div class="oil-row-actions">
+            <button class="btn-ico edit" onclick="editOil(${o.id})" title="Editar">✏️</button>
+            <button class="btn-ico del"  onclick="deleteOil(${o.id})" title="Excluir">🗑️</button>
+          </div>
         </div>
       </div>`
     ).join('');
@@ -684,6 +755,75 @@ function renderOil() {
     oh.innerHTML = `<div class="card-row"><div class="row-icon ico-orange">🔧</div>
       <div class="row-body"><div class="row-lbl">Sem registros</div><div class="row-val">Adicione a ultima troca</div></div></div>`;
   }
+}
+
+// ─── RECALC ─────────────────────────────────────────
+function recalcFuels(c) {
+  c.fuels.sort((a, b) => a.km - b.km);
+  for (let i = 0; i < c.fuels.length; i++) {
+    const f = c.fuels[i];
+    if (i === 0) {
+      delete f.driven; delete f.kpl; delete f.l100; delete f.cpkm;
+    } else {
+      const prev = c.fuels[i-1];
+      const driven = f.km - prev.km;
+      if (driven > 0) {
+        f.driven = driven;
+        f.kpl    = +(driven / f.liters).toFixed(2);
+        f.l100   = +(f.liters / driven * 100).toFixed(2);
+        f.cpkm   = +(f.total / driven).toFixed(4);
+      }
+    }
+  }
+}
+
+// ─── EDIT / DELETE FUEL ─────────────────────────────
+var _editingFuelId = null;
+
+function editFuel(id) {
+  const c = car();
+  const f = c.fuels.find(x => x.id === id);
+  if (!f) return;
+  _editingFuelId = id;
+  document.getElementById('f-date').value   = f.date;
+  document.getElementById('f-km').value     = f.km;
+  document.getElementById('f-liters').value = f.liters;
+  document.getElementById('f-total').value  = f.total.toFixed(2);
+  document.getElementById('f-price').value  = f.price.toFixed(3);
+  document.querySelector('#modal-fuel .modal-title').textContent   = '✏️ Editar Abastecimento';
+  document.querySelector('#modal-fuel .btn-main').textContent      = 'Salvar Alteracoes';
+  openModal('modal-fuel');
+}
+
+function deleteFuel(id) {
+  if (!confirm('Excluir este abastecimento?')) return;
+  const { d, c } = dataCar();
+  c.fuels = c.fuels.filter(f => f.id !== id);
+  recalcFuels(c);
+  save(d); renderHome(); renderFuels();
+}
+
+// ─── EDIT / DELETE OIL ──────────────────────────────
+var _editingOilId = null;
+
+function editOil(id) {
+  const c = car();
+  const o = c.oils.find(x => x.id === id);
+  if (!o) return;
+  _editingOilId = id;
+  document.getElementById('o-date').value  = o.date;
+  document.getElementById('o-km').value    = o.km;
+  document.getElementById('o-notes').value = o.notes || '';
+  document.querySelector('#modal-oil .modal-title').textContent = '✏️ Editar Troca de Oleo';
+  document.querySelector('#modal-oil .btn-main').textContent    = 'Salvar Alteracoes';
+  openModal('modal-oil');
+}
+
+function deleteOil(id) {
+  if (!confirm('Excluir este registro de troca de oleo?')) return;
+  const { d, c } = dataCar();
+  c.oils = c.oils.filter(o => o.id !== id);
+  save(d); renderHome(); renderOil();
 }
 
 // ─── HELPERS ────────────────────────────────────────
