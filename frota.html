@@ -209,7 +209,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue'
       <div class="stat-card">
         <div class="stat-lbl">Total Gasto</div>
         <div class="stat-val" id="s-spent">—</div>
-        <div class="stat-unit">reais</div>
+        <div class="stat-unit">CAD$</div>
       </div>
       <div class="stat-card">
         <div class="stat-lbl">Registros</div>
@@ -307,11 +307,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue'
           <input class="form-inp" type="number" id="f-liters" placeholder="Ex: 42.5" min="0.01" step="0.01" oninput="calc('liters')" required>
         </div>
         <div class="form-row">
-          <label class="form-lbl">Valor Total (R$)</label>
+          <label class="form-lbl">Valor Total (CAD$)</label>
           <input class="form-inp" type="number" id="f-total" placeholder="Ex: 280.00" min="0.01" step="0.01" oninput="calc('total')" required>
         </div>
         <div class="form-row">
-          <label class="form-lbl">Preco/Litro (R$)</label>
+          <label class="form-lbl">Preco/Litro (CAD$)</label>
           <input class="form-inp" type="number" id="f-price" placeholder="Auto" min="0.01" step="0.001" oninput="calc('price')">
         </div>
       </div>
@@ -573,12 +573,12 @@ function showResult(r) {
        </div>
        <div class="result-item">
          <div class="ri-lbl">Gasto Total</div>
-         <div class="ri-val">R$${r.total.toFixed(2)}</div>
-         <div class="ri-unit">reais</div>
+         <div class="ri-val">CAD$${r.total.toFixed(2)}</div>
+         <div class="ri-unit">CAD$</div>
        </div>
        <div class="result-item">
          <div class="ri-lbl">Custo por Km</div>
-         <div class="ri-val">R$${r.cpkm.toFixed(2)}</div>
+         <div class="ri-val">CAD$${r.cpkm.toFixed(2)}</div>
          <div class="ri-unit">por km</div>
        </div>
      </div>`;
@@ -598,7 +598,7 @@ function renderHome() {
   const lf = document.getElementById('card-last-fuel');
   if (c.fuels.length) {
     const f = c.fuels[c.fuels.length - 1];
-    const cons = f.kpl ? `${f.kpl} km/L &nbsp;·&nbsp; R$${f.total.toFixed(2)}` : `R$${f.total.toFixed(2)} &nbsp;·&nbsp; ${f.liters.toFixed(1)} L`;
+    const cons = f.kpl ? `${f.kpl} km/L &nbsp;·&nbsp; CAD$${f.total.toFixed(2)}` : `CAD$${f.total.toFixed(2)} &nbsp;·&nbsp; ${f.liters.toFixed(1)} L`;
     lf.innerHTML = `<div class="card-row">
       <div class="row-icon ico-blue">⛽</div>
       <div class="row-body"><div class="row-lbl">${fd(f.date)}</div><div class="row-val">${cons}</div></div>
@@ -637,7 +637,7 @@ function renderHome() {
     const avg = wk.length ? (wk.reduce((s, f) => s + f.kpl, 0) / wk.length).toFixed(1) : '—';
     document.getElementById('s-avg').textContent    = avg;
     document.getElementById('s-liters').textContent = tL.toFixed(0);
-    document.getElementById('s-spent').textContent  = 'R$' + tR.toFixed(0);
+    document.getElementById('s-spent').textContent  = 'CAD$' + tR.toFixed(0);
     document.getElementById('s-count').textContent  = c.fuels.length;
   } else {
     ['s-avg','s-liters','s-spent'].forEach(id => document.getElementById(id).textContent = '—');
@@ -659,13 +659,13 @@ function renderFuels() {
       ? `<span class="chip ${cc}">${f.kpl} km/L &nbsp;|&nbsp; ${f.l100} L/100km</span>`
       : `<span class="chip">1o abastecimento</span>`;
     const chip2 = f.driven ? `<span class="chip">↑ ${n(f.driven)} km percorridos</span>` : '';
-    const chip3 = f.cpkm ? `<span class="chip">R$${f.cpkm.toFixed(2)}/km</span>` : '';
+    const chip3 = f.cpkm ? `<span class="chip">CAD$${f.cpkm.toFixed(2)}/km</span>` : '';
     return `<div class="fuel-item">
       <div class="fi-header">
         <div><div class="fi-date">${fd(f.date)}</div><div class="fi-km">${n(f.km)} km</div></div>
         <div class="fi-price">
-          <div class="amount">R$ ${f.total.toFixed(2)}</div>
-          <div class="sub">${f.liters.toFixed(2)} L &nbsp;·&nbsp; R$${f.price.toFixed(3)}/L</div>
+          <div class="amount">CAD$ ${f.total.toFixed(2)}</div>
+          <div class="sub">${f.liters.toFixed(2)} L &nbsp;·&nbsp; CAD$${f.price.toFixed(3)}/L</div>
         </div>
       </div>
       <div class="chips">${chip1}${chip2}${chip3}</div>
